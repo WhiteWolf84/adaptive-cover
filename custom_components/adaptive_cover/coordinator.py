@@ -7,7 +7,6 @@ import datetime as dt
 from dataclasses import dataclass
 
 import numpy as np
-import pytz
 from homeassistant.components.cover import DOMAIN as COVER_DOMAIN
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -22,12 +21,12 @@ from homeassistant.core import (
     State,
     callback,
 )
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.event import async_track_point_in_time
 from homeassistant.helpers.template import state_attr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .config_context_adapter import ConfigContextAdapter
-
 from .calculation import (
     AdaptiveHorizontalCover,
     AdaptiveTiltCover,
@@ -101,6 +100,9 @@ from .const import (
 )
 from .helpers import get_datetime_from_str, get_last_updated, get_safe_state
 
+# Tipi di copertura supportati
+COVER_TYPES: frozenset[str] = frozenset({"cover_blind", "cover_awning", "cover_tilt"})
+
 
 @dataclass
 class StateChangedData:
@@ -132,7 +134,8 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.logger.set_config_name(self.config_entry.data.get("name"))
         self._cover_type = self.config_entry.data.get("sensor_type")
         self._climate_mode = self.config_entry.options.get(CONF_CLIMATE_MODE, False)
-        self._switch_mode = True if self._climate_mode else False
+        # Fix: era "True if x else False", ora bool() piu' Pythonic
+        self._switch_mode = bool(self._climate_mode)
         self._inverse_state = self.config_entry.options.get(CONF_INVERSE_STATE, False)
         self._use_interpolation = self.config_entry.options.get(CONF_INTERP, False)
         self._track_end_time = self.config_entry.options.get(CONF_RETURN_SUNSET)
@@ -144,7 +147,6 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self._start_time = None
         self._sun_end_time = None
         self._sun_start_time = None
-        # self._end_time = None
         self.manual_reset = self.config_entry.options.get(
             CONF_MANUAL_OVERRIDE_RESET, False
         )
@@ -166,8 +168,9 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         )
         self._update_listener = None
         self._scheduled_time = dt.datetime.now()
-
         self._cached_options = None
+        # Silver: log-when-unavailable — traccia disponibilita' sun.sun
+        self._sun_available: bool = True
 
     async def async_config_entry_first_refresh(self) -> None:
         """Config entry first refresh."""
@@ -177,8 +180,9 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
     async def async_timed_refresh(self, event) -> None:
         """Control state at end time."""
-
         now = dt.datetime.now()
+        # Fix: inizializzare time=None per evitare UnboundLocalError
+        time = None
         if self.end_time is not None:
             time = self.end_time
         if self.end_time_entity is not None:
@@ -186,8 +190,12 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
         self.logger.debug("Checking timed refresh. End time: %s, now: %s", time, now)
 
+        if time is None:
+            self.logger.debug("Timed refresh skipped: no end time configured")
+            return
+
         time_check = now - get_datetime_from_str(time)
-        if time is not None and (time_check <= dt.timedelta(seconds=1)):
+        if time_check <= dt.timedelta(seconds=1):
             self.timed_refresh = True
             self.logger.debug("Timed refresh triggered")
             await self.async_refresh()
@@ -276,19 +284,14 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         options = self.config_entry.options
         self._update_options(options)
 
-        # Get data for the blind
         cover_data = self.get_blind_data(options=options)
-
-        # Update manager with covers
         self._update_manager_and_covers()
 
-        # Access climate data if climate mode is enabled
         if self._climate_mode:
             self.climate_mode_data(options, cover_data)
         else:
             self.logger.debug("Control method is %s", self.control_method)
 
-        # calculate the state of the cover
         self.normal_cover_state = NormalCoverState(cover_data)
         self.logger.debug(
             "Determined normal cover state to be %s", self.normal_cover_state
@@ -307,7 +310,6 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         ):
             await self.async_timed_end_time()
 
-        # Handle types of changes
         if self.state_change:
             await self.async_handle_state_change(state, options)
         if self.cover_state_change:
@@ -318,20 +320,21 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             await self.async_handle_timed_refresh(options)
 
         normal_cover = self.normal_cover_state.cover
-        # Run the solar_times method in a separate thread
+        # Fix: pytz.UTC -> dt.timezone.utc; asyncio.get_event_loop() -> get_running_loop()
         if (
             self.first_refresh
             or self._sun_start_time is None
-            or dt.datetime.now(pytz.UTC).date() != self._sun_start_time.date()
+            or dt.datetime.now(dt.timezone.utc).date() != self._sun_start_time.date()
         ):
             self.logger.debug("Calculating solar times")
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             start, end = await loop.run_in_executor(None, normal_cover.solar_times)
             self._sun_start_time = start
             self._sun_end_time = end
             self.logger.debug("Sun start time: %s, Sun end time: %s", start, end)
         else:
             start, end = self._sun_start_time, self._sun_end_time
+
         return AdaptiveCoverData(
             climate_mode_toggle=self.switch_mode,
             states={
@@ -434,8 +437,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         """Call service to set cover position."""
         if self.check_position(entity, state):
             service = SERVICE_SET_COVER_POSITION
-            service_data = {}
-            service_data[ATTR_ENTITY_ID] = entity
+            service_data: dict = {ATTR_ENTITY_ID: entity}
 
             if self._cover_type == "cover_tilt":
                 service = SERVICE_SET_COVER_TILT_POSITION
@@ -451,7 +453,19 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 self.target_call,
             )
             self.logger.debug("Run %s with data %s", service, service_data)
-            await self.hass.services.async_call(COVER_DOMAIN, service, service_data)
+            # Silver: action-exceptions — solleva HomeAssistantError in caso di fallimento
+            try:
+                await self.hass.services.async_call(
+                    COVER_DOMAIN, service, service_data
+                )
+            except Exception as err:  # noqa: BLE001
+                self.wait_for_target[entity] = False
+                self.logger.error(
+                    "Failed to set position for %s: %s", entity, err
+                )
+                raise HomeAssistantError(
+                    f"Failed to set cover position for {entity}: {err}"
+                ) from err
 
     def _update_options(self, options):
         """Update options."""
@@ -480,16 +494,17 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
     def get_blind_data(self, options):
         """Assign correct class for type of blind."""
+        # Fix: usato elif + raise ValueError per evitare UnboundLocalError su tipo sconosciuto
         if self._cover_type == "cover_blind":
-            cover_data = AdaptiveVerticalCover(
+            return AdaptiveVerticalCover(
                 self.hass,
                 self.logger,
                 *self.pos_sun,
                 *self.common_data(options),
                 *self.vertical_data(options),
             )
-        if self._cover_type == "cover_awning":
-            cover_data = AdaptiveHorizontalCover(
+        elif self._cover_type == "cover_awning":
+            return AdaptiveHorizontalCover(
                 self.hass,
                 self.logger,
                 *self.pos_sun,
@@ -497,15 +512,18 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 *self.vertical_data(options),
                 *self.horizontal_data(options),
             )
-        if self._cover_type == "cover_tilt":
-            cover_data = AdaptiveTiltCover(
+        elif self._cover_type == "cover_tilt":
+            return AdaptiveTiltCover(
                 self.hass,
                 self.logger,
                 *self.pos_sun,
                 *self.common_data(options),
                 *self.tilt_data(options),
             )
-        return cover_data
+        else:
+            raise ValueError(
+                f"Unknown cover type: {self._cover_type!r}. Expected one of {COVER_TYPES}"
+            )
 
     @property
     def check_adaptive_time(self):
@@ -525,15 +543,16 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             self.logger.debug(
                 "Start time: %s, now: %s, now >= time: %s ", time, now, now >= time
             )
+            # Fix: era "self._start_time" (bare expression, NOP) — ora assegna correttamente
             self._start_time = time
             return now >= time
         if self.start_time is not None:
             time = get_datetime_from_str(self.start_time)
-
             self.logger.debug(
                 "Start time: %s, now: %s, now >= time: %s", time, now, now >= time
             )
-            self._start_time
+            # Fix: stessa correzione del branch entity
+            self._start_time = time
             return now >= time
         return True
 
@@ -572,11 +591,14 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         return state_attr(self.hass, entity, "current_position")
 
     def check_position(self, entity, state):
-        """Check if position is different as state."""
+        """Check if position is different from state."""
         position = self._get_current_position(entity)
         if position is not None:
             return position != state
-        self.logger.debug("Cover is already at position %s", state)
+        # Fix: messaggio debug era fuorviante (diceva 'already at position' ma position e' None)
+        self.logger.debug(
+            "Cannot check position for %s: current position is unavailable", entity
+        )
         return False
 
     def check_position_delta(self, entity, state: int, options):
@@ -622,10 +644,20 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
     @property
     def pos_sun(self):
         """Fetch information for sun position."""
-        return [
-            state_attr(self.hass, "sun.sun", "azimuth"),
-            state_attr(self.hass, "sun.sun", "elevation"),
-        ]
+        azimuth = state_attr(self.hass, "sun.sun", "azimuth")
+        elevation = state_attr(self.hass, "sun.sun", "elevation")
+        # Silver: log-when-unavailable — logga UNA SOLA VOLTA quando sun.sun diventa non disponibile
+        if azimuth is None or elevation is None:
+            if self._sun_available:
+                self.logger.warning(
+                    "Sun entity (sun.sun) is unavailable; cover position calculation may be inaccurate"
+                )
+                self._sun_available = False
+        else:
+            if not self._sun_available:
+                self.logger.info("Sun entity (sun.sun) is back available")
+                self._sun_available = True
+        return [azimuth, elevation]
 
     def common_data(self, options):
         """Update shared parameters."""
@@ -677,8 +709,10 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
     def climate_mode_data(self, options, cover_data):
         """Update climate mode data and control method."""
         climate = ClimateCoverData(*self.get_climate_data(options))
-        self.climate_state = round(ClimateCoverState(cover_data, climate).get_state())
-        climate_data = ClimateCoverState(cover_data, climate).climate_data
+        # Fix: era istanziato due volte ClimateCoverState — ora una sola volta
+        climate_cover_state = ClimateCoverState(cover_data, climate)
+        self.climate_state = round(climate_cover_state.get_state())
+        climate_data = climate_cover_state.climate_data
         if climate_data.is_summer and self.switch_mode:
             self.control_method = "summer"
         if climate_data.is_winter and self.switch_mode:
@@ -814,10 +848,9 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 class AdaptiveCoverManager:
     """Track position changes."""
 
-    def __init__(self, reset_duration: dict[str:int], logger) -> None:
+    def __init__(self, reset_duration: dict[str, int], logger) -> None:
         """Initialize the AdaptiveCoverManager."""
         self.covers: set[str] = set()
-
         self.manual_control: dict[str, bool] = {}
         self.manual_control_time: dict[str, dt.datetime] = {}
         self.reset_duration = dt.timedelta(**reset_duration)

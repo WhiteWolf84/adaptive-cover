@@ -21,23 +21,10 @@ from .const import (
 from .coordinator import AdaptiveDataUpdateCoordinator
 
 PLATFORMS = [Platform.SENSOR, Platform.SWITCH, Platform.BINARY_SENSOR, Platform.BUTTON]
-CONF_SUN = ["sun.sun"]
-
-
-async def async_initialize_integration(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry | None = None,
-) -> bool:
-    """Initialize the integration."""
-
-    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Adaptive Cover from a config entry."""
-
-    hass.data.setdefault(DOMAIN, {})
-
     coordinator = AdaptiveDataUpdateCoordinator(hass)
     _temp_entity = entry.options.get(CONF_TEMP_ENTITY)
     _presence_entity = entry.options.get(CONF_PRESENCE_ENTITY)
@@ -68,7 +55,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     await coordinator.async_config_entry_first_refresh()
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Silver: usa entry.runtime_data invece di hass.data[DOMAIN] (Bronze: runtime-data rule)
+    entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -78,10 +67,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
-        hass.data[DOMAIN].pop(entry.entry_id)
+    # Silver: config-entry-unloading rule
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
-    return unload_ok
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate old config entry to new version."""
+    _LOGGER.debug(
+        "Migrating Adaptive Cover config entry from version %s", entry.version
+    )
+    # Future schema migrations go here with entry.version checks
+    return True
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:

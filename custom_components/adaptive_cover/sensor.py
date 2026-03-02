@@ -24,6 +24,9 @@ from .const import (
 )
 from .coordinator import AdaptiveDataUpdateCoordinator
 
+# Silver: parallel-updates — 0 = illimitato per integrazioni push/coordinator-driven
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -31,11 +34,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Initialize Adaptive Cover config entry."""
-
     name = config_entry.data["name"]
-    coordinator: AdaptiveDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    # Bronze: runtime-data — usa entry.runtime_data invece di hass.data[DOMAIN]
+    coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
 
     sensor = AdaptiveCoverSensorEntity(
         config_entry.entry_id, hass, config_entry, name, coordinator
@@ -114,6 +115,11 @@ class AdaptiveCoverSensorEntity(
         return f"{self._sensor_name} {self._name}"
 
     @property
+    def available(self) -> bool:
+        """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
+        return self.coordinator.last_update_success and self.data is not None
+
+    @property
     def native_value(self) -> str | None:
         """Handle when entity is added."""
         return self.data.states["state"]
@@ -184,6 +190,11 @@ class AdaptiveCoverTimeSensorEntity(
         return f"{self._sensor_name} {self._name}"
 
     @property
+    def available(self) -> bool:
+        """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
+        return self.coordinator.last_update_success and self.data is not None
+
+    @property
     def native_value(self) -> str | None:
         """Handle when entity is added."""
         return self.data.states[self.key]
@@ -244,6 +255,11 @@ class AdaptiveCoverControlSensorEntity(
     def name(self):
         """Name of the entity."""
         return f"{self._sensor_name} {self._name}"
+
+    @property
+    def available(self) -> bool:
+        """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
+        return self.coordinator.last_update_success and self.data is not None
 
     @property
     def native_value(self) -> str | None:
