@@ -15,6 +15,6 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/basbruss/adaptive-cover/issues",
   "quality_scale": "silver",
-  "requirements": ["astral>=3.2", "numpy>=1.23.0"],
+  "requirements": ["astral==2.2", "numpy"],
   "version": "0.3.0"
 }
