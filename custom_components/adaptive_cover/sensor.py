@@ -21,6 +21,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     CONF_SENSOR_TYPE,
     DOMAIN,
+    _LOGGER,
 )
 from .coordinator import AdaptiveDataUpdateCoordinator
 
@@ -37,6 +38,8 @@ async def async_setup_entry(
     name = config_entry.data["name"]
     # Bronze: runtime-data — usa entry.runtime_data invece di hass.data[DOMAIN]
     coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
+
+    _LOGGER.info("Setting up Adaptive Cover sensors for %s", name)
 
     sensor = AdaptiveCoverSensorEntity(
         config_entry.entry_id, hass, config_entry, name, coordinator
@@ -107,6 +110,11 @@ class AdaptiveCoverSensorEntity(
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self.data = self.coordinator.data
+        _LOGGER.debug(
+            "AdaptiveCoverSensorEntity %s updated from coordinator. New state: %s",
+            self.name,
+            self.data.states.get("state"),
+        )
         self.async_write_ha_state()
 
     @property
@@ -117,7 +125,10 @@ class AdaptiveCoverSensorEntity(
     @property
     def available(self) -> bool:
         """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
-        return self.coordinator.last_update_success and self.data is not None
+        is_available = self.coordinator.last_update_success and self.data is not None
+        if not is_available:
+            _LOGGER.warning("AdaptiveCoverSensorEntity %s is unavailable", self.name)
+        return is_available
 
     @property
     def native_value(self) -> str | None:

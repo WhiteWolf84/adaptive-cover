@@ -15,7 +15,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_SENSOR_TYPE, DOMAIN
+from .const import CONF_SENSOR_TYPE, DOMAIN, _LOGGER
 from .coordinator import AdaptiveDataUpdateCoordinator
 
 
@@ -25,9 +25,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Adaptive Cover binary sensor platform."""
-    coordinator: AdaptiveDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
+
+    _LOGGER.info("Setting up Adaptive Cover binary sensors for %s", config_entry.data.get("name"))
 
     binary_sensor = AdaptiveCoverBinarySensor(
         config_entry,

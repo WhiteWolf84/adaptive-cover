@@ -1,0 +1,485 @@
+{
+    "title": "Adaptive Cover",
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Nome",
+                    "blueprint": "Aggiungi blueprint ad HomeAssistant",
+                    "mode": "Tipo di tenda"
+                }
+            },
+            "automation": {
+                "data": {
+                    "delta_position": "Adattamento posizione minimo",
+                    "delta_time": "Intervallo minimo tra cambi di posizione",
+                    "start_time": "Orario di inizio",
+                    "start_entity": "Entità indicante l'orario di inizio",
+                    "manual_override_duration": "Durata override manuale",
+                    "manual_override_reset": "Resetta la durata dell'override manuale",
+                    "end_time": "Orario di fine",
+                    "end_entity": "Entità indicante l'orario di fine",
+                    "manual_threshold": "Soglia override manuale",
+                    "manual_ignore_intermediate": "Ignora stati intermedi durante override manuale (apertura e chiusura)",
+                    "return_sunset": "Regola sempre alla posizione predefinita del tramonto all'orario di fine. Utile se l'orario di fine è precedente al tramonto reale"
+                },
+                "data_description": {
+                    "delta_position": "Variazione minima della posizione richiesta prima di adeguare la posizione della tenda/tapparella",
+                    "delta_time": "Intervallo di tempo minimo tra cambi di posizione; il minimo è 2 minuti",
+                    "start_time": "Orario di inizio per ogni giorno; prima di questo orario, la tenda rimarrà ferma",
+                    "start_entity": "Entità che rappresenta lo stato dell'orario di inizio, sovrascrivendo l'orario di inizio fisso impostato sopra. Utile per automatizzare l'orario di inizio con un'entità",
+                    "manual_override_duration": "La durata del controllo manuale prima di resettarsi e tornare al controllo automatico",
+                    "manual_override_reset": "Opzione per reimpostare la durata dell'override manuale dopo ogni regolazione manuale; se disabilitato, la durata si applica solo alla prima regolazione manuale",
+                    "end_time": "Orario di fine per ogni giorno; dopo questo orario, la tenda rimarrà ferma",
+                    "end_entity": "Entità che rappresenta lo stato dell'orario di fine, sovrascrivendo l'orario di fine fisso impostato sopra. Utile per automatizzare l'orario di fine con un'entità"
+                }
+            },
+            "vertical": {
+                "data": {
+                    "set_azimuth": "Azimut della finestra",
+                    "window_height": "Altezza della finestra",
+                    "distance_shaded_area": "Zona di abbagliamento",
+                    "default_percentage": "Posizione Predefinita",
+                    "min_position": "Posizione Minima",
+                    "max_position": "Posizione Massima",
+                    "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
+                    "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+                    "fov_left": "Campo visivo sinistro",
+                    "fov_right": "Campo visivo destro",
+                    "group": "Entità Coperture",
+                    "inverse_state": "Inverti lo stato (necessario per alcune tende che non seguono le linee guida HA)",
+                    "sunset_position": "Posizione al Tramonto",
+                    "sunset_offset": "Offset Tramonto",
+                    "sunrise_offset": "Offset Alba",
+                    "climate_mode": "Modalità Clima",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "min_elevation": "Elevazione Elettromagnetica minima del sole",
+                    "max_elevation": "Elevazione Massima del sole",
+                    "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
+                },
+                "data_description": {
+                    "set_azimuth": "Regola l'Azimut",
+                    "window_height": "Specifica l'altezza della finestra in metri",
+                    "distance_shaded_area": "Gli oggetti entro questa distanza dalla copertura ricevono luce solare diretta. Distanza misurata orizzontalmente dal fondo della tenda quando completamente estesa.",
+                    "default_percentage": "Posizione predefinita in percentuale",
+                    "min_position": "Posizione minima regolabile in percentuale",
+                    "max_position": "Posizione massima regolabile in percentuale",
+                    "fov_left": "Angolo di campo visivo a sinistra rispetto al centro della finestra",
+                    "fov_right": "Angolo di campo visivo a destra rispetto al centro della finestra",
+                    "group": "Seleziona le entità da controllare tramite l'integrazione",
+                    "sunset_position": "Posizione a cui passare dopo il tramonto",
+                    "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
+                    "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
+                    "climate_mode": "Configura le variabili per la Modalità Clima"
+                },
+                "description": "Aggiungi logiche e configurazioni al sensore",
+                "title": "Tenda verticale / Tapparella (Vertical cover)"
+            },
+            "climate": {
+                "data": {
+                    "temp_entity": "Entità Temperatura interna",
+                    "presence_entity": "Entità Presenza (opzionale)",
+                    "weather_entity": "Entità Meteo (opzionale)",
+                    "outside_temp": "Sensore Temperatura esterna (opzionale)",
+                    "temp_low": "Soglia Temperatura bassa",
+                    "temp_high": "Soglia Temperatura alta",
+                    "transparent_blind": "Tenda trasparente",
+                    "lux_entity": "Sensore di Luminosità - Lux (opzionale)",
+                    "lux_threshold": "Soglia Luminosità (Lux)",
+                    "irradiance_entity": "Sensore Irraggiamento (opzionale)",
+                    "irradiance_threshold": "Soglia Irraggiamento",
+                    "outside_threshold": "Temperatura esterna minima per la Modalità Estiva"
+                },
+                "data_description": {
+                    "presence_entity": "Entità che rappresenta lo stato di presenza in casa o nella stanza",
+                    "weather_entity": "Monitora le condizioni meteo e la temperatura esterna",
+                    "outside_temp": "Sostituisce la temperatura esterna dall'entità meteo se entrambe sono impostate",
+                    "temp_low": "Temperatura confortevole minima",
+                    "temp_high": "Temperatura confortevole massima",
+                    "transparent_blind": "La tenda è trasparente e dovrebbe chiudersi completamente quando la modalità estiva è attiva",
+                    "lux_entity": "Usa il sensore di luminosità per determinare se la tenda dovrebbe ridurre l'abbagliamento nella modalità presenza",
+                    "lux_threshold": "Soglia per il sensore di luminosità, oltre questo valore l'abbagliamento dovrebbe essere ridotto",
+                    "irradiance_entity": "Usa sensore irraggiamento per determinare se la tenda dovrebbe ridurre l'abbagliamento in modalità presenza",
+                    "irradiance_threshold": "Soglia per il sensore di irraggiamento, oltre questo valore l'abbagliamento dovrebbe essere ridotto"
+                },
+                "description": "Aggiungi configurazioni climatiche aggiuntive.",
+                "title": "Impostazioni Clima"
+            },
+            "weather": {
+                "data": {
+                    "weather_state": "Condizioni Meteo"
+                },
+                "data_description": {
+                    "weather_state": "Scegli le condizioni meteo che indicano la possibilità di luce solare diretta."
+                },
+                "title": "Condizioni Meteo"
+            },
+            "horizontal": {
+                "data": {
+                    "set_azimuth": "Azimut della finestra",
+                    "length_awning": "Lunghezza della Tenda da Sole",
+                    "window_height": "Altezza della Tenda da Sole",
+                    "angle": "Estensione Tenda da Sole",
+                    "distance_shaded_area": "Zona di abbagliamento",
+                    "default_percentage": "Posizione Predefinita",
+                    "min_position": "Posizione Minima",
+                    "max_position": "Posizione Massima",
+                    "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
+                    "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+                    "fov_left": "Campo visivo sinistro",
+                    "fov_right": "Campo visivo destro",
+                    "group": "Entità Coperture",
+                    "inverse_state": "Inverti lo stato (necessario per alcune tende che non seguono le linee guida HA)",
+                    "sunset_position": "Posizione al Tramonto",
+                    "sunset_offset": "Offset Tramonto",
+                    "sunrise_offset": "Offset Alba",
+                    "climate_mode": "Modalità Clima",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "min_elevation": "Elevazione minima del sole",
+                    "max_elevation": "Elevazione massima del sole",
+                    "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
+                },
+                "data_description": {
+                    "set_azimuth": "Specifica l'Azimut",
+                    "window_height": "Regola l'altezza della Tenda da Sole rispetto al livello della zona di lavoro",
+                    "length_awning": "Lunghezza totale in metri",
+                    "angle": "Angolo della Tenda misurato perpendicolarmente dal muro al suolo",
+                    "distance_shaded_area": "Gli oggetti entro questa distanza ricevono luce solare diretta",
+                    "default_percentage": "Posizione predefinita in percentuale",
+                    "min_position": "Posizione minima in percentuale",
+                    "max_position": "Posizione massima in percentuale",
+                    "fov_left": "Angolo di campo visivo in gradi a sinistra rispetto al centro della finestra",
+                    "fov_right": "Angolo di campo visivo in gradi a destra rispetto al centro della finestra",
+                    "group": "Seleziona le entità da controllare tramite l'integrazione",
+                    "sunset_position": "Posizione a cui passare dopo il tramonto",
+                    "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
+                    "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
+                    "climate_mode": "Configura le variabili per la Modalità Clima"
+                },
+                "description": "Aggiungi configurazioni alla tenda da sole.",
+                "title": "Tenda Orizzontale (Horizontal cover)"
+            },
+            "tilt": {
+                "data": {
+                    "set_azimuth": "Azimut della finestra",
+                    "slat_depth": "Profondità singola lamella",
+                    "slat_distance": "Distanza tra le lamelle",
+                    "default_percentage": "Posizione Predefinita",
+                    "min_position": "Posizione Minima",
+                    "max_position": "Posizione Massima",
+                    "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
+                    "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+                    "fov_left": "Campo visivo sinistro",
+                    "fov_right": "Campo visivo destro",
+                    "group": "Entità Coperture",
+                    "inverse_state": "Inverti lo stato (necessario per alcune tende che non seguono le linee guida HA)",
+                    "sunset_position": "Posizione al Tramonto",
+                    "sunset_offset": "Offset Tramonto",
+                    "sunrise_offset": "Offset Alba",
+                    "climate_mode": "Modalità Clima",
+                    "tilt_mode": "Tipo di movimento",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "min_elevation": "Elevazione Minima del sole",
+                    "max_elevation": "Elevazione Massima del sole",
+                    "interp": "Imposta posizioni di apertura/chiusura personalizzate per la veneziana, se non opera interamente a 0-100%"
+                },
+                "data_description": {
+                    "set_azimuth": "Specifica l'Azimut",
+                    "slat_depth": "Profondità di ogni singola lamella in centrimetri",
+                    "slat_distance": "Distanza verticale tra due lamelle in centimetri",
+                    "default_percentage": "Posizione predefinita in percentuale",
+                    "min_position": "Posizione minima in percentuale",
+                    "max_position": "Posizione massima regolabile in percentuale",
+                    "fov_left": "Gradi per considerare dal lato sinistro al centro della finestra",
+                    "fov_right": "Gradi per considerare dal lato destro al centro della finestra",
+                    "group": "Seleziona entità da controllare tramite l'integrazione",
+                    "sunset_position": "Posizione a cui transitare dopo il tramonto",
+                    "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
+                    "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
+                    "climate_mode": "Configurazione variabili per la Modalità Clima",
+                    "tilt_mode": "Scegli il tipo di movimento"
+                },
+                "description": "Aggiungi variabili alla tapparella veneziana orientabile.",
+                "title": "Veneziana (Tilted cover)"
+            },
+            "blind_spot": {
+                "data": {
+                    "blind_spot_left": "Inizio Punto Cieco Sinistra",
+                    "blind_spot_right": "Fine Punto Cieco Destra",
+                    "blind_spot_elevation": "Elevazione Punto Cieco"
+                },
+                "data_description": {
+                    "blind_spot_left": "Bordo sinistro del punto cieco",
+                    "blind_spot_right": "Bordo destro del punto cieco",
+                    "blind_spot_elevation": "Ogni valore uguale o minore è considerato all'interno del punto cieco. Utile se il sole può splendere oltre l'oggetto nel punto cieco"
+                },
+                "title": "Punto Cieco",
+                "description": "Imposta il punto cieco per la copertura. Questi valori sono gradi relativi rispetto alla larghezza del campo visivo. Dove 0 è la posizione più a sinistra catturata dal campo visivo di sinistra."
+            },
+            "interp": {
+                "data": {
+                    "interp_start": "Valore di inizio apertura",
+                    "interp_end": "Valore di inizio chiusura",
+                    "interp_list": "Lista interpolazione",
+                    "interp_list_new": "Lista interpolazione personalizzata"
+                },
+                "data_description": {
+                    "interp_list": "Lista di valori di interpolazione, dove 0 è completamente chiusa e 100 è completamente aperta",
+                    "interp_list_new": "Intervallo personalizzato di interpolazione, in cui l'inizio dovrebbe rappresentare chiusa ed la fine aperta"
+                },
+                "title": "Aggiustamento Intervalli",
+                "description": "Regola i valori a cui la tua tenda si apre o si chiude efficacemente. Ideale per tende che non si aprono pienamente a 0% o si chiudono a 100%. \n I primi due indicatori formano l'aggiustamento a 2 punti, la lista di opzioni formano l'aggiustamento a punti multipli."
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "menu_options": {
+                    "automation": "Modifica Configurazione Automazioni",
+                    "blind": "Modifica Impostazioni Tenda",
+                    "climate": "Modifica Configurazione Clima",
+                    "weather": "Modifica Configurazione Meteo",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "interp": "Aggiustamento Intervallo"
+                }
+            },
+            "automation": {
+                "data": {
+                    "delta_position": "Adattamento posizione minimo",
+                    "delta_time": "Intervallo minimo tra cambi di posizione",
+                    "start_time": "Orario di inizio",
+                    "start_entity": "Entità indicante l'orario di inizio",
+                    "manual_override_duration": "Durata override manuale",
+                    "manual_override_reset": "Resetta la durata dell'override manuale",
+                    "end_time": "Orario di fine",
+                    "end_entity": "Entità indicante l'orario di fine",
+                    "manual_threshold": "Soglia override manuale",
+                    "manual_ignore_intermediate": "Ignora stati intermedi durante override manuale (apertura e chiusura)",
+                    "return_sunset": "Regola sempre alla posizione predefinita del tramonto all'orario di fine. Utile se l'orario di fine è precedente al tramonto reale"
+                },
+                "data_description": {
+                    "delta_position": "Variazione minima della posizione richiesta prima di adeguare la posizione della tenda/tapparella",
+                    "delta_time": "Intervallo di tempo minimo tra cambi di posizione; il minimo è 2 minuti",
+                    "start_time": "Orario di inizio per ogni giorno; prima di questo orario, la tenda rimarrà ferma",
+                    "start_entity": "Entità che rappresenta lo stato dell'orario di inizio, sovrascrivendo l'orario di inizio fisso impostato sopra. Utile per automatizzare l'orario di inizio con un'entità",
+                    "manual_override_duration": "La durata del controllo manuale prima di resettarsi e tornare al controllo automatico",
+                    "manual_override_reset": "Opzione per reimpostare la durata dell'override manuale dopo ogni regolazione manuale; se disabilitato, la durata si applica solo alla prima regolazione manuale",
+                    "end_time": "Orario di fine per ogni giorno; dopo questo orario, la tenda rimarrà ferma",
+                    "end_entity": "Garantisce in maniera consistende l'adattamento alla posizione del tramonto al momento dell'orario di termine. Molto utile se l'orario di termine precede l'effettivo tramonto."
+                }
+            },
+            "vertical": {
+                "data": {
+                    "set_azimuth": "Azimut della finestra",
+                    "window_height": "Altezza della finestra",
+                    "distance_shaded_area": "Zona di abbagliamento",
+                    "default_percentage": "Posizione Predefinita",
+                    "min_position": "Posizione Minima",
+                    "max_position": "Posizione Massima",
+                    "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
+                    "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+                    "fov_left": "Campo visivo sinistro",
+                    "fov_right": "Campo visivo destro",
+                    "group": "Entità Coperture",
+                    "inverse_state": "Inverti lo stato (necessario per alcune tende che non seguono le linee guida HA)",
+                    "sunset_position": "Posizione al Tramonto",
+                    "sunset_offset": "Offset Tramonto",
+                    "sunrise_offset": "Offset Alba",
+                    "climate_mode": "Modalità Clima",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "min_elevation": "Elevazione Elettromagnetica minima del sole",
+                    "max_elevation": "Elevazione Massima del sole",
+                    "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
+                },
+                "data_description": {
+                    "set_azimuth": "Regola l'Azimut",
+                    "window_height": "Specifica l'altezza della finestra in metri",
+                    "distance_shaded_area": "Gli oggetti entro questa distanza dalla copertura ricevono luce solare diretta. Distanza misurata orizzontalmente dal fondo della tenda quando completamente estesa.",
+                    "default_percentage": "Posizione predefinita in percentuale",
+                    "min_position": "Posizione minima regolabile in percentuale",
+                    "max_position": "Posizione massima regolabile in percentuale",
+                    "fov_left": "Angolo di campo visivo a sinistra rispetto al centro della finestra",
+                    "fov_right": "Angolo di campo visivo a destra rispetto al centro della finestra",
+                    "group": "Seleziona le entità da controllare tramite l'integrazione",
+                    "sunset_position": "Posizione a cui passare dopo il tramonto",
+                    "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
+                    "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
+                    "climate_mode": "Configura le variabili per la Modalità Clima"
+                },
+                "description": "Aggiungi logiche e configurazioni al sensore",
+                "title": "Tenda verticale / Tapparella (Vertical cover)"
+            },
+            "climate": {
+                "data": {
+                    "temp_entity": "Entità Temperatura interna",
+                    "presence_entity": "Entità Presenza (opzionale)",
+                    "weather_entity": "Entità Meteo (opzionale)",
+                    "outside_temp": "Sensore Temperatura esterna (opzionale)",
+                    "temp_low": "Soglia Temperatura bassa",
+                    "temp_high": "Soglia Temperatura alta",
+                    "transparent_blind": "Tenda trasparente",
+                    "lux_entity": "Sensore di Luminosità - Lux (opzionale)",
+                    "lux_threshold": "Soglia Luminosità (Lux)",
+                    "irradiance_entity": "Sensore Irraggiamento (opzionale)",
+                    "irradiance_threshold": "Soglia Irraggiamento",
+                    "outside_threshold": "Temperatura esterna minima per la Modalità Estiva"
+                },
+                "data_description": {
+                    "presence_entity": "Entità che rappresenta lo stato di presenza in casa o nella stanza",
+                    "weather_entity": "Monitora le condizioni meteo e la temperatura esterna",
+                    "outside_temp": "Sostituisce la temperatura esterna dall'entità meteo se entrambe sono impostate",
+                    "temp_low": "Temperatura confortevole minima",
+                    "temp_high": "Temperatura confortevole massima",
+                    "transparent_blind": "La tenda è trasparente e dovrebbe chiudersi completamente quando la modalità estiva è attiva",
+                    "lux_entity": "Usa il sensore di luminosità per determinare se la tenda dovrebbe ridurre l'abbagliamento nella modalità presenza",
+                    "lux_threshold": "Soglia per il sensore di luminosità, oltre questo valore l'abbagliamento dovrebbe essere ridotto",
+                    "irradiance_entity": "Usa sensore irraggiamento per determinare se la tenda dovrebbe ridurre l'abbagliamento in modalità presenza",
+                    "irradiance_threshold": "Soglia per il sensore di irraggiamento, oltre questo valore l'abbagliamento dovrebbe essere ridotto"
+                },
+                "description": "Aggiungi configurazioni climatiche aggiuntive.",
+                "title": "Impostazioni Clima"
+            },
+            "weather": {
+                "data": {
+                    "weather_state": "Condizioni Meteo"
+                },
+                "data_description": {
+                    "weather_state": "Scegli le condizioni meteo che indicano la possibilità di luce solare diretta."
+                },
+                "title": "Condizioni Meteo"
+            },
+            "horizontal": {
+                "data": {
+                    "set_azimuth": "Azimut della finestra",
+                    "length_awning": "Lunghezza della Tenda da Sole",
+                    "window_height": "Altezza della Tenda da Sole",
+                    "angle": "Estensione Tenda da Sole",
+                    "distance_shaded_area": "Zona di abbagliamento",
+                    "default_percentage": "Posizione Predefinita",
+                    "min_position": "Posizione Minima",
+                    "max_position": "Posizione Massima",
+                    "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
+                    "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+                    "fov_left": "Campo visivo sinistro",
+                    "fov_right": "Campo visivo destro",
+                    "group": "Entità Coperture",
+                    "inverse_state": "Inverti lo stato (necessario per alcune tende che non seguono le linee guida HA)",
+                    "sunset_position": "Posizione al Tramonto",
+                    "sunset_offset": "Offset Tramonto",
+                    "sunrise_offset": "Offset Alba",
+                    "climate_mode": "Modalità Clima",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "min_elevation": "Elevazione minima del sole",
+                    "max_elevation": "Elevazione massima del sole",
+                    "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
+                },
+                "data_description": {
+                    "set_azimuth": "Specifica l'Azimut",
+                    "window_height": "Regola l'altezza della Tenda da Sole rispetto al livello della zona di lavoro",
+                    "length_awning": "Lunghezza totale in metri",
+                    "angle": "Angolo della Tenda misurato perpendicolarmente dal muro al suolo",
+                    "distance_shaded_area": "Gli oggetti entro questa distanza ricevono luce solare diretta",
+                    "default_percentage": "Posizione predefinita in percentuale",
+                    "min_position": "Posizione minima in percentuale",
+                    "max_position": "Posizione massima in percentuale",
+                    "fov_left": "Angolo di campo visivo in gradi a sinistra rispetto al centro della finestra",
+                    "fov_right": "Angolo di campo visivo in gradi a destra rispetto al centro della finestra",
+                    "group": "Seleziona le entità da controllare tramite l'integrazione",
+                    "sunset_position": "Posizione a cui passare dopo il tramonto",
+                    "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
+                    "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
+                    "climate_mode": "Configura le variabili per la Modalità Clima"
+                },
+                "description": "Aggiungi configurazioni alla tenda da sole.",
+                "title": "Tenda Orizzontale (Horizontal cover)"
+            },
+            "tilt": {
+                "data": {
+                    "set_azimuth": "Azimut della finestra",
+                    "slat_depth": "Profondità singola lamella",
+                    "slat_distance": "Distanza tra le lamelle",
+                    "default_percentage": "Posizione Predefinita",
+                    "min_position": "Posizione Minima",
+                    "max_position": "Posizione Massima",
+                    "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
+                    "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+                    "fov_left": "Campo visivo sinistro",
+                    "fov_right": "Campo visivo destro",
+                    "group": "Entità Coperture",
+                    "inverse_state": "Inverti lo stato (necessario per alcune tende che non seguono le linee guida HA)",
+                    "sunset_position": "Posizione al Tramonto",
+                    "sunset_offset": "Offset Tramonto",
+                    "sunrise_offset": "Offset Alba",
+                    "climate_mode": "Modalità Clima",
+                    "tilt_mode": "Tipo di movimento",
+                    "blind_spot": "Imposta Punto Cieco",
+                    "min_elevation": "Elevazione Minima del sole",
+                    "max_elevation": "Elevazione Massima del sole",
+                    "interp": "Imposta posizioni di apertura/chiusura personalizzate per la veneziana, se non opera interamente a 0-100%"
+                },
+                "data_description": {
+                    "set_azimuth": "Specifica l'Azimut",
+                    "slat_depth": "Profondità di ogni singola lamella in centrimetri",
+                    "slat_distance": "Distanza verticale tra due lamelle in centimetri",
+                    "default_percentage": "Posizione predefinita in percentuale",
+                    "min_position": "Posizione minima in percentuale",
+                    "max_position": "Posizione massima regolabile in percentuale",
+                    "fov_left": "Gradi per considerare dal lato sinistro al centro della finestra",
+                    "fov_right": "Gradi per considerare dal lato destro al centro della finestra",
+                    "group": "Seleziona entità da controllare tramite l'integrazione",
+                    "sunset_position": "Posizione a cui transitare dopo il tramonto",
+                    "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
+                    "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
+                    "climate_mode": "Configurazione variabili per la Modalità Clima",
+                    "tilt_mode": "Scegli il tipo di movimento"
+                },
+                "description": "Aggiungi variabili alla tapparella veneziana orientabile.",
+                "title": "Veneziana (Tilted cover)"
+            },
+            "blind_spot": {
+                "data": {
+                    "blind_spot_left": "Inizio Punto Cieco Sinistra",
+                    "blind_spot_right": "Fine Punto Cieco Destra",
+                    "blind_spot_elevation": "Elevazione Punto Cieco"
+                },
+                "data_description": {
+                    "blind_spot_left": "Bordo sinistro del punto cieco",
+                    "blind_spot_right": "Bordo destro del punto cieco",
+                    "blind_spot_elevation": "Ogni valore uguale o minore è considerato all'interno del punto cieco. Utile se il sole può splendere oltre l'oggetto nel punto cieco"
+                },
+                "title": "Punto Cieco",
+                "description": "Imposta il punto cieco per la copertura. Questi valori sono gradi relativi rispetto alla larghezza del campo visivo. Dove 0 è la posizione più a sinistra catturata dal campo visivo di sinistra."
+            },
+            "interp": {
+                "data": {
+                    "interp_start": "Valore di inizio apertura",
+                    "interp_end": "Valore di inizio chiusura",
+                    "interp_list": "Lista interpolazione",
+                    "interp_list_new": "Lista interpolazione personalizzata"
+                },
+                "data_description": {
+                    "interp_list": "Lista di valori di interpolazione, dove 0 è completamente chiusa e 100 è completamente aperta",
+                    "interp_list_new": "Intervallo personalizzato di interpolazione, in cui l'inizio dovrebbe rappresentare chiusa ed la fine aperta"
+                },
+                "title": "Aggiustamento Intervalli",
+                "description": "Regola i valori a cui la tua tenda si apre o si chiude efficacemente. Ideale per tende che non si aprono pienamente a 0% o si chiudono a 100%. \n I primi due indicatori formano l'aggiustamento a 2 punti, la lista di opzioni formano l'aggiustamento a punti multipli."
+            }
+        }
+    },
+    "selector": {
+        "mode": {
+            "options": {
+                "cover_blind": "Tenda verticale / Tapparella",
+                "cover_awning": "Tenda orizzontale / Tenda da sole",
+                "cover_tilt": "Veneziana orientabile"
+            }
+        },
+        "tilt_mode": {
+            "options": {
+                "mode1": "Direzione singola (0% = chiusa / 100% = aperta)",
+                "mode2": "Bi-direzionale (0% = chiusa / 50% = aperta / 100% = chiusa)"
+            }
+        }
+    }
+}

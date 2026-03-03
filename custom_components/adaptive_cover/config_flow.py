@@ -75,6 +75,7 @@ from .const import (
     CONF_WEATHER_STATE,
     DOMAIN,
     SensorType,
+    _LOGGER,
 )
 
 SENSOR_TYPE_MENU = [SensorType.BLIND, SensorType.AWNING, SensorType.TILT]
@@ -108,19 +109,27 @@ OPTIONS = vol.Schema(
                 min=0, max=100, step=1, mode="slider", unit_of_measurement="%"
             )
         ),
-        vol.Optional(CONF_MAX_POSITION): vol.All(
-            vol.Coerce(int), vol.Range(min=1, max=100)
+        vol.Optional(CONF_MAX_POSITION): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=1, max=100, step=1, mode="slider", unit_of_measurement="%"
+            )
         ),
         vol.Optional(CONF_ENABLE_MAX_POSITION, default=False): selector.BooleanSelector(),
-        vol.Optional(CONF_MIN_POSITION): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=99)
+        vol.Optional(CONF_MIN_POSITION): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=99, step=1, mode="slider", unit_of_measurement="%"
+            )
         ),
         vol.Optional(CONF_ENABLE_MIN_POSITION, default=False): selector.BooleanSelector(),
-        vol.Optional(CONF_MIN_ELEVATION): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=90)
+        vol.Optional(CONF_MIN_ELEVATION): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=90, step=1, mode="slider", unit_of_measurement="°"
+            )
         ),
-        vol.Optional(CONF_MAX_ELEVATION): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=90)
+        vol.Optional(CONF_MAX_ELEVATION): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=90, step=1, mode="slider", unit_of_measurement="°"
+            )
         ),
         vol.Required(CONF_FOV_LEFT, default=90): selector.NumberSelector(
             selector.NumberSelectorConfig(
@@ -236,8 +245,10 @@ CLIMATE_OPTIONS = vol.Schema(
         vol.Optional(CONF_OUTSIDETEMP_ENTITY): selector.EntitySelector(
             selector.EntityFilterSelectorConfig(domain=["sensor"])
         ),
-        vol.Optional(CONF_OUTSIDE_THRESHOLD, default=0): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=100)
+        vol.Optional(CONF_OUTSIDE_THRESHOLD, default=0): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=100, step=1, mode="slider", unit_of_measurement="°"
+            )
         ),
         vol.Optional(CONF_PRESENCE_ENTITY): selector.EntitySelector(
             selector.EntityFilterSelectorConfig(
@@ -318,8 +329,10 @@ AUTOMATION_CONFIG = vol.Schema(
             CONF_MANUAL_OVERRIDE_DURATION, default={"minutes": 15}
         ): selector.DurationSelector(),
         vol.Required(CONF_MANUAL_OVERRIDE_RESET, default=False): selector.BooleanSelector(),
-        vol.Optional(CONF_MANUAL_THRESHOLD): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=99)
+        vol.Optional(CONF_MANUAL_THRESHOLD): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=99, step=1, mode="slider", unit_of_measurement="%"
+            )
         ),
         vol.Optional(CONF_MANUAL_IGNORE_INTERMEDIATE, default=False): selector.BooleanSelector(),
         vol.Optional(CONF_END_TIME, default="00:00:00"): selector.TimeSelector(),
@@ -332,11 +345,15 @@ AUTOMATION_CONFIG = vol.Schema(
 
 INTERPOLATION_OPTIONS = vol.Schema(
     {
-        vol.Optional(CONF_INTERP_START): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=100)
+        vol.Optional(CONF_INTERP_START): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=100, step=1, mode="slider", unit_of_measurement="%"
+            )
         ),
-        vol.Optional(CONF_INTERP_END): vol.All(
-            vol.Coerce(int), vol.Range(min=0, max=100)
+        vol.Optional(CONF_INTERP_END): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=100, step=1, mode="slider", unit_of_measurement="%"
+            )
         ),
         vol.Optional(CONF_INTERP_LIST, default=[]): selector.SelectSelector(
             selector.SelectSelectorConfig(
@@ -380,6 +397,7 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle the initial step."""
+        _LOGGER.debug("Starting user setup step with input: %s", user_input)
         if user_input:
             self.config = user_input
             if self.config[CONF_MODE] == SensorType.BLIND:
@@ -401,6 +419,11 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
                 and user_input.get(CONF_MIN_ELEVATION) is not None
             ):
                 if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
+                    _LOGGER.warning(
+                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+                        user_input[CONF_MAX_ELEVATION],
+                        user_input[CONF_MIN_ELEVATION],
+                    )
                     return self.async_show_form(
                         step_id="vertical",
                         data_schema=CLIMATE_MODE.extend(VERTICAL_OPTIONS.schema),
@@ -428,6 +451,11 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
                 and user_input.get(CONF_MIN_ELEVATION) is not None
             ):
                 if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
+                    _LOGGER.warning(
+                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+                        user_input[CONF_MAX_ELEVATION],
+                        user_input[CONF_MIN_ELEVATION],
+                    )
                     return self.async_show_form(
                         step_id="horizontal",
                         data_schema=CLIMATE_MODE.extend(HORIZONTAL_OPTIONS.schema),
@@ -455,6 +483,11 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
                 and user_input.get(CONF_MIN_ELEVATION) is not None
             ):
                 if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
+                    _LOGGER.warning(
+                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+                        user_input[CONF_MAX_ELEVATION],
+                        user_input[CONF_MIN_ELEVATION],
+                    )
                     return self.async_show_form(
                         step_id="tilt",
                         data_schema=CLIMATE_MODE.extend(TILT_OPTIONS.schema),
@@ -560,6 +593,14 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
             "cover_awning": "Horizontal",
             "cover_tilt": "Tilt",
         }
+        
+        _LOGGER.info(
+            "Creating Adaptive Cover configuration entry for %s (%s)",
+            self.config["name"],
+            cover_type_labels[self.type_blind],
+        )
+        _LOGGER.debug("Configuration data initialized: %s", self.config)
+        
         return self.async_create_entry(
             title=f"{cover_type_labels[self.type_blind]} {self.config['name']}",
             data={
@@ -640,6 +681,7 @@ class OptionsFlowHandler(OptionsFlow):
         Instance state (options, sensor_type) is initialised here because
         async_step_init is always the entry-point of every options flow run.
         """
+        _LOGGER.debug("Initializing options flow for %s", self.config_entry.title)
         self.options: dict[str, Any] = dict(self.config_entry.options)
         self.sensor_type: SensorType = (
             self.config_entry.data.get(CONF_SENSOR_TYPE) or SensorType.BLIND
@@ -696,6 +738,11 @@ class OptionsFlowHandler(OptionsFlow):
                 and user_input.get(CONF_MIN_ELEVATION) is not None
             ):
                 if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
+                    _LOGGER.warning(
+                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+                        user_input[CONF_MAX_ELEVATION],
+                        user_input[CONF_MIN_ELEVATION],
+                    )
                     return self.async_show_form(
                         step_id="vertical",
                         data_schema=CLIMATE_MODE.extend(VERTICAL_OPTIONS.schema),
@@ -730,6 +777,11 @@ class OptionsFlowHandler(OptionsFlow):
                 and user_input.get(CONF_MIN_ELEVATION) is not None
             ):
                 if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
+                    _LOGGER.warning(
+                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+                        user_input[CONF_MAX_ELEVATION],
+                        user_input[CONF_MIN_ELEVATION],
+                    )
                     return self.async_show_form(
                         step_id="horizontal",
                         data_schema=CLIMATE_MODE.extend(HORIZONTAL_OPTIONS.schema),
@@ -760,6 +812,11 @@ class OptionsFlowHandler(OptionsFlow):
                 and user_input.get(CONF_MIN_ELEVATION) is not None
             ):
                 if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
+                    _LOGGER.warning(
+                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+                        user_input[CONF_MAX_ELEVATION],
+                        user_input[CONF_MIN_ELEVATION],
+                    )
                     return self.async_show_form(
                         step_id="tilt",
                         data_schema=CLIMATE_MODE.extend(TILT_OPTIONS.schema),

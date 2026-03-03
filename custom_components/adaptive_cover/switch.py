@@ -22,6 +22,7 @@ from .const import (
     CONF_SENSOR_TYPE,
     CONF_WEATHER_ENTITY,
     DOMAIN,
+    _LOGGER,
 )
 from .coordinator import AdaptiveDataUpdateCoordinator
 
@@ -32,9 +33,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the demo switch platform."""
-    coordinator: AdaptiveDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
+
+    _LOGGER.info("Setting up Adaptive Cover switches for %s", config_entry.data.get("name"))
 
     manual_switch = AdaptiveCoverSwitch(
         config_entry,
@@ -156,6 +157,7 @@ class AdaptiveCoverSwitch(
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
+        _LOGGER.debug("Turning on switch: %s", self.name)
         self.coordinator.logger.debug("Turning on")
         self._attr_is_on = True
         setattr(self.coordinator, self._key, True)
@@ -173,6 +175,7 @@ class AdaptiveCoverSwitch(
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
+        _LOGGER.debug("Turning off switch: %s", self.name)
         self.coordinator.logger.debug("Turning off")
         self._attr_is_on = False
         setattr(self.coordinator, self._key, False)

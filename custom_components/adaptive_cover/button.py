@@ -21,9 +21,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the button platform."""
-    coordinator: AdaptiveDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
+    
+    _LOGGER.info("Setting up Adaptive Cover buttons for %s", config_entry.data.get("name"))
 
     reset_manual = AdaptiveCoverButton(
         config_entry, config_entry.entry_id, "Reset Manual Override", coordinator
@@ -79,6 +79,7 @@ class AdaptiveCoverButton(
 
     async def async_press(self) -> None:
         """Handle the button press."""
+        _LOGGER.info("Button %s pressed. Resetting manual overrides.", self.name)
         for entity in self._entities:
             if self.coordinator.manager.is_cover_manual(entity):
                 _LOGGER.debug("Resetting manual override for: %s", entity)

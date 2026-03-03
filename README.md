@@ -74,8 +74,16 @@ Restart Home-Assistant and add the integration.
 
 ## Setup
 
-Adaptive Cover supports (for now) three types of covers/blinds; `Vertical` and `Horizontal` and `Venetian (Tilted)` blinds.
-Each type has its own specific parameters to setup a sensor. To setup the sensor you first need to find out the azimuth of the window(s). This can be done by finding your location on [Open Street Map Compass](https://osmcompass.com/).
+Adaptive Cover supports (for now) three types of covers/blinds; `Vertical`, `Horizontal` and `Venetian (Tilted)` blinds.
+Each type has its own specific parameters to setup a sensor. To setup the sensor you first need to find out the **azimuth** of your window(s). 
+
+### Finding the Window Azimuth
+The simplest and most accurate way to find the azimuth of your window is using [SunCalc.org](https://www.suncalc.org/):
+1. Go to [suncalc.org](https://www.suncalc.org/) and search for your address.
+2. Zoom in on your house as much as possible.
+3. Observe the orange line (sun trajectory). Look at the "Time" slider at the top.
+4. Move the slider until the line forms an exact 90-degree angle (perpendicular) to your window. 
+5. Look at the data box on the top left. The **Azimuth** value shown for that specific time is the value you need to input in the configuration.
 
 ## Cover Types
 
@@ -173,8 +181,8 @@ This mode is split up in two types of strategies; [Presence](https://github.com/
 | Variables                     | Default | Range | Description                                                                                              |
 | ----------------------------- | ------- | ----- | -------------------------------------------------------------------------------------------------------- |
 | Entities                      | []      |       | Denotes entities controllable by the integration                                                         |
-| Window Azimuth                | 180     | 0-359 | The compass direction of the window, discoverable via [Open Street Map Compass](https://osmcompass.com/) |
-| Default Position              | 60      | 0-100 | Initial position of the cover in the absence of sunlight glare detection                                 |
+| Window Azimuth                | 180     | 0-359 | The compass direction the window is facing perpendicularly (use [suncalc.org](https://www.suncalc.org/) to find it easily) |
+| Default Position              | 60      | 0-100 | Initial position of the cover when no glare or direct sunlight is detected                               |
 | Minimal Position              | 100     | 0-99  | Minimal opening position for the cover, suitable for partially closing certain cover types               |
 | Maximum Position              | 100     | 1-100 | Maximum opening position for the cover, suitable for partially opening certain cover types               |
 | Field of view Left            | 90      | 1-90  | Unobstructed viewing angle from window center to the left, in degrees                                    |
@@ -206,9 +214,9 @@ This mode is split up in two types of strategies; [Presence](https://github.com/
 
 | Variables     | Default        | Range  | Description                                                |
 | ------------- | -------------- | ------ | ---------------------------------------------------------- |
-| Slat Depth    | 3              | 0.1-15 | Width of each slat                                         |
-| Slat Distance | 2              | 0.1-15 | Vertical distance between two slats in horizontal position |
-| Tilt Mode     | Bi-directional |        |                                                            |
+| Slat Depth    | 3              | 0.1-15 | Width of each slat (`slat_depth` in cm)                                         |
+| Slat Distance | 2              | 0.1-15 | Vertical distance between two slats in horizontal position (`slat_distance` in cm) |
+| Tilt Mode     | mode2 |        | `mode1`: single direction (0% = closed / 100% = open) <br> `mode2`: bi-directional (0% = closed / 50% = open / 100% = closed) |
 
 ### Automation
 
