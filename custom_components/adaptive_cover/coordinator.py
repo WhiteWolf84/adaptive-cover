@@ -529,7 +529,16 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
     def check_adaptive_time(self):
         """Check if time is within start and end times."""
         if self._start_time and self._end_time and self._start_time > self._end_time:
-            self.logger.error("Start time is after end time")
+            if not getattr(self, "_start_after_end_logged", False):
+                self.logger.warning(
+                    "Start time (%s) is after end time (%s); "
+                    "adaptive control is disabled until this is corrected",
+                    self._start_time,
+                    self._end_time,
+                )
+                self._start_after_end_logged = True
+            return False
+        self._start_after_end_logged = False
         return self.before_end_time and self.after_start_time
 
     @property
