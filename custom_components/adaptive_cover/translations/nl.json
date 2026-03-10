@@ -19,7 +19,7 @@
           "manual_override_reset": "Reset handmatige overschrijvingsduur",
           "end_time": "Eindtijd",
           "end_entity": "Entiteit die eindtijd aangeeft",
-          "manual_threshold": "Minimale handmatige overschrijfdrempel",
+          "manual_threshold": "Drempel handmatige bediening",
           "manual_ignore_intermediate": "Negeer tussenliggende statussen",
           "return_sunset": "Zorg ervoor dat de positie altijd wordt aangepast naar de standaard zonsonderganginstelling tegen het eindtijdstip. Dit is vooral handig wanneer het eindtijdstip voor de daadwerkelijke zonsondergang valt."
         },
@@ -31,7 +31,8 @@
           "manual_override_duration": "De duur van handmatige bediening voordat wordt teruggekeerd naar automatische bediening",
           "manual_override_reset": "Optie om de duur van handmatige overschrijving na elke handmatige aanpassing te resetten; als dit is uitgeschakeld, geldt de duur alleen voor de eerste handmatige aanpassing",
           "end_time": "Eindtijd voor elke dag; na deze tijd blijft de bekleding stationair",
-          "end_entity": "Entiteit die de status van de eindtijd vertegenwoordigt, die de hierboven ingestelde statische eindtijd overschrijft. Handig voor het automatiseren van de eindtijd met een entiteit"
+          "end_entity": "Entiteit die de status van de eindtijd vertegenwoordigt, die de hierboven ingestelde statische eindtijd overschrijft. Handig voor het automatiseren van de eindtijd met een entiteit",
+          "manual_threshold": "Bewegingen die kleiner zijn dan dit percentage triggeren GEEN handmatige modus. Handig om kleine mechanische afwijkingen of meetfouten door de motor te negeren."
         }
       },
       "vertical": {
@@ -248,7 +249,7 @@
           "end_entity": "Entiteit die eindtijd aangeeft",
           "manual_override_duration": "Duur van handmatige overschrijving",
           "manual_override_reset": "Reset handmatige overschrijvingsduur",
-          "manual_threshold": "Minimale handmatige overschrijfdrempel",
+          "manual_threshold": "Drempel handmatige bediening",
           "manual_ignore_intermediate": "Negeer tussenliggende statussen",
           "return_sunset": "Zorg ervoor dat de positie altijd wordt aangepast naar de standaard zonsonderganginstelling tegen het eindtijdstip. Dit is vooral handig wanneer het eindtijdstip voor de daadwerkelijke zonsondergang valt."
         },
@@ -261,7 +262,8 @@
           "manual_override_reset": "Optie om de duur van handmatige overschrijving na elke handmatige aanpassing te resetten; als dit is uitgeschakeld, geldt de duur alleen voor de eerste handmatige aanpassing",
           "return_sunset": "Zorg ervoor dat de positie altijd wordt aangepast naar de standaard zonsonderganginstelling tegen het eindtijdstip. Dit is vooral handig wanneer het eindtijdstip voor de daadwerkelijke zonsondergang valt.",
           "end_time": "Eindtijd voor elke dag; na deze tijd blijft de bekleding stationair",
-          "end_entity": "Entiteit die de status van de eindtijd vertegenwoordigt, die de hierboven ingestelde statische eindtijd overschrijft. Handig voor het automatiseren van de eindtijd met een entiteit"
+          "end_entity": "Entiteit die de status van de eindtijd vertegenwoordigt, die de hierboven ingestelde statische eindtijd overschrijft. Handig voor het automatiseren van de eindtijd met een entiteit",
+          "manual_threshold": "Bewegingen die kleiner zijn dan dit percentage triggeren GEEN handmatige modus. Handig om kleine mechanische afwijkingen of meetfouten door de motor te negeren."
         }
       },
       "vertical": {

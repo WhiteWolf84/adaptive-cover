@@ -31,7 +31,8 @@
           "manual_override_duration": "La durata del controllo manuale prima di resettarsi e tornare al controllo automatico",
           "manual_override_reset": "Opzione per reimpostare la durata dell'override manuale dopo ogni regolazione manuale; se disabilitato, la durata si applica solo alla prima regolazione manuale",
           "end_time": "Orario di fine per ogni giorno; dopo questo orario, la tenda rimarrà ferma",
-          "end_entity": "Entità che rappresenta lo stato dell'orario di fine, sovrascrivendo l'orario di fine fisso impostato sopra. Utile per automatizzare l'orario di fine con un'entità"
+          "end_entity": "Entità che rappresenta lo stato dell'orario di fine, sovrascrivendo l'orario di fine fisso impostato sopra. Utile per automatizzare l'orario di fine con un'entità",
+          "manual_threshold": "Movimenti più piccoli di questa percentuale NON attiveranno il blocco manuale. Utile per filtrare minimi assestamenti meccanici o errori di misurazione del motore."
         }
       },
       "vertical": {
@@ -266,7 +267,8 @@
           "manual_override_duration": "La durata del controllo manuale prima di resettarsi e tornare al controllo automatico",
           "manual_override_reset": "Opzione per reimpostare la durata dell'override manuale dopo ogni regolazione manuale; se disabilitato, la durata si applica solo alla prima regolazione manuale",
           "end_time": "Orario di fine per ogni giorno; dopo questo orario, la tenda rimarrà ferma",
-          "end_entity": "Garantisce in maniera consistende l'adattamento alla posizione del tramonto al momento dell'orario di termine. Molto utile se l'orario di termine precede l'effettivo tramonto."
+          "end_entity": "Garantisce in maniera consistende l'adattamento alla posizione del tramonto al momento dell'orario di termine. Molto utile se l'orario di termine precede l'effettivo tramonto.",
+          "manual_threshold": "Movimenti più piccoli di questa percentuale NON attiveranno il blocco manuale. Utile per filtrare minimi assestamenti meccanici o errori di misurazione del motore."
         }
       },
       "vertical": {

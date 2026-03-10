@@ -19,7 +19,7 @@
           "manual_override_reset": "Manuelle Steuerungsdauer zurücksetzen",
           "end_time": "Endzeit",
           "end_entity": "Entität zur Angabe der Endzeit",
-          "manual_threshold": "Schwellenwert für manuelle Steuerung",
+          "manual_threshold": "Schwellenwert für manuelle Übersteuerung",
           "manual_ignore_intermediate": "Zwischenstatus ignorieren",
           "return_sunset": "Position zum Sonnenuntergangs-Standardwert anpassen, wenn die Endzeit vor dem tatsächlichen Sonnenuntergang liegt"
         },
@@ -31,7 +31,8 @@
           "manual_override_duration": "Dauer der manuellen Steuerung, bevor zur automatischen Steuerung zurückgekehrt wird",
           "manual_override_reset": "Option, um die manuelle Steuerungsdauer nach jeder manuellen Anpassung zurückzusetzen. Falls deaktiviert, gilt die Dauer nur für die erste manuelle Anpassung",
           "end_time": "Endzeit für jeden Tag; nach dieser Zeit bleibt die Abdeckung unbewegt",
-          "end_entity": "Entität, die den Endzeitstatus angibt und die feste Endzeit überschreibt. Nützlich zur Automatisierung der Endzeit mit einer Entität"
+          "end_entity": "Entität, die den Endzeitstatus angibt und die feste Endzeit überschreibt. Nützlich zur Automatisierung der Endzeit mit einer Entität",
+          "manual_threshold": "Bewegungen, die kleiner als dieser Prozentsatz sind, lösen KEINEN manuellen Modus aus. Nützlich, um winzige mechanische Anpassungen oder Messfehler zu filtern."
         }
       },
       "vertical": {
@@ -266,7 +267,8 @@
           "manual_override_duration": "Dauer der manuellen Steuerung, bevor die Automatik zurückgesetzt wird",
           "manual_override_reset": "Option zum Zurücksetzen der manuellen Übersteuerungsdauer nach jeder manuellen Anpassung; wenn deaktiviert, gilt die Dauer nur für die erste manuelle Anpassung",
           "end_time": "Endzeit für jeden Tag; danach bleibt die Jalousie unverändert",
-          "end_entity": "Stellt sicher, dass die Position bis zur Endzeit auf die Standard-Sonnenuntergangseinstellung zurückgesetzt wird, insbesondere wenn die Endzeit vor dem tatsächlichen Sonnenuntergang liegt"
+          "end_entity": "Stellt sicher, dass die Position bis zur Endzeit auf die Standard-Sonnenuntergangseinstellung zurückgesetzt wird, insbesondere wenn die Endzeit vor dem tatsächlichen Sonnenuntergang liegt",
+          "manual_threshold": "Bewegungen, die kleiner als dieser Prozentsatz sind, lösen KEINEN manuellen Modus aus. Nützlich, um winzige mechanische Anpassungen oder Messfehler zu filtern."
         }
       },
       "vertical": {
