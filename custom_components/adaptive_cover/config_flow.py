@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import voluptuous as vol
@@ -75,8 +76,9 @@ from .const import (
     CONF_WEATHER_STATE,
     DOMAIN,
     SensorType,
-    _LOGGER,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPE_MENU = [SensorType.BLIND, SensorType.AWNING, SensorType.TILT]
 

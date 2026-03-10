@@ -403,19 +403,21 @@ class ClimateCoverState(NormalCoverState):
 
         is_summer = self.climate_data.is_summer
 
+        # If it's winter and the sun is in front of the window, always fully open
+        # to maximize solar heat gain, regardless of weather/lux conditions
+        if self.climate_data.is_winter and self.cover.valid:
+            self.cover.logger.debug(
+                "n_w_p(): Winter and sun is in front of window = use 100"
+            )
+            return 100
+
         # Check if it's not summer and either lux, irradiance or sunny weather is present
         if not is_summer and (
             self.climate_data.lux
             or self.climate_data.irradiance
             or not self.climate_data.is_sunny
         ):
-            # If it's winter and the cover is valid, return 100
-            if self.climate_data.is_winter and self.cover.valid:
-                self.cover.logger.debug(
-                    "n_w_p(): Winter and sun is in front of window = use 100"
-                )
-                return 100
-            # Otherwise, return the default cover state
+            # Return the default cover state
             self.cover.logger.debug(
                 "n_w_p(): it's not summer and sunny weather is not present = use default"
             )
