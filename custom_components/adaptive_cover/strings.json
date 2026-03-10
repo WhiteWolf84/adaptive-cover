@@ -37,7 +37,7 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Window Azimuth",
+          "set_azimuth": "Window Direction (Azimuth)",
           "window_height": "Window Height",
           "distance_shaded_area": "Shaded area depth",
           "default_percentage": "Default Position",
@@ -51,12 +51,12 @@
           "sunrise_offset": "Sunrise Offset",
           "climate_mode": "Climate Mode",
           "blind_spot": "Setup Blindspot",
-          "min_elevation": "Minimum Elevation of the sun",
-          "max_elevation": "Maximum Elevation of the sun",
+          "min_elevation": "Sun Minimum Elevation",
+          "max_elevation": "Sun Maximum Elevation",
           "interp": "Set custom open/close positions for My Cover, if it doesn't fully operate at 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Adjust Azimuth",
+          "set_azimuth": "The compass direction your window faces (e.g. 180° is South, 90° is East, 270° is West).",
           "window_height": "Specify window height in meters",
           "distance_shaded_area": "How much direct sunlight you want to allow into the room in meters. Set to 0 to block all sun, or increase to let light reach the floor.",
           "default_percentage": "Default cover position as a percentage",
@@ -67,7 +67,11 @@
           "sunset_position": "Position to switch to after sunset",
           "sunset_offset": "Offset (±) from sunset time in minutes",
           "sunrise_offset": "Offset (±) from sunrise time in minutes",
-          "climate_mode": "Configure variables for climate mode"
+          "climate_mode": "Configure variables for climate mode",
+          "min_elevation": "Below this angle (e.g. at sunset or sunrise), the sun won't trigger the blind. Use 0° to always track the sun.",
+          "max_elevation": "Above this angle (sun high in the sky), the blind stays open. Set to 90° to track the sun even at noon.",
+          "enable_min_position": "The blind closes to its minimum position only when the sunlight directly hits the window's glass.",
+          "enable_max_position": "The blind opens to its maximum position only when the sunlight directly hits the window's glass."
         },
         "description": "Add configuration variables to the sensor",
         "title": "Vertical cover"
@@ -112,7 +116,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Window Azimuth",
+          "set_azimuth": "Window Direction (Azimuth)",
           "length_awning": "Awning Span Length",
           "window_height": "Awning Height",
           "angle": "Awning Angle",
@@ -128,12 +132,12 @@
           "sunrise_offset": "Sunrise Offset",
           "climate_mode": "Climate Mode",
           "blind_spot": "Setup Blindspot",
-          "min_elevation": "Minimum Elevation of the sun",
-          "max_elevation": "Maximum Elevation of the sun",
+          "min_elevation": "Sun Minimum Elevation",
+          "max_elevation": "Sun Maximum Elevation",
           "interp": "Set custom open/close positions for My Cover, if it doesn't fully operate at 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specify the Azimuth",
+          "set_azimuth": "The compass direction your window faces (e.g. 180° is South, 90° is East, 270° is West).",
           "window_height": "Adjust the height of the awning from the level of the workarea",
           "length_awning": "Total span length in meters",
           "angle": "Angle of the attached awning measured perpendicular from the wall to the ground",
@@ -146,14 +150,18 @@
           "sunset_position": "Position to switch to after sunset",
           "sunset_offset": "Offset (±) from sunset time in minutes",
           "sunrise_offset": "Offset (±) from sunrise time in minutes",
-          "climate_mode": "Configure variables for climate mode"
+          "climate_mode": "Configure variables for climate mode",
+          "min_elevation": "Below this angle (e.g. at sunset or sunrise), the sun won't trigger the blind. Use 0° to always track the sun.",
+          "max_elevation": "Above this angle (sun high in the sky), the blind stays open. Set to 90° to track the sun even at noon.",
+          "enable_min_position": "The blind closes to its minimum position only when the sunlight directly hits the window's glass.",
+          "enable_max_position": "The blind opens to its maximum position only when the sunlight directly hits the window's glass."
         },
         "description": "Add configuration variables to the sensor",
         "title": "Horizontal cover"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Window Azimuth",
+          "set_azimuth": "Window Direction (Azimuth)",
           "slat_depth": "Slat Depth",
           "slat_distance": "Slat Spacing",
           "default_percentage": "Default Position",
@@ -168,12 +176,12 @@
           "climate_mode": "Climate Mode",
           "tilt_mode": "Type of movement",
           "blind_spot": "Setup Blindspot",
-          "min_elevation": "Minimum Elevation of the sun",
-          "max_elevation": "Maximum Elevation of the sun",
+          "min_elevation": "Sun Minimum Elevation",
+          "max_elevation": "Sun Maximum Elevation",
           "interp": "Set custom open/close positions for My Cover, if it doesn't fully operate at 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specify the Azimuth",
+          "set_azimuth": "The compass direction your window faces (e.g. 180° is South, 90° is East, 270° is West).",
           "slat_depth": "Depth of each individual slat in centimeters",
           "slat_distance": "Vertical distance between two slats in centimeters",
           "default_percentage": "Default cover position as a percentage",
@@ -260,7 +268,7 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Window Azimuth",
+          "set_azimuth": "Window Direction (Azimuth)",
           "window_height": "Window Height",
           "distance_shaded_area": "Shaded area depth",
           "default_percentage": "Default Position",
@@ -274,12 +282,12 @@
           "sunrise_offset": "Sunrise Offset",
           "climate_mode": "Climate Mode",
           "blind_spot": "Setup Blindspot",
-          "min_elevation": "Minimum Elevation of the sun",
-          "max_elevation": "Maximum Elevation of the sun",
+          "min_elevation": "Sun Minimum Elevation",
+          "max_elevation": "Sun Maximum Elevation",
           "interp": "Set custom open/close positions for My Cover, if it doesn't fully operate at 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Adjust Azimuth",
+          "set_azimuth": "The compass direction your window faces (e.g. 180° is South, 90° is East, 270° is West).",
           "window_height": "Specify window height in meters",
           "distance_shaded_area": "How much direct sunlight you want to allow into the room in meters. Set to 0 to block all sun, or increase to let light reach the floor.",
           "default_percentage": "Default cover position as a percentage",
@@ -290,7 +298,11 @@
           "sunset_position": "Position to switch to after sunset",
           "sunset_offset": "Offset (±) from sunset time in minutes",
           "sunrise_offset": "Offset (±) from sunrise time in minutes",
-          "climate_mode": "Configure variables for climate mode"
+          "climate_mode": "Configure variables for climate mode",
+          "min_elevation": "Below this angle (e.g. at sunset or sunrise), the sun won't trigger the blind. Use 0° to always track the sun.",
+          "max_elevation": "Above this angle (sun high in the sky), the blind stays open. Set to 90° to track the sun even at noon.",
+          "enable_min_position": "The blind closes to its minimum position only when the sunlight directly hits the window's glass.",
+          "enable_max_position": "The blind opens to its maximum position only when the sunlight directly hits the window's glass."
         },
         "description": "Add configuration variables to the sensor",
         "title": "Vertical cover"
@@ -335,7 +347,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Window Azimuth",
+          "set_azimuth": "Window Direction (Azimuth)",
           "length_awning": "Awning Span Length",
           "window_height": "Awning Height",
           "angle": "Awning Angle",
@@ -351,12 +363,12 @@
           "sunrise_offset": "Sunrise Offset",
           "climate_mode": "Climate Mode",
           "blind_spot": "Setup Blindspot",
-          "min_elevation": "Minimum Elevation of the sun",
-          "max_elevation": "Maximum Elevation of the sun",
+          "min_elevation": "Sun Minimum Elevation",
+          "max_elevation": "Sun Maximum Elevation",
           "interp": "Set custom open/close positions for My Cover, if it doesn't fully operate at 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specify the Azimuth",
+          "set_azimuth": "The compass direction your window faces (e.g. 180° is South, 90° is East, 270° is West).",
           "window_height": "Adjust the height of the awning from the level of the workarea",
           "length_awning": "Total span length in meters",
           "angle": "Angle of the attached awning measured perpendicular from the wall to the ground",
@@ -369,14 +381,18 @@
           "sunset_position": "Position to switch to after sunset",
           "sunset_offset": "Offset (±) from sunset time in minutes",
           "sunrise_offset": "Offset (±) from sunrise time in minutes",
-          "climate_mode": "Configure variables for climate mode"
+          "climate_mode": "Configure variables for climate mode",
+          "min_elevation": "Below this angle (e.g. at sunset or sunrise), the sun won't trigger the blind. Use 0° to always track the sun.",
+          "max_elevation": "Above this angle (sun high in the sky), the blind stays open. Set to 90° to track the sun even at noon.",
+          "enable_min_position": "The blind closes to its minimum position only when the sunlight directly hits the window's glass.",
+          "enable_max_position": "The blind opens to its maximum position only when the sunlight directly hits the window's glass."
         },
         "description": "Add configuration variables to the sensor",
         "title": "Horizontal cover"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Window Azimuth",
+          "set_azimuth": "Window Direction (Azimuth)",
           "slat_depth": "Slat Depth",
           "slat_distance": "Slat Spacing",
           "default_percentage": "Default Position",
@@ -391,12 +407,12 @@
           "climate_mode": "Climate Mode",
           "tilt_mode": "Type of movement",
           "blind_spot": "Setup Blindspot",
-          "min_elevation": "Minimum Elevation of the sun",
-          "max_elevation": "Maximum Elevation of the sun",
+          "min_elevation": "Sun Minimum Elevation",
+          "max_elevation": "Sun Maximum Elevation",
           "interp": "Set custom open/close positions for My Cover, if it doesn't fully operate at 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specify the Azimuth",
+          "set_azimuth": "The compass direction your window faces (e.g. 180° is South, 90° is East, 270° is West).",
           "slat_depth": "Depth of each individual slat in centimeters",
           "slat_distance": "Vertical distance between two slats in centimeters",
           "default_percentage": "Default cover position as a percentage",

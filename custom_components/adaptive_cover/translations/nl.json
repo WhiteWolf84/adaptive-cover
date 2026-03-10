@@ -37,14 +37,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Raam Azimuth",
+          "set_azimuth": "Raamrichting (Azimut)",
           "window_height": "Raamhoogte",
           "distance_shaded_area": "Diepte schaduwzijde",
           "default_percentage": "Standaard positie",
           "min_position": "Minimale positie",
           "max_position": "Maximale positie",
-          "enable_min_position": "Forceer alleen de minimale positie wanneer de zon voor het raam staat",
-          "enable_max_position": "Forceer alleen de maximale positie wanneer de zon voor het raam staat",
+          "enable_min_position": "Minimale positie forceren alleen bij directe zon",
+          "enable_max_position": "Maximale positie forceren alleen bij directe zon",
           "fov_left": "Gezichtsveldhoek links",
           "fov_right": "Gezichtsveldhoek rechts",
           "group": "Cover Entiteiten",
@@ -53,12 +53,12 @@
           "sunset_offset": "Afwijking Zonsondergang",
           "climate_mode": "Klimaatmodus",
           "blind_spot": "Configureer schaduwzone",
-          "min_elevation": "Minimale zonhoogte",
-          "max_elevation": "Maximale zonhoogte",
+          "min_elevation": "Minimale zonnehoogte",
+          "max_elevation": "Maximale zonnehoogte",
           "interp": "Stel aangepaste open/sluit posities in voor jouw Cover, als deze niet volledig functioneert bij 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Stel Azimuth in",
+          "set_azimuth": "Kompasrichting van het raam (bijv. 180° is Zuid, 90° is Oost, 270° is West).",
           "window_height": "Specificeer raamhoogte in meters",
           "distance_shaded_area": "Hoeveel direct zonlicht (in meters) de kamer mag binnenkomen. 0 voor volledige schaduw.",
           "default_percentage": "Standaard bekledingspositie als percentage",
@@ -70,7 +70,11 @@
           "sunset_position": "Positie om naar over te schakelen na zonsondergang",
           "sunset_offset": "Verschil (±) vanaf zonsondergang in minuten",
           "sunrise_offset": "Verschil (±) vanaf zonsopkomst in minuten",
-          "climate_mode": "Configureer variabelen voor klimaatmodus"
+          "climate_mode": "Configureer variabelen voor klimaatmodus",
+          "min_elevation": "Onder deze hoek reageert het rolgordijn niet op de zon (bijv. bij zonsopgang). Gebruik 0° om altijd te volgen.",
+          "max_elevation": "Boven deze hoek staat de zon te hoog om naar binnen te schijnen en gaat het rolgordijn open. Stel 90° in om altijd te sluiten rond het middaguur.",
+          "enable_min_position": "De zonwering sluit pas naar zijn minimale positie wanneer de zon direct op het raam schijnt.",
+          "enable_max_position": "De zonwering opent pas naar zijn maximale positie wanneer de zon direct op het raam schijnt."
         },
         "description": "Voeg configuratie variabelen toe",
         "title": "Verticaal scherm"
@@ -114,7 +118,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Raam Azimuth",
+          "set_azimuth": "Raamrichting (Azimut)",
           "length_awning": "Zonneschermspanlengte",
           "window_height": "Zonneschermhoogte",
           "angle": "Zonneschermhoek",
@@ -122,8 +126,8 @@
           "default_percentage": "Standaard positie",
           "min_position": "Minimale positie",
           "max_position": "Maximale positie",
-          "enable_min_position": "Forceer alleen de minimale positie wanneer de zon voor het raam staat",
-          "enable_max_position": "Forceer alleen de maximale positie wanneer de zon voor het raam staat",
+          "enable_min_position": "Minimale positie forceren alleen bij directe zon",
+          "enable_max_position": "Maximale positie forceren alleen bij directe zon",
           "fov_left": "Gezichtsveldhoek links",
           "fov_right": "Gezichtsveldhoek rechts",
           "group": "Cover Entities",
@@ -132,12 +136,12 @@
           "sunset_offset": "Afwijking Zonsondergang",
           "climate_mode": "Klimaat Modus",
           "blind_spot": "Configureer schaduwzone",
-          "min_elevation": "Minimale zonhoogte",
-          "max_elevation": "Maximale zonhoogte",
+          "min_elevation": "Minimale zonnehoogte",
+          "max_elevation": "Maximale zonnehoogte",
           "interp": "Stel aangepaste open/sluit posities in voor jouw Cover, als deze niet volledig functioneert bij 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Stel Azimuth in",
+          "set_azimuth": "Kompasrichting van het raam (bijv. 180° is Zuid, 90° is Oost, 270° is West).",
           "window_height": "Pas de hoogte van het zonnescherm aan vanaf de hoogte van het werkgebied",
           "length_awning": "Totale spanwijdte van het zonnescherm in meters",
           "angle": "Hoek van het bevestigde zonnescherm gemeten loodrecht vanaf de muur naar de grond",
@@ -151,21 +155,25 @@
           "sunset_position": "Positie om naar over te schakelen na zonsondergang",
           "sunset_offset": "Verschil (±) vanaf zonsondergang in minuten",
           "sunrise_offset": "Verschil (±) vanaf zonsopkomst in minuten",
-          "climate_mode": "Configureer variabelen voor klimaatmodus"
+          "climate_mode": "Configureer variabelen voor klimaatmodus",
+          "min_elevation": "Onder deze hoek reageert het rolgordijn niet op de zon (bijv. bij zonsopgang). Gebruik 0° om altijd te volgen.",
+          "max_elevation": "Boven deze hoek staat de zon te hoog om naar binnen te schijnen en gaat het rolgordijn open. Stel 90° in om altijd te sluiten rond het middaguur.",
+          "enable_min_position": "De zonwering sluit pas naar zijn minimale positie wanneer de zon direct op het raam schijnt.",
+          "enable_max_position": "De zonwering opent pas naar zijn maximale positie wanneer de zon direct op het raam schijnt."
         },
         "description": "Voeg configuratie variabelen toe",
         "title": "Horizontaal scherm"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Raam Azimuth",
+          "set_azimuth": "Raamrichting (Azimut)",
           "slat_depth": "Lameldiepte",
           "slat_distance": "Lamelafstand",
           "default_percentage": "Standaard positie",
           "min_position": "Minimale positie",
           "max_position": "Maximale positie",
-          "enable_min_position": "Forceer alleen de minimale positie wanneer de zon voor het raam staat",
-          "enable_max_position": "Forceer alleen de maximale positie wanneer de zon voor het raam staat",
+          "enable_min_position": "Minimale positie forceren alleen bij directe zon",
+          "enable_max_position": "Maximale positie forceren alleen bij directe zon",
           "fov_left": "Gezichtsveldhoek links",
           "fov_right": "Gezichtsveldhoek rechts",
           "group": "Cover Entities",
@@ -175,12 +183,12 @@
           "climate_mode": "Klimaat Modus",
           "tilt_mode": "Type beweging",
           "blind_spot": "Configureer schaduwzone",
-          "min_elevation": "Minimale zonhoogte",
-          "max_elevation": "Maximale zonhoogte",
+          "min_elevation": "Minimale zonnehoogte",
+          "max_elevation": "Maximale zonnehoogte",
           "interp": "Stel aangepaste open/sluit posities in voor jouw Cover, als deze niet volledig functioneert bij 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Stel Azimuth in",
+          "set_azimuth": "Kompasrichting van het raam (bijv. 180° is Zuid, 90° is Oost, 270° is West).",
           "slat_depth": "Diepte van elke individuele lamel in centimeters",
           "slat_distance": "Verticale afstand tussen twee lamellen in centimeters",
           "default_percentage": "Standaard bekledingspositie als percentage",
@@ -268,14 +276,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Raam Azimuth",
+          "set_azimuth": "Raamrichting (Azimut)",
           "window_height": "Raamhoogte",
           "distance_shaded_area": "Diepte schaduwzijde",
           "default_percentage": "Standaard positie",
           "min_position": "Minimale positie",
           "max_position": "Maximale positie",
-          "enable_min_position": "Forceer alleen de minimale positie wanneer de zon voor het raam staat",
-          "enable_max_position": "Forceer alleen de maximale positie wanneer de zon voor het raam staat",
+          "enable_min_position": "Minimale positie forceren alleen bij directe zon",
+          "enable_max_position": "Maximale positie forceren alleen bij directe zon",
           "fov_left": "Gezichtsveldhoek links",
           "fov_right": "Gezichtsveldhoek rechts",
           "group": "Cover Entiteiten",
@@ -284,12 +292,12 @@
           "sunset_offset": "Afwijking Zonsondergang",
           "climate_mode": "Klimaatmodus",
           "blind_spot": "Configureer schaduwzone",
-          "min_elevation": "Minimale zonhoogte",
-          "max_elevation": "Maximale zonhoogte",
+          "min_elevation": "Minimale zonnehoogte",
+          "max_elevation": "Maximale zonnehoogte",
           "interp": "Stel aangepaste open/sluit posities in voor jouw Cover, als deze niet volledig functioneert bij 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Stel Azimuth in",
+          "set_azimuth": "Kompasrichting van het raam (bijv. 180° is Zuid, 90° is Oost, 270° is West).",
           "window_height": "Specificeer raamhoogte in meters",
           "distance_shaded_area": "Hoeveel direct zonlicht (in meters) de kamer mag binnenkomen. 0 voor volledige schaduw.",
           "default_percentage": "Standaard bekledingspositie als percentage",
@@ -301,7 +309,11 @@
           "sunset_position": "Positie om naar over te schakelen na zonsondergang",
           "sunset_offset": "Verschil (±) vanaf zonsondergang in minuten",
           "sunrise_offset": "Verschil (±) vanaf zonsopkomst in minuten",
-          "climate_mode": "Configureer variabelen voor klimaatmodus"
+          "climate_mode": "Configureer variabelen voor klimaatmodus",
+          "min_elevation": "Onder deze hoek reageert het rolgordijn niet op de zon (bijv. bij zonsopgang). Gebruik 0° om altijd te volgen.",
+          "max_elevation": "Boven deze hoek staat de zon te hoog om naar binnen te schijnen en gaat het rolgordijn open. Stel 90° in om altijd te sluiten rond het middaguur.",
+          "enable_min_position": "De zonwering sluit pas naar zijn minimale positie wanneer de zon direct op het raam schijnt.",
+          "enable_max_position": "De zonwering opent pas naar zijn maximale positie wanneer de zon direct op het raam schijnt."
         },
         "description": "Voeg configuratie variabelen toe",
         "title": "Verticaal scherm"
@@ -337,7 +349,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Raam Azimuth",
+          "set_azimuth": "Raamrichting (Azimut)",
           "length_awning": "Zonneschermspanlengte",
           "window_height": "Zonneschermhoogte",
           "angle": "Zonneschermhoek",
@@ -345,8 +357,8 @@
           "default_percentage": "Standaard positie",
           "min_position": "Minimale positie",
           "max_position": "Maximale positie",
-          "enable_min_position": "Forceer alleen de minimale positie wanneer de zon voor het raam staat",
-          "enable_max_position": "Forceer alleen de maximale positie wanneer de zon voor het raam staat",
+          "enable_min_position": "Minimale positie forceren alleen bij directe zon",
+          "enable_max_position": "Maximale positie forceren alleen bij directe zon",
           "fov_left": "Gezichtsveldhoek links",
           "fov_right": "Gezichtsveldhoek rechts",
           "group": "Cover Entities",
@@ -355,12 +367,12 @@
           "sunset_offset": "Afwijking Zonsondergang",
           "climate_mode": "Klimaat Modus",
           "blind_spot": "Configureer schaduwzone",
-          "min_elevation": "Minimale zonhoogte",
-          "max_elevation": "Maximale zonhoogte",
+          "min_elevation": "Minimale zonnehoogte",
+          "max_elevation": "Maximale zonnehoogte",
           "interp": "Stel aangepaste open/sluit posities in voor jouw Cover, als deze niet volledig functioneert bij 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Stel Azimuth in",
+          "set_azimuth": "Kompasrichting van het raam (bijv. 180° is Zuid, 90° is Oost, 270° is West).",
           "window_height": "Pas de hoogte van het zonnescherm aan vanaf de hoogte van het werkgebied",
           "length_awning": "Totale spanwijdte van het zonnescherm in meters",
           "angle": "Hoek van het bevestigde zonnescherm gemeten loodrecht vanaf de muur naar de grond",
@@ -374,21 +386,25 @@
           "sunset_position": "Positie om naar over te schakelen na zonsondergang",
           "sunset_offset": "Verschil (±) vanaf zonsondergang in minuten",
           "sunrise_offset": "Verschil (±) vanaf zonsopkomst in minuten",
-          "climate_mode": "Configureer variabelen voor klimaatmodus"
+          "climate_mode": "Configureer variabelen voor klimaatmodus",
+          "min_elevation": "Onder deze hoek reageert het rolgordijn niet op de zon (bijv. bij zonsopgang). Gebruik 0° om altijd te volgen.",
+          "max_elevation": "Boven deze hoek staat de zon te hoog om naar binnen te schijnen en gaat het rolgordijn open. Stel 90° in om altijd te sluiten rond het middaguur.",
+          "enable_min_position": "De zonwering sluit pas naar zijn minimale positie wanneer de zon direct op het raam schijnt.",
+          "enable_max_position": "De zonwering opent pas naar zijn maximale positie wanneer de zon direct op het raam schijnt."
         },
         "description": "Voeg configuratie variabelen toe",
         "title": "Horizontaal scherm"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Raam Azimuth",
+          "set_azimuth": "Raamrichting (Azimut)",
           "slat_depth": "Lameldiepte",
           "slat_distance": "Lamelafstand",
           "default_percentage": "Standaard positie",
           "min_position": "Minimale positie",
           "max_position": "Maximale positie",
-          "enable_min_position": "Forceer alleen de minimale positie wanneer de zon voor het raam staat",
-          "enable_max_position": "Forceer alleen de maximale positie wanneer de zon voor het raam staat",
+          "enable_min_position": "Minimale positie forceren alleen bij directe zon",
+          "enable_max_position": "Maximale positie forceren alleen bij directe zon",
           "fov_left": "Gezichtsveldhoek links",
           "fov_right": "Gezichtsveldhoek rechts",
           "group": "Cover Entities",
@@ -398,12 +414,12 @@
           "climate_mode": "Klimaat Modus",
           "tilt_mode": "Type beweging",
           "blind_spot": "Configureer schaduwzone",
-          "min_elevation": "Minimale zonhoogte",
-          "max_elevation": "Maximale zonhoogte",
+          "min_elevation": "Minimale zonnehoogte",
+          "max_elevation": "Maximale zonnehoogte",
           "interp": "Stel aangepaste open/sluit posities in voor jouw Cover, als deze niet volledig functioneert bij 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Stel Azimuth in",
+          "set_azimuth": "Kompasrichting van het raam (bijv. 180° is Zuid, 90° is Oost, 270° is West).",
           "slat_depth": "Diepte van elke individuele lamel in centimeters",
           "slat_distance": "Verticale afstand tussen twee lamellen in centimeters",
           "default_percentage": "Standaard bekledingspositie als percentage",

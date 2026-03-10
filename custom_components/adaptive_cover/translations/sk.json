@@ -37,14 +37,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Azimut okna",
+          "set_azimuth": "Orientácia okna (Azimut)",
           "window_height": "Výška okna",
           "distance_shaded_area": "Hĺbka zatienenej oblasti",
           "default_percentage": "Predvolená poloha",
           "min_position": "Minimálna pozícia",
           "max_position": "Maximálna pozícia",
-          "enable_min_position": "Minimálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
-          "enable_max_position": "Maximálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
+          "enable_min_position": "Vynútiť minimum len pri priamom slnku",
+          "enable_max_position": "Vynútiť maximum len pri priamom slnku",
           "fov_left": "Uhol zorného poľa vľavo",
           "fov_right": "Uhol zorného poľa vpravo",
           "group": "Krycie entity",
@@ -59,7 +59,7 @@
           "interp": "Nastavte vlastné pozície otvorenia/zatvorenia pre Môj Kryt, ak nefunguje úplne pri 0-100 %"
         },
         "data_description": {
-          "set_azimuth": "Upravte azimut",
+          "set_azimuth": "Svetová strana okna (napr. 180° je Juh, 90° Východ, 270° Západ).",
           "window_height": "Zadajte výšku okna v metroch",
           "distance_shaded_area": "Koľko priameho slnečného žiarenia chcete do miestnosti vpustiť (v metroch). 0 pre úplný tieň.",
           "default_percentage": "Predvolená poloha krytu v percentách",
@@ -71,7 +71,11 @@
           "sunset_position": "Pozícia na prepnutie po západe slnka",
           "sunset_offset": "Posun (±) od času západu slnka v minútach",
           "sunrise_offset": "Posun (±) od času východu slnka v minútach",
-          "climate_mode": "Nakonfigurujte premenné pre klimatický režim"
+          "climate_mode": "Nakonfigurujte premenné pre klimatický režim",
+          "min_elevation": "Pod týmto uhlom slnko neaktivuje roletu. Nechajte na 0° pre neustále sledovanie slnka.",
+          "max_elevation": "Nad týmto uhlom je slnko príliš vysoko, roleta sa otvorí. Nastavte 90° pre sledovanie slnka aj na poludnie.",
+          "enable_min_position": "Roleta sa zatvorí na svoje minimum iba vtedy, keď slnečné lúče dopadajú priamo na sklo.",
+          "enable_max_position": "Roleta sa otvorí na svoje maximum iba vtedy, keď slnečné lúče dopadajú priamo na sklo."
         },
         "description": "Pridajte do snímača konfiguračné premenné",
         "title": "Vertikálny kryt"
@@ -117,7 +121,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Azimut okna",
+          "set_azimuth": "Orientácia okna (Azimut)",
           "length_awning": "Dĺžka rozpätia markízy",
           "window_height": "Dĺžka markízy",
           "angle": "Uhol markízy",
@@ -125,8 +129,8 @@
           "default_percentage": "Predvolená poloha",
           "min_position": "Minimálna pozícia",
           "max_position": "Maximálna pozícia",
-          "enable_min_position": "Minimálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
-          "enable_max_position": "Maximálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
+          "enable_min_position": "Vynútiť minimum len pri priamom slnku",
+          "enable_max_position": "Vynútiť maximum len pri priamom slnku",
           "fov_left": "Uhol zorného poľa vľavo",
           "fov_right": "Uhol zorného poľa vpravo",
           "group": "Krycie entity",
@@ -141,7 +145,7 @@
           "interp": "Nastavte vlastné pozície otvorenia/zatvorenia pre Môj Kryt, ak nefunguje úplne pri 0-100 %"
         },
         "data_description": {
-          "set_azimuth": "Zadajte azimut",
+          "set_azimuth": "Svetová strana okna (napr. 180° je Juh, 90° Východ, 270° Západ).",
           "window_height": "Nastavte výšku markízy od úrovne pracovnej plochy",
           "length_awning": "Celková dĺžka rozpätia v metroch",
           "angle": "Uhol pripevnenej markízy meraný kolmo od steny k zemi",
@@ -155,21 +159,25 @@
           "sunset_position": "Pozícia na prepnutie po západe slnka",
           "sunset_offset": "Posun (±) od času západu slnka v minútach",
           "sunrise_offset": "Posun (±) od času východu slnka v minútach",
-          "climate_mode": "Nakonfigurujte premenné pre klimatický režim"
+          "climate_mode": "Nakonfigurujte premenné pre klimatický režim",
+          "min_elevation": "Pod týmto uhlom slnko neaktivuje roletu. Nechajte na 0° pre neustále sledovanie slnka.",
+          "max_elevation": "Nad týmto uhlom je slnko príliš vysoko, roleta sa otvorí. Nastavte 90° pre sledovanie slnka aj na poludnie.",
+          "enable_min_position": "Roleta sa zatvorí na svoje minimum iba vtedy, keď slnečné lúče dopadajú priamo na sklo.",
+          "enable_max_position": "Roleta sa otvorí na svoje maximum iba vtedy, keď slnečné lúče dopadajú priamo na sklo."
         },
         "description": "Pridajte do snímača konfiguračné premenné",
         "title": "Horizontálny kryt"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Azimut okna",
+          "set_azimuth": "Orientácia okna (Azimut)",
           "slat_depth": "Hĺbka lamely",
           "slat_distance": "Rozstup lamiel",
           "default_percentage": "Predvolená poloha",
           "min_position": "Minimálna pozícia",
           "max_position": "Maximálna pozícia",
-          "enable_min_position": "Minimálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
-          "enable_max_position": "Maximálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
+          "enable_min_position": "Vynútiť minimum len pri priamom slnku",
+          "enable_max_position": "Vynútiť maximum len pri priamom slnku",
           "fov_left": "Uhol zorného poľa vľavo",
           "fov_right": "Uhol zorného poľa vpravo",
           "group": "Krycie entity",
@@ -185,7 +193,7 @@
           "interp": "Nastavte vlastné pozície otvorenia/zatvorenia pre Môj kryt, ak nefunguje úplne pri 0-100 %"
         },
         "data_description": {
-          "set_azimuth": "Zadajte azimut",
+          "set_azimuth": "Svetová strana okna (napr. 180° je Juh, 90° Východ, 270° Západ).",
           "slat_depth": "Hĺbka každej jednotlivej lamely v centimetroch",
           "slat_distance": "Vertikálna vzdialenosť medzi dvoma lamelami v centimetroch",
           "default_percentage": "Predvolená poloha krytu v percentách",
@@ -273,14 +281,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Azimut okna",
+          "set_azimuth": "Orientácia okna (Azimut)",
           "window_height": "Výška okna",
           "distance_shaded_area": "Hĺbka zatienenej oblasti",
           "default_percentage": "Predvolená poloha",
           "min_position": "Minimálna pozícia",
           "max_position": "Maximálna pozícia",
-          "enable_min_position": "Minimálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
-          "enable_max_position": "Maximálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
+          "enable_min_position": "Vynútiť minimum len pri priamom slnku",
+          "enable_max_position": "Vynútiť maximum len pri priamom slnku",
           "fov_left": "Uhol zorného poľa vľavo",
           "fov_right": "Uhol zorného poľa vpravo",
           "group": "Krycie entity",
@@ -295,7 +303,7 @@
           "interp": "Nastavte vlastné pozície otvorenia/zatvorenia pre Môj Kryt, ak nefunguje úplne pri 0-100 %"
         },
         "data_description": {
-          "set_azimuth": "Upravte azimut",
+          "set_azimuth": "Svetová strana okna (napr. 180° je Juh, 90° Východ, 270° Západ).",
           "window_height": "Zadajte výšku okna v metroch",
           "distance_shaded_area": "Koľko priameho slnečného žiarenia chcete do miestnosti vpustiť (v metroch). 0 pre úplný tieň.",
           "default_percentage": "Predvolená poloha krytu v percentách",
@@ -307,7 +315,11 @@
           "sunset_position": "Pozícia na prepnutie po západe slnka",
           "sunset_offset": "Posun (±) od času západu slnka v minútach",
           "sunrise_offset": "Posun (±) od času východu slnka v minútach",
-          "climate_mode": "Nakonfigurujte premenné pre klimatický režim"
+          "climate_mode": "Nakonfigurujte premenné pre klimatický režim",
+          "min_elevation": "Pod týmto uhlom slnko neaktivuje roletu. Nechajte na 0° pre neustále sledovanie slnka.",
+          "max_elevation": "Nad týmto uhlom je slnko príliš vysoko, roleta sa otvorí. Nastavte 90° pre sledovanie slnka aj na poludnie.",
+          "enable_min_position": "Roleta sa zatvorí na svoje minimum iba vtedy, keď slnečné lúče dopadajú priamo na sklo.",
+          "enable_max_position": "Roleta sa otvorí na svoje maximum iba vtedy, keď slnečné lúče dopadajú priamo na sklo."
         },
         "description": "Pridajte do snímača konfiguračné premenné",
         "title": "Vertikálny kryt"
@@ -353,7 +365,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Azimut okna",
+          "set_azimuth": "Orientácia okna (Azimut)",
           "length_awning": "Dĺžka rozpätia markízy",
           "window_height": "Dĺžka markízy",
           "angle": "Uol markízy",
@@ -361,8 +373,8 @@
           "default_percentage": "Predvolená poloha",
           "min_position": "Minimálna pozícia",
           "max_position": "Maximálna pozícia",
-          "enable_min_position": "Minimálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
-          "enable_max_position": "Maximálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
+          "enable_min_position": "Vynútiť minimum len pri priamom slnku",
+          "enable_max_position": "Vynútiť maximum len pri priamom slnku",
           "fov_left": "Uhol zorného poľa vľavo",
           "fov_right": "Uhol zorného poľa vpravo",
           "group": "Krycie entity",
@@ -377,7 +389,7 @@
           "interp": "Nastavte vlastné pozície otvorenia/zatvorenia pre Môj Kryt, ak nefunguje úplne pri 0-100 %"
         },
         "data_description": {
-          "set_azimuth": "Zadajte azimut",
+          "set_azimuth": "Svetová strana okna (napr. 180° je Juh, 90° Východ, 270° Západ).",
           "window_height": "Nastavte výšku markízy od úrovne pracovnej plochy",
           "length_awning": "Celková dĺžka rozpätia v metroch",
           "angle": "Uhol pripevnenej markízy meraný kolmo od steny k zemi",
@@ -391,21 +403,25 @@
           "sunset_position": "Pozícia na prepnutie po západe slnka",
           "sunset_offset": "Posun (±) od času západu slnka v minútach",
           "sunrise_offset": "Posun (±) od času východu slnka v minútach",
-          "climate_mode": "Nakonfigurujte premenné pre klimatický režim"
+          "climate_mode": "Nakonfigurujte premenné pre klimatický režim",
+          "min_elevation": "Pod týmto uhlom slnko neaktivuje roletu. Nechajte na 0° pre neustále sledovanie slnka.",
+          "max_elevation": "Nad týmto uhlom je slnko príliš vysoko, roleta sa otvorí. Nastavte 90° pre sledovanie slnka aj na poludnie.",
+          "enable_min_position": "Roleta sa zatvorí na svoje minimum iba vtedy, keď slnečné lúče dopadajú priamo na sklo.",
+          "enable_max_position": "Roleta sa otvorí na svoje maximum iba vtedy, keď slnečné lúče dopadajú priamo na sklo."
         },
         "description": "Pridajte do snímača konfiguračné premenné",
         "title": "Horizontálny kryt"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Azimut okna",
+          "set_azimuth": "Orientácia okna (Azimut)",
           "slat_depth": "Hĺbka lamely",
           "slat_distance": "Rozostup lamiel",
           "default_percentage": "Predvolená poloha",
           "min_position": "Minimálna pozícia",
           "max_position": "Maximálna pozícia",
-          "enable_min_position": "Minimálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
-          "enable_max_position": "Maximálnu polohu vynucujte len vtedy, keď je slnko pred oknom",
+          "enable_min_position": "Vynútiť minimum len pri priamom slnku",
+          "enable_max_position": "Vynútiť maximum len pri priamom slnku",
           "fov_left": "Uhol zorného poľa vľavo",
           "fov_right": "Uhol zorného poľa vpravo",
           "group": "Krycie entity",
@@ -421,7 +437,7 @@
           "interp": "Nastavte vlastné pozície otvorenia/zatvorenia pre Môj Kryt, ak nefunguje úplne pri 0-100 %"
         },
         "data_description": {
-          "set_azimuth": "Zadajte azimut",
+          "set_azimuth": "Svetová strana okna (napr. 180° je Juh, 90° Východ, 270° Západ).",
           "slat_depth": "Hĺbka každej jednotlivej lamely v centimetroch",
           "slat_distance": "Vertikálna vzdialenosť medzi dvoma lamelami v centimetroch",
           "default_percentage": "Predvolená poloha krytu v percentách",

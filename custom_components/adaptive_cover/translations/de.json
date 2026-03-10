@@ -37,14 +37,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Fenster-Azimut",
+          "set_azimuth": "Fensterausrichtung (Azimut)",
           "window_height": "Fensterhöhe",
           "distance_shaded_area": "Tiefe des schattigen Bereichs",
           "default_percentage": "Standardposition",
           "min_position": "Minimale Position",
           "max_position": "Maximale Position",
-          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
-          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
+          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne frontal steht",
+          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne frontal steht",
           "fov_left": "Sichtfeldwinkel links",
           "fov_right": "Sichtfeldwinkel rechts",
           "group": "Abdeckungs-Entitäten",
@@ -54,12 +54,12 @@
           "sunrise_offset": "Versatz zum Sonnenaufgang",
           "climate_mode": "Klima-Modus",
           "blind_spot": "Blindbereich einrichten",
-          "min_elevation": "Minimale Sonnenhöhe (Elevation)",
-          "max_elevation": "Maximale Sonnenhöhe (Elevation)",
+          "min_elevation": "Minimale Sonnenhöhe",
+          "max_elevation": "Maximale Sonnenhöhe",
           "interp": "Benutzerdefinierte Öffnungs-/Schließpositionen für die Abdeckung festlegen, falls diese nicht vollständig zwischen 0-100 % arbeitet"
         },
         "data_description": {
-          "set_azimuth": "Azimut anpassen",
+          "set_azimuth": "Die Himmelsrichtung des Fensters (z.B. 180° ist Süd, 90° ist Ost, 270° ist West).",
           "window_height": "Fensterhöhe in Metern angeben",
           "distance_shaded_area": "Wie viel direktes Sonnenlicht (in Metern) Sie in den Raum lassen möchten. 0 für vollständigen Schatten, erhöhen, um Licht hereinzulassen.",
           "default_percentage": "Standardposition der Abdeckung in Prozent",
@@ -71,7 +71,11 @@
           "sunset_position": "Position nach Sonnenuntergang wechseln",
           "sunset_offset": "Versatz (±) zur Sonnenuntergangszeit in Minuten",
           "sunrise_offset": "Versatz (±) zur Sonnenaufgangszeit in Minuten",
-          "climate_mode": "Variablen für den Klima-Modus konfigurieren"
+          "climate_mode": "Variablen für den Klima-Modus konfigurieren",
+          "min_elevation": "Unterhalb dieses Winkels (z.B. bei Sonnenauf/-untergang) wird das Rollo nicht aktiviert. Bei 0° wird die Sonne immer verfolgt.",
+          "max_elevation": "Oberhalb dieses Winkels steht die Sonne zu hoch, um ins Haus zu scheinen (Rollo öffnet). Bei 90° wird immer verfolgt.",
+          "enable_min_position": "Das Rollo schließt nur dann auf die Minimalposition, wenn die Sonne direkt auf das Fensterglas scheint.",
+          "enable_max_position": "Das Rollo öffnet sich nur dann auf die Maximalposition, wenn die Sonne direkt auf das Fensterglas scheint."
         },
         "description": "Füge Konfigurationsvariablen zum Sensor hinzu",
         "title": "Vertikale Abdeckung"
@@ -117,7 +121,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Fenster-Azimut",
+          "set_azimuth": "Fensterausrichtung (Azimut)",
           "length_awning": "Markisen-Spannweite",
           "window_height": "Markisenhöhe",
           "angle": "Markisenwinkel",
@@ -125,8 +129,8 @@
           "default_percentage": "Standardposition",
           "min_position": "Minimale Position",
           "max_position": "Maximale Position",
-          "enable_min_position": "Die minimale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
-          "enable_max_position": "Die maximale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
+          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne frontal steht",
+          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne frontal steht",
           "fov_left": "Sichtfeldwinkel links",
           "fov_right": "Sichtfeldwinkel rechts",
           "group": "Abdeckungs-Entitäten",
@@ -136,12 +140,12 @@
           "sunrise_offset": "Sonnenaufgangsversatz",
           "climate_mode": "Klima-Modus",
           "blind_spot": "Blindenbereich einrichten",
-          "min_elevation": "Minimale Sonnenhöhe (Elevation)",
-          "max_elevation": "Maximale Sonnenhöhe (Elevation)",
+          "min_elevation": "Minimale Sonnenhöhe",
+          "max_elevation": "Maximale Sonnenhöhe",
           "interp": "Benutzerdefinierte Öffnungs-/Schließpositionen für Meine Abdeckung festlegen, falls diese nicht vollständig bei 0-100% funktioniert"
         },
         "data_description": {
-          "set_azimuth": "Azimut-Winkel festlegen",
+          "set_azimuth": "Die Himmelsrichtung des Fensters (z.B. 180° ist Süd, 90° ist Ost, 270° ist West).",
           "window_height": "Höhe der Markise vom Bodenlevel aus anpassen",
           "length_awning": "Gesamtlänge der Spannweite in Metern",
           "angle": "Winkel der befestigten Markise, senkrecht von der Wand zum Boden gemessen",
@@ -155,21 +159,25 @@
           "sunset_position": "Position nach Sonnenuntergang",
           "sunset_offset": "Versatz (±) zur Sonnenuntergangszeit in Minuten",
           "sunrise_offset": "Versatz (±) zur Sonnenaufgangszeit in Minuten",
-          "climate_mode": "Variablen für den Klima-Modus konfigurieren"
+          "climate_mode": "Variablen für den Klima-Modus konfigurieren",
+          "min_elevation": "Unterhalb dieses Winkels (z.B. bei Sonnenauf/-untergang) wird das Rollo nicht aktiviert. Bei 0° wird die Sonne immer verfolgt.",
+          "max_elevation": "Oberhalb dieses Winkels steht die Sonne zu hoch, um ins Haus zu scheinen (Rollo öffnet). Bei 90° wird immer verfolgt.",
+          "enable_min_position": "Das Rollo schließt nur dann auf die Minimalposition, wenn die Sonne direkt auf das Fensterglas scheint.",
+          "enable_max_position": "Das Rollo öffnet sich nur dann auf die Maximalposition, wenn die Sonne direkt auf das Fensterglas scheint."
         },
         "description": "Konfigurationsvariablen zum Sensor hinzufügen",
         "title": "Horizontale Abdeckung"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Fenster-Azimut",
+          "set_azimuth": "Fensterausrichtung (Azimut)",
           "slat_depth": "Lamellentiefe",
           "slat_distance": "Lamellenabstand",
           "default_percentage": "Standardposition",
           "min_position": "Minimale Position",
           "max_position": "Maximale Position",
-          "enable_min_position": "Die minimale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
-          "enable_max_position": "Die maximale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
+          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne frontal steht",
+          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne frontal steht",
           "fov_left": "Sichtfeldwinkel links",
           "fov_right": "Sichtfeldwinkel rechts",
           "group": "Abdeckungs-Entitäten",
@@ -180,12 +188,12 @@
           "climate_mode": "Klima-Modus",
           "tilt_mode": "Bewegungsart",
           "blind_spot": "Blindenbereich einrichten",
-          "min_elevation": "Minimale Sonnenhöhe (Elevation)",
-          "max_elevation": "Maximale Sonnenhöhe (Elevation)",
+          "min_elevation": "Minimale Sonnenhöhe",
+          "max_elevation": "Maximale Sonnenhöhe",
           "interp": "Benutzerdefinierte Öffnungs-/Schließpositionen für Meine Abdeckung festlegen, falls diese nicht vollständig bei 0-100% funktioniert"
         },
         "data_description": {
-          "set_azimuth": "Azimut-Winkel festlegen",
+          "set_azimuth": "Die Himmelsrichtung des Fensters (z.B. 180° ist Süd, 90° ist Ost, 270° ist West).",
           "slat_depth": "Tiefe jeder einzelnen Lamelle in Zentimetern",
           "slat_distance": "Vertikaler Abstand zwischen zwei Lamellen in Zentimetern",
           "default_percentage": "Standardabdeckungsposition als Prozentsatz",
@@ -273,14 +281,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Fenster-Azimut",
+          "set_azimuth": "Fensterausrichtung (Azimut)",
           "window_height": "Fensterhöhe",
           "distance_shaded_area": "Tiefe des schattigen Bereichs",
           "default_percentage": "Standardposition",
           "min_position": "Minimale Position",
           "max_position": "Maximale Position",
-          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
-          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
+          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne frontal steht",
+          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne frontal steht",
           "fov_left": "Sichtfeldwinkel links",
           "fov_right": "Sichtfeldwinkel rechts",
           "group": "Jalousie-Entitäten",
@@ -290,12 +298,12 @@
           "sunrise_offset": "Versatz zum Sonnenaufgang",
           "climate_mode": "Klima-Modus",
           "blind_spot": "Blindenbereich einrichten",
-          "min_elevation": "Minimale Sonnenhöhe (Elevation)",
-          "max_elevation": "Maximale Sonnenhöhe (Elevation)",
+          "min_elevation": "Minimale Sonnenhöhe",
+          "max_elevation": "Maximale Sonnenhöhe",
           "interp": "Benutzerdefinierte Öffnungs-/Schließpositionen festlegen, falls die Jalousie nicht vollständig bei 0-100% arbeitet"
         },
         "data_description": {
-          "set_azimuth": "Azimut einstellen",
+          "set_azimuth": "Die Himmelsrichtung des Fensters (z.B. 180° ist Süd, 90° ist Ost, 270° ist West).",
           "window_height": "Fensterhöhe in Metern angeben",
           "distance_shaded_area": "Wie viel direktes Sonnenlicht (in Metern) Sie in den Raum lassen möchten. 0 für vollständigen Schatten, erhöhen, um Licht hereinzulassen.",
           "default_percentage": "Standardposition der Jalousie in Prozent",
@@ -307,7 +315,11 @@
           "sunset_position": "Position nach Sonnenuntergang",
           "sunset_offset": "Versatz (+/-) zur Sonnenuntergangszeit in Minuten",
           "sunrise_offset": "Versatz (+/-) zur Sonnenaufgangszeit in Minuten",
-          "climate_mode": "Variablen für den Klima-Modus konfigurieren"
+          "climate_mode": "Variablen für den Klima-Modus konfigurieren",
+          "min_elevation": "Unterhalb dieses Winkels (z.B. bei Sonnenauf/-untergang) wird das Rollo nicht aktiviert. Bei 0° wird die Sonne immer verfolgt.",
+          "max_elevation": "Oberhalb dieses Winkels steht die Sonne zu hoch, um ins Haus zu scheinen (Rollo öffnet). Bei 90° wird immer verfolgt.",
+          "enable_min_position": "Das Rollo schließt nur dann auf die Minimalposition, wenn die Sonne direkt auf das Fensterglas scheint.",
+          "enable_max_position": "Das Rollo öffnet sich nur dann auf die Maximalposition, wenn die Sonne direkt auf das Fensterglas scheint."
         },
         "description": "Konfigurationsvariablen zum Sensor hinzufügen",
         "title": "Vertikale Jalousie"
@@ -353,7 +365,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Fenster-Azimut",
+          "set_azimuth": "Fensterausrichtung (Azimut)",
           "length_awning": "Markisen-Spannweite",
           "window_height": "Markisenhöhe",
           "angle": "Markisenwinkel",
@@ -361,8 +373,8 @@
           "default_percentage": "Standardposition",
           "min_position": "Mindestposition",
           "max_position": "Maximale Position",
-          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
-          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
+          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne frontal steht",
+          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne frontal steht",
           "fov_left": "Sichtfeldwinkel links",
           "fov_right": "Sichtfeldwinkel rechts",
           "group": "Abdeck-Entitäten",
@@ -372,12 +384,12 @@
           "sunrise_offset": "Sonnenaufgangs-Offset",
           "climate_mode": "Klimamodus",
           "blind_spot": "Blinde Zone einrichten",
-          "min_elevation": "Minimale Elevation der Sonne",
-          "max_elevation": "Maximale Elevation der Sonne",
+          "min_elevation": "Minimale Sonnenhöhe",
+          "max_elevation": "Maximale Sonnenhöhe",
           "interp": "Benutzerdefinierte Öffnungs-/Schließpositionen für Meine Abdeckung einstellen, wenn diese nicht vollständig bei 0-100% funktioniert"
         },
         "data_description": {
-          "set_azimuth": "Azimut angeben",
+          "set_azimuth": "Die Himmelsrichtung des Fensters (z.B. 180° ist Süd, 90° ist Ost, 270° ist West).",
           "window_height": "Höhe der Markise vom Arbeitsbereich aus anpassen",
           "length_awning": "Gesamtlänge der Markise in Metern",
           "angle": "Winkel der befestigten Markise, senkrecht von der Wand zum Boden gemessen",
@@ -391,21 +403,25 @@
           "sunset_position": "Position, die nach Sonnenuntergang eingenommen wird",
           "sunset_offset": "Offset (±) von der Sonnenuntergangszeit in Minuten",
           "sunrise_offset": "Offset (±) von der Sonnenaufgangszeit in Minuten",
-          "climate_mode": "Variablen für den Klimamodus konfigurieren"
+          "climate_mode": "Variablen für den Klimamodus konfigurieren",
+          "min_elevation": "Unterhalb dieses Winkels (z.B. bei Sonnenauf/-untergang) wird das Rollo nicht aktiviert. Bei 0° wird die Sonne immer verfolgt.",
+          "max_elevation": "Oberhalb dieses Winkels steht die Sonne zu hoch, um ins Haus zu scheinen (Rollo öffnet). Bei 90° wird immer verfolgt.",
+          "enable_min_position": "Das Rollo schließt nur dann auf die Minimalposition, wenn die Sonne direkt auf das Fensterglas scheint.",
+          "enable_max_position": "Das Rollo öffnet sich nur dann auf die Maximalposition, wenn die Sonne direkt auf das Fensterglas scheint."
         },
         "description": "Füge Konfigurationsvariablen zum Sensor hinzu",
         "title": "Horizontale Abdeckung"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Fenster-Azimut",
+          "set_azimuth": "Fensterausrichtung (Azimut)",
           "slat_depth": "Lamellenstärke",
           "slat_distance": "Lamellenabstand",
           "default_percentage": "Standardposition",
           "min_position": "Mindestposition",
           "max_position": "Maximale Position",
-          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
-          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne vor dem Fenster steht",
+          "enable_min_position": "Minimale Position nur erzwingen, wenn die Sonne frontal steht",
+          "enable_max_position": "Maximale Position nur erzwingen, wenn die Sonne frontal steht",
           "fov_left": "Sichtfeldwinkel links",
           "fov_right": "Sichtfeldwinkel rechts",
           "group": "Abdeck-Entitäten",
@@ -416,12 +432,12 @@
           "climate_mode": "Klimamodus",
           "tilt_mode": "Bewegungsart",
           "blind_spot": "Blinde Zone einrichten",
-          "min_elevation": "Minimale Elevation der Sonne",
-          "max_elevation": "Maximale Elevation der Sonne",
+          "min_elevation": "Minimale Sonnenhöhe",
+          "max_elevation": "Maximale Sonnenhöhe",
           "interp": "Benutzerdefinierte Öffnungs-/Schließpositionen für Meine Abdeckung einstellen, wenn diese nicht vollständig bei 0-100% funktioniert"
         },
         "data_description": {
-          "set_azimuth": "Azimut angeben",
+          "set_azimuth": "Die Himmelsrichtung des Fensters (z.B. 180° ist Süd, 90° ist Ost, 270° ist West).",
           "slat_depth": "Tiefe jeder einzelnen Lamelle in Zentimetern",
           "slat_distance": "Vertikaler Abstand zwischen zwei Lamellen in Zentimetern",
           "default_percentage": "Standardposition der Abdeckung als Prozentsatz",

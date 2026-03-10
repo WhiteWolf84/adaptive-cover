@@ -37,14 +37,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Azimut de la fenêtre",
+          "set_azimuth": "Orientation de la fenêtre (Azimut)",
           "window_height": "Hauteur de la fenêtre",
           "distance_shaded_area": "Profondeur de la zone ombragée",
           "default_percentage": "Position par défaut",
           "min_position": "Position minimale",
           "max_position": "Position maximale",
-          "enable_min_position": "Forcer la position minimale uniquement lorsque le soleil est devant la fenêtre",
-          "enable_max_position": "Forcer la position maximale uniquement lorsque le soleil est devant la fenêtre",
+          "enable_min_position": "Forcer position min uniquement si soleil de face",
+          "enable_max_position": "Forcer position max uniquement si soleil de face",
           "fov_left": "Angle de vision gauche",
           "fov_right": "Angle de vision droit",
           "group": "Entités de Volets",
@@ -54,12 +54,12 @@
           "sunrise_offset": "Décalage du lever du soleil",
           "climate_mode": "Mode climatique",
           "blind_spot": "Configurer l'angle mort",
-          "min_elevation": "Élévation minimale du soleil",
-          "max_elevation": "Élévation maximale du soleil",
+          "min_elevation": "Élévation solaire minimale",
+          "max_elevation": "Élévation solaire maximale",
           "interp": "Définir des positions d'ouverture/fermeture personnalisées pour mon Volet, si il ne fonctionne pas complètement à 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Ajuster l'azimut",
+          "set_azimuth": "La direction cardinale de votre fenêtre (ex. 180° c'est Sud, 90° c'est Est, 270° c'est Ouest).",
           "window_height": "Spécifier la hauteur de la fenêtre en mètres",
           "distance_shaded_area": "Quantité de lumière directe à laisser entrer (en mètres). 0 pour une ombre complète.",
           "default_percentage": "Position du volet par défaut en journée en pourcentage",
@@ -71,7 +71,11 @@
           "sunset_position": "Position vers laquelle basculer après le coucher du soleil",
           "sunset_offset": "Décalage (±) par rapport à l'heure du coucher du soleil en minutes",
           "sunrise_offset": "Décalage (±) par rapport à l'heure du lever du soleil en minutes",
-          "climate_mode": "Configurer les variables pour le mode climatique"
+          "climate_mode": "Configurer les variables pour le mode climatique",
+          "min_elevation": "En dessous de cet angle (aube/crépuscule), le soleil est ignoré. Laissez à 0° pour toujours le suivre.",
+          "max_elevation": "Au-dessus de cet angle, le soleil est trop haut pour entrer, le store s'ouvre. Mettez 90° pour forcer la fermeture même à midi.",
+          "enable_min_position": "Le volet se ferme à son minimum uniquement lorsque les rayons du soleil frappent la vitre de face.",
+          "enable_max_position": "Le volet s'ouvre à son maximum uniquement lorsque les rayons du soleil frappent la vitre de face."
         },
         "description": "Ajouter des variables de configuration au capteur",
         "title": "Volet Vertical"
@@ -117,7 +121,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Azimut de la fenêtre",
+          "set_azimuth": "Orientation de la fenêtre (Azimut)",
           "length_awning": "Longueur de l'envergure du auvent",
           "window_height": "Hauteur du auvent",
           "angle": "Angle du auvent",
@@ -125,8 +129,8 @@
           "default_percentage": "Position par défaut",
           "min_position": "Position minimale",
           "max_position": "Position maximale",
-          "enable_min_position": "Forcer la position minimale uniquement lorsque le soleil est devant la fenêtre",
-          "enable_max_position": "Forcer la position maximale uniquement lorsque le soleil est devant la fenêtre",
+          "enable_min_position": "Forcer position min uniquement si soleil de face",
+          "enable_max_position": "Forcer position max uniquement si soleil de face",
           "fov_left": "Angle de vision gauche",
           "fov_right": "Angle de vision droit",
           "group": "Entités Volet",
@@ -136,12 +140,12 @@
           "sunrise_offset": "Décalage du lever du soleil",
           "climate_mode": "Mode climatique",
           "blind_spot": "Configurer l'angle mort",
-          "min_elevation": "Élévation minimale du soleil",
-          "max_elevation": "Élévation maximale du soleil",
+          "min_elevation": "Élévation solaire minimale",
+          "max_elevation": "Élévation solaire maximale",
           "interp": "Définir des positions d'ouverture/fermeture personnalisées pour mon Volet, si elle ne fonctionne pas complètement à 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Spécifiez l'azimut",
+          "set_azimuth": "La direction cardinale de votre fenêtre (ex. 180° c'est Sud, 90° c'est Est, 270° c'est Ouest).",
           "window_height": "Ajustez la hauteur du auvent à partir du niveau de la zone de travail",
           "length_awning": "Longueur totale du auvent en mètres",
           "angle": "Angle du auvent fixé mesuré perpendiculairement du mur au sol",
@@ -155,21 +159,25 @@
           "sunset_position": "Position à laquelle basculer après le coucher du soleil",
           "sunset_offset": "Décalage (±) par rapport à l'heure du coucher du soleil en minutes",
           "sunrise_offset": "Décalage (±) par rapport à l'heure du lever du soleil en minutes",
-          "climate_mode": "Configurer les variables pour le mode climatique"
+          "climate_mode": "Configurer les variables pour le mode climatique",
+          "min_elevation": "En dessous de cet angle (aube/crépuscule), le soleil est ignoré. Laissez à 0° pour toujours le suivre.",
+          "max_elevation": "Au-dessus de cet angle, le soleil est trop haut pour entrer, le store s'ouvre. Mettez 90° pour forcer la fermeture même à midi.",
+          "enable_min_position": "Le volet se ferme à son minimum uniquement lorsque les rayons du soleil frappent la vitre de face.",
+          "enable_max_position": "Le volet s'ouvre à son maximum uniquement lorsque les rayons du soleil frappent la vitre de face."
         },
         "description": "Ajouter des variables de configuration au capteur",
         "title": "Store banne"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Azimut de la fenêtre",
+          "set_azimuth": "Orientation de la fenêtre (Azimut)",
           "slat_depth": "Profondeur des lamelles",
           "slat_distance": "Espacement des lamelles",
           "default_percentage": "Position par défaut",
           "min_position": "Position minimale",
           "max_position": "Position maximale",
-          "enable_min_position": "Forcer la position minimale uniquement lorsque le soleil est devant la fenêtre",
-          "enable_max_position": "Forcer la position maximale uniquement lorsque le soleil est devant la fenêtre",
+          "enable_min_position": "Forcer position min uniquement si soleil de face",
+          "enable_max_position": "Forcer position max uniquement si soleil de face",
           "fov_left": "Angle de vision gauche",
           "fov_right": "Angle de vision droit",
           "group": "Entités de volets",
@@ -180,12 +188,12 @@
           "climate_mode": "Mode climatique",
           "tilt_mode": "Type de mouvement",
           "blind_spot": "Configurer l'angle mort",
-          "min_elevation": "Élévation minimale du soleil",
-          "max_elevation": "Élévation maximale du soleil",
+          "min_elevation": "Élévation solaire minimale",
+          "max_elevation": "Élévation solaire maximale",
           "interp": "Définir des positions d'ouverture/fermeture personnalisées pour My Cover, si elle ne fonctionne pas complètement à 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Spécifiez l'azimut",
+          "set_azimuth": "La direction cardinale de votre fenêtre (ex. 180° c'est Sud, 90° c'est Est, 270° c'est Ouest).",
           "slat_depth": "Profondeur de chaque lame individuelle en centimètres",
           "slat_distance": "Distance verticale entre deux lames en centimètres",
           "default_percentage": "Position de couverture par défaut en pourcentage",
@@ -273,14 +281,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Azimut de la fenêtre",
+          "set_azimuth": "Orientation de la fenêtre (Azimut)",
           "window_height": "Hauteur de la fenêtre",
           "distance_shaded_area": "Profondeur de la zone ombragée",
           "default_percentage": "Position par défaut",
           "min_position": "Position minimale",
           "max_position": "Position maximale",
-          "enable_min_position": "Forcer la position minimale uniquement lorsque le soleil est devant la fenêtre",
-          "enable_max_position": "Forcer la position maximale uniquement lorsque le soleil est devant la fenêtre",
+          "enable_min_position": "Forcer position min uniquement si soleil de face",
+          "enable_max_position": "Forcer position max uniquement si soleil de face",
           "fov_left": "Angle de vision gauche",
           "fov_right": "Angle de vision droit",
           "group": "Entités Volet",
@@ -290,12 +298,12 @@
           "sunrise_offset": "Décalage du lever du soleil",
           "climate_mode": "Mode climatique",
           "blind_spot": "Configurer l'angle mort",
-          "min_elevation": "Élévation minimale du soleil",
-          "max_elevation": "Élévation maximale du soleil",
+          "min_elevation": "Élévation solaire minimale",
+          "max_elevation": "Élévation solaire maximale",
           "interp": "Définir des positions d'ouverture/fermeture personnalisées pour My Cover, si elle ne fonctionne pas complètement à 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Ajuster l'azimut",
+          "set_azimuth": "La direction cardinale de votre fenêtre (ex. 180° c'est Sud, 90° c'est Est, 270° c'est Ouest).",
           "window_height": "Spécifier la hauteur de la fenêtre en mètres",
           "distance_shaded_area": "Quantité de lumière directe à laisser entrer (en mètres). 0 pour une ombre complète.",
           "default_percentage": "Position de couverture par défaut en pourcentage",
@@ -307,7 +315,11 @@
           "sunset_position": "Position vers laquelle basculer après le coucher du soleil",
           "sunset_offset": "Décalage (±) par rapport à l'heure du coucher du soleil en minutes",
           "sunrise_offset": "Décalage (±) par rapport à l'heure du lever du soleil en minutes",
-          "climate_mode": "Configurer les variables pour le mode climatique"
+          "climate_mode": "Configurer les variables pour le mode climatique",
+          "min_elevation": "En dessous de cet angle (aube/crépuscule), le soleil est ignoré. Laissez à 0° pour toujours le suivre.",
+          "max_elevation": "Au-dessus de cet angle, le soleil est trop haut pour entrer, le store s'ouvre. Mettez 90° pour forcer la fermeture même à midi.",
+          "enable_min_position": "Le volet se ferme à son minimum uniquement lorsque les rayons du soleil frappent la vitre de face.",
+          "enable_max_position": "Le volet s'ouvre à son maximum uniquement lorsque les rayons du soleil frappent la vitre de face."
         },
         "description": "Ajouter des variables de configuration au capteur",
         "title": "Volet verticale"
@@ -353,7 +365,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Azimut de la fenêtre",
+          "set_azimuth": "Orientation de la fenêtre (Azimut)",
           "length_awning": "Longueur d'envergure du auvent",
           "window_height": "Hauteur du auvent",
           "angle": "Angle du auvent",
@@ -361,8 +373,8 @@
           "default_percentage": "Position par défaut",
           "min_position": "Position minimale",
           "max_position": "Position maximale",
-          "enable_min_position": "Forcer la position minimale uniquement lorsque le soleil est devant la fenêtre",
-          "enable_max_position": "Forcer la position maximale uniquement lorsque le soleil est devant la fenêtre",
+          "enable_min_position": "Forcer position min uniquement si soleil de face",
+          "enable_max_position": "Forcer position max uniquement si soleil de face",
           "fov_left": "Angle de vision gauche",
           "fov_right": "Angle de vision droit",
           "group": "Entités de couverture",
@@ -372,12 +384,12 @@
           "sunrise_offset": "Décalage du lever du soleil",
           "climate_mode": "Mode climatique",
           "blind_spot": "Configurer l'angle mort",
-          "min_elevation": "Élévation minimale du soleil",
-          "max_elevation": "Élévation maximale du soleil",
+          "min_elevation": "Élévation solaire minimale",
+          "max_elevation": "Élévation solaire maximale",
           "interp": "Définir des positions d'ouverture/fermeture personnalisées pour My Cover, si elle ne fonctionne pas complètement à 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Spécifiez l'azimut",
+          "set_azimuth": "La direction cardinale de votre fenêtre (ex. 180° c'est Sud, 90° c'est Est, 270° c'est Ouest).",
           "window_height": "Ajustez la hauteur du auvent à partir du niveau de la zone de travail",
           "length_awning": "Longueur totale de la portée en mètres",
           "angle": "Angle de l'auvent fixé mesuré perpendiculairement du mur au sol",
@@ -391,21 +403,25 @@
           "sunset_position": "Position à laquelle basculer après le coucher du soleil",
           "sunset_offset": "Décalage (±) par rapport à l'heure du coucher du soleil en minutes",
           "sunrise_offset": "Décalage (±) par rapport à l'heure du lever du soleil en minutes",
-          "climate_mode": "Configurer les variables pour le mode climatique"
+          "climate_mode": "Configurer les variables pour le mode climatique",
+          "min_elevation": "En dessous de cet angle (aube/crépuscule), le soleil est ignoré. Laissez à 0° pour toujours le suivre.",
+          "max_elevation": "Au-dessus de cet angle, le soleil est trop haut pour entrer, le store s'ouvre. Mettez 90° pour forcer la fermeture même à midi.",
+          "enable_min_position": "Le volet se ferme à son minimum uniquement lorsque les rayons du soleil frappent la vitre de face.",
+          "enable_max_position": "Le volet s'ouvre à son maximum uniquement lorsque les rayons du soleil frappent la vitre de face."
         },
         "description": "Add configuration variables to the sensor",
         "title": "Store banne"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Azimut de la fenêtre",
+          "set_azimuth": "Orientation de la fenêtre (Azimut)",
           "slat_depth": "Profondeur des lamelles",
           "slat_distance": "Espacement des lamelles",
           "default_percentage": "Position par défaut",
           "min_position": "Position minimale",
           "max_position": "Position maximale",
-          "enable_min_position": "Forcer la position minimale uniquement lorsque le soleil est devant la fenêtre",
-          "enable_max_position": "Forcer la position maximale uniquement lorsque le soleil est devant la fenêtre",
+          "enable_min_position": "Forcer position min uniquement si soleil de face",
+          "enable_max_position": "Forcer position max uniquement si soleil de face",
           "fov_left": "Angle de vision gauche",
           "fov_right": "Angle de vision droit",
           "group": "Entités de couverture",
@@ -416,12 +432,12 @@
           "climate_mode": "Mode climatique",
           "tilt_mode": "Type de mouvement",
           "blind_spot": "Configurer l'angle mort",
-          "min_elevation": "Élévation minimale du soleil",
-          "max_elevation": "Élévation maximale du soleil",
+          "min_elevation": "Élévation solaire minimale",
+          "max_elevation": "Élévation solaire maximale",
           "interp": "Définir des positions d'ouverture/fermeture personnalisées pour My Cover, si elle ne fonctionne pas complètement à 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Spécifiez l'azimut",
+          "set_azimuth": "La direction cardinale de votre fenêtre (ex. 180° c'est Sud, 90° c'est Est, 270° c'est Ouest).",
           "slat_depth": "Profondeur de chaque lame individuelle en centimètres",
           "slat_distance": "Distance verticale entre deux lames en centimètres",
           "default_percentage": "Position de couverture par défaut en pourcentage",

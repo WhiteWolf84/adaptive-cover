@@ -37,14 +37,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Azimut della finestra",
+          "set_azimuth": "Direzione Finestra (Azimut)",
           "window_height": "Altezza della finestra",
           "distance_shaded_area": "Profondità area ombreggiata",
           "default_percentage": "Posizione Predefinita",
           "min_position": "Posizione Minima",
           "max_position": "Posizione Massima",
-          "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
-          "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+          "enable_min_position": "Forza posizione minima solo se il sole è dritto",
+          "enable_max_position": "Forza posizione massima solo se il sole è dritto",
           "fov_left": "Angolo di visuale sinistro",
           "fov_right": "Angolo di visuale destro",
           "group": "Entità Coperture",
@@ -54,12 +54,12 @@
           "sunrise_offset": "Offset Alba",
           "climate_mode": "Modalità Clima",
           "blind_spot": "Imposta Punto Cieco",
-          "min_elevation": "Elevazione Elettromagnetica minima del sole",
-          "max_elevation": "Elevazione Massima del sole",
+          "min_elevation": "Elevazione solare minima",
+          "max_elevation": "Elevazione solare massima",
           "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Regola l'Azimut",
+          "set_azimuth": "La direzione cardinale della tua finestra (es. 180° è Sud, 90° è Est, 270° è Ovest).",
           "window_height": "Specifica l'altezza della finestra in metri",
           "distance_shaded_area": "Quanta luce diretta far entrare nella stanza (in metri). 0 per ombra totale, aumenta per far entrare il sole sul pavimento.",
           "default_percentage": "Posizione predefinita in percentuale",
@@ -71,7 +71,11 @@
           "sunset_position": "Posizione a cui passare dopo il tramonto",
           "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
           "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
-          "climate_mode": "Configura le variabili per la Modalità Clima"
+          "climate_mode": "Configura le variabili per la Modalità Clima",
+          "min_elevation": "Sotto questa angolazione il sole è troppo basso (alba/tramonto) e l'automazione lo ignora. Lascia 0° per tracciarlo sempre.",
+          "max_elevation": "Sopra questa angolazione il sole è altissimo nel cielo e non entra in casa, la tenda si apre. Metti 90° per chiudere sempre la tenda anche a mezzogiorno.",
+          "enable_min_position": "La tapparella scende al minimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro.",
+          "enable_max_position": "La tapparella sale al massimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro."
         },
         "description": "Aggiungi logiche e configurazioni al sensore",
         "title": "Tenda verticale / Tapparella (Vertical cover)"
@@ -117,7 +121,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Azimut della finestra",
+          "set_azimuth": "Direzione Finestra (Azimut)",
           "length_awning": "Lunghezza della Tenda da Sole",
           "window_height": "Altezza della Tenda da Sole",
           "angle": "Estensione Tenda da Sole",
@@ -125,8 +129,8 @@
           "default_percentage": "Posizione Predefinita",
           "min_position": "Posizione Minima",
           "max_position": "Posizione Massima",
-          "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
-          "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+          "enable_min_position": "Forza posizione minima solo se il sole è dritto",
+          "enable_max_position": "Forza posizione massima solo se il sole è dritto",
           "fov_left": "Angolo di visuale sinistro",
           "fov_right": "Angolo di visuale destro",
           "group": "Entità Coperture",
@@ -136,12 +140,12 @@
           "sunrise_offset": "Offset Alba",
           "climate_mode": "Modalità Clima",
           "blind_spot": "Imposta Punto Cieco",
-          "min_elevation": "Elevazione minima del sole",
-          "max_elevation": "Elevazione massima del sole",
+          "min_elevation": "Elevazione solare minima",
+          "max_elevation": "Elevazione solare massima",
           "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specifica l'Azimut",
+          "set_azimuth": "La direzione cardinale della tua finestra (es. 180° è Sud, 90° è Est, 270° è Ovest).",
           "window_height": "Regola l'altezza della Tenda da Sole rispetto al livello della zona di lavoro",
           "length_awning": "Lunghezza totale in metri",
           "angle": "Angolo della Tenda misurato perpendicolarmente dal muro al suolo",
@@ -155,21 +159,25 @@
           "sunset_position": "Posizione a cui passare dopo il tramonto",
           "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
           "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
-          "climate_mode": "Configura le variabili per la Modalità Clima"
+          "climate_mode": "Configura le variabili per la Modalità Clima",
+          "min_elevation": "Sotto questa angolazione il sole è troppo basso (alba/tramonto) e l'automazione lo ignora. Lascia 0° per tracciarlo sempre.",
+          "max_elevation": "Sopra questa angolazione il sole è altissimo nel cielo e non entra in casa, la tenda si apre. Metti 90° per chiudere sempre la tenda anche a mezzogiorno.",
+          "enable_min_position": "La tapparella scende al minimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro.",
+          "enable_max_position": "La tapparella sale al massimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro."
         },
         "description": "Aggiungi configurazioni alla tenda da sole.",
         "title": "Tenda Orizzontale (Horizontal cover)"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Azimut della finestra",
+          "set_azimuth": "Direzione Finestra (Azimut)",
           "slat_depth": "Profondità singola lamella",
           "slat_distance": "Distanza tra le lamelle",
           "default_percentage": "Posizione Predefinita",
           "min_position": "Posizione Minima",
           "max_position": "Posizione Massima",
-          "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
-          "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+          "enable_min_position": "Forza posizione minima solo se il sole è dritto",
+          "enable_max_position": "Forza posizione massima solo se il sole è dritto",
           "fov_left": "Angolo di visuale sinistro",
           "fov_right": "Angolo di visuale destro",
           "group": "Entità Coperture",
@@ -180,12 +188,12 @@
           "climate_mode": "Modalità Clima",
           "tilt_mode": "Tipo di movimento",
           "blind_spot": "Imposta Punto Cieco",
-          "min_elevation": "Elevazione Minima del sole",
-          "max_elevation": "Elevazione Massima del sole",
+          "min_elevation": "Elevazione solare minima",
+          "max_elevation": "Elevazione solare massima",
           "interp": "Imposta posizioni di apertura/chiusura personalizzate per la veneziana, se non opera interamente a 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specifica l'Azimut",
+          "set_azimuth": "La direzione cardinale della tua finestra (es. 180° è Sud, 90° è Est, 270° è Ovest).",
           "slat_depth": "Profondità di ogni singola lamella in centrimetri",
           "slat_distance": "Distanza verticale tra due lamelle in centimetri",
           "default_percentage": "Posizione predefinita in percentuale",
@@ -273,14 +281,14 @@
       },
       "vertical": {
         "data": {
-          "set_azimuth": "Azimut della finestra",
+          "set_azimuth": "Direzione Finestra (Azimut)",
           "window_height": "Altezza della finestra",
           "distance_shaded_area": "Profondità area ombreggiata",
           "default_percentage": "Posizione Predefinita",
           "min_position": "Posizione Minima",
           "max_position": "Posizione Massima",
-          "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
-          "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+          "enable_min_position": "Forza posizione minima solo se il sole è dritto",
+          "enable_max_position": "Forza posizione massima solo se il sole è dritto",
           "fov_left": "Angolo di visuale sinistro",
           "fov_right": "Angolo di visuale destro",
           "group": "Entità Coperture",
@@ -290,12 +298,12 @@
           "sunrise_offset": "Offset Alba",
           "climate_mode": "Modalità Clima",
           "blind_spot": "Imposta Punto Cieco",
-          "min_elevation": "Elevazione Elettromagnetica minima del sole",
-          "max_elevation": "Elevazione Massima del sole",
+          "min_elevation": "Elevazione solare minima",
+          "max_elevation": "Elevazione solare massima",
           "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Regola l'Azimut",
+          "set_azimuth": "La direzione cardinale della tua finestra (es. 180° è Sud, 90° è Est, 270° è Ovest).",
           "window_height": "Specifica l'altezza della finestra in metri",
           "distance_shaded_area": "Quanta luce diretta far entrare nella stanza (in metri). 0 per ombra totale, aumenta per far entrare il sole sul pavimento.",
           "default_percentage": "Posizione predefinita in percentuale",
@@ -307,7 +315,11 @@
           "sunset_position": "Posizione a cui passare dopo il tramonto",
           "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
           "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
-          "climate_mode": "Configura le variabili per la Modalità Clima"
+          "climate_mode": "Configura le variabili per la Modalità Clima",
+          "min_elevation": "Sotto questa angolazione il sole è troppo basso (alba/tramonto) e l'automazione lo ignora. Lascia 0° per tracciarlo sempre.",
+          "max_elevation": "Sopra questa angolazione il sole è altissimo nel cielo e non entra in casa, la tenda si apre. Metti 90° per chiudere sempre la tenda anche a mezzogiorno.",
+          "enable_min_position": "La tapparella scende al minimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro.",
+          "enable_max_position": "La tapparella sale al massimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro."
         },
         "description": "Aggiungi logiche e configurazioni al sensore",
         "title": "Tenda verticale / Tapparella (Vertical cover)"
@@ -353,7 +365,7 @@
       },
       "horizontal": {
         "data": {
-          "set_azimuth": "Azimut della finestra",
+          "set_azimuth": "Direzione Finestra (Azimut)",
           "length_awning": "Lunghezza della Tenda da Sole",
           "window_height": "Altezza della Tenda da Sole",
           "angle": "Estensione Tenda da Sole",
@@ -361,8 +373,8 @@
           "default_percentage": "Posizione Predefinita",
           "min_position": "Posizione Minima",
           "max_position": "Posizione Massima",
-          "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
-          "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+          "enable_min_position": "Forza posizione minima solo se il sole è dritto",
+          "enable_max_position": "Forza posizione massima solo se il sole è dritto",
           "fov_left": "Angolo di visuale sinistro",
           "fov_right": "Angolo di visuale destro",
           "group": "Entità Coperture",
@@ -372,12 +384,12 @@
           "sunrise_offset": "Offset Alba",
           "climate_mode": "Modalità Clima",
           "blind_spot": "Imposta Punto Cieco",
-          "min_elevation": "Elevazione minima del sole",
-          "max_elevation": "Elevazione massima del sole",
+          "min_elevation": "Elevazione solare minima",
+          "max_elevation": "Elevazione solare massima",
           "interp": "Imposta posizioni di apertura/chiusura personalizzate per la Tenda, se non opera interamente a 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specifica l'Azimut",
+          "set_azimuth": "La direzione cardinale della tua finestra (es. 180° è Sud, 90° è Est, 270° è Ovest).",
           "window_height": "Regola l'altezza della Tenda da Sole rispetto al livello della zona di lavoro",
           "length_awning": "Lunghezza totale in metri",
           "angle": "Angolo della Tenda misurato perpendicolarmente dal muro al suolo",
@@ -391,21 +403,25 @@
           "sunset_position": "Posizione a cui passare dopo il tramonto",
           "sunset_offset": "Offset (±) dall'orario del tramonto in minuti",
           "sunrise_offset": "Offset (±) dall'orario dell'alba in minuti",
-          "climate_mode": "Configura le variabili per la Modalità Clima"
+          "climate_mode": "Configura le variabili per la Modalità Clima",
+          "min_elevation": "Sotto questa angolazione il sole è troppo basso (alba/tramonto) e l'automazione lo ignora. Lascia 0° per tracciarlo sempre.",
+          "max_elevation": "Sopra questa angolazione il sole è altissimo nel cielo e non entra in casa, la tenda si apre. Metti 90° per chiudere sempre la tenda anche a mezzogiorno.",
+          "enable_min_position": "La tapparella scende al minimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro.",
+          "enable_max_position": "La tapparella sale al massimo solo quando i raggi del sole colpiscono in modo percettibilmente diretto il vetro."
         },
         "description": "Aggiungi configurazioni alla tenda da sole.",
         "title": "Tenda Orizzontale (Horizontal cover)"
       },
       "tilt": {
         "data": {
-          "set_azimuth": "Azimut della finestra",
+          "set_azimuth": "Direzione Finestra (Azimut)",
           "slat_depth": "Profondità singola lamella",
           "slat_distance": "Distanza tra le lamelle",
           "default_percentage": "Posizione Predefinita",
           "min_position": "Posizione Minima",
           "max_position": "Posizione Massima",
-          "enable_min_position": "Forzare la posizione minima solo quando il sole è di fronte alla finestra",
-          "enable_max_position": "Forzare la posizione massima solo quando il sole è di fronte alla finestra",
+          "enable_min_position": "Forza posizione minima solo se il sole è dritto",
+          "enable_max_position": "Forza posizione massima solo se il sole è dritto",
           "fov_left": "Angolo di visuale sinistro",
           "fov_right": "Angolo di visuale destro",
           "group": "Entità Coperture",
@@ -416,12 +432,12 @@
           "climate_mode": "Modalità Clima",
           "tilt_mode": "Tipo di movimento",
           "blind_spot": "Imposta Punto Cieco",
-          "min_elevation": "Elevazione Minima del sole",
-          "max_elevation": "Elevazione Massima del sole",
+          "min_elevation": "Elevazione solare minima",
+          "max_elevation": "Elevazione solare massima",
           "interp": "Imposta posizioni di apertura/chiusura personalizzate per la veneziana, se non opera interamente a 0-100%"
         },
         "data_description": {
-          "set_azimuth": "Specifica l'Azimut",
+          "set_azimuth": "La direzione cardinale della tua finestra (es. 180° è Sud, 90° è Est, 270° è Ovest).",
           "slat_depth": "Profondità di ogni singola lamella in centrimetri",
           "slat_distance": "Distanza verticale tra due lamelle in centimetri",
           "default_percentage": "Posizione predefinita in percentuale",
