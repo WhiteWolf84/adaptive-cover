@@ -1,10 +1,6 @@
 """Constants for integration_blueprint."""
 
-import logging
-
 DOMAIN = "adaptive_cover"
-LOGGER = logging.getLogger(__package__)
-_LOGGER = logging.getLogger(__name__)
 
 ATTR_POSITION = "position"
 ATTR_TILT_POSITION = "tilt_position"

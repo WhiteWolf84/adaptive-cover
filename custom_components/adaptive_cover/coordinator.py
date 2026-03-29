@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+import logging
 from dataclasses import dataclass
 
 import numpy as np
@@ -36,7 +37,6 @@ from .calculation import (
     NormalCoverState,
 )
 from .const import (
-    _LOGGER,
     ATTR_POSITION,
     ATTR_TILT_POSITION,
     CONF_AWNING_ANGLE,
@@ -96,8 +96,9 @@ from .const import (
     CONF_WEATHER_ENTITY,
     CONF_WEATHER_STATE,
     DOMAIN,
-    LOGGER,
 )
+
+_LOGGER = logging.getLogger(__name__)
 from .helpers import get_datetime_from_str, get_last_updated, get_safe_state
 
 # Tipi di copertura supportati
@@ -128,7 +129,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
     config_entry: ConfigEntry
 
     def __init__(self, hass: HomeAssistant) -> None:  # noqa: D107
-        super().__init__(hass, LOGGER, name=DOMAIN)
+        super().__init__(hass, _LOGGER, name=DOMAIN)
 
         self.logger = ConfigContextAdapter(_LOGGER)
         self.logger.set_config_name(self.config_entry.data.get("name"))
@@ -176,7 +177,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         """Config entry first refresh."""
         self.first_refresh = True
         await super().async_config_entry_first_refresh()
-        self.logger.debug("Config entry first refresh")
+        self.logger.info("Config entry first refresh completed")
 
     async def async_timed_refresh(self, event) -> None:
         """Control state at end time."""

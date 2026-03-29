@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+
+_LOGGER = logging.getLogger(__name__)
 from homeassistant.helpers.event import (
     async_track_state_change_event,
 )
@@ -16,7 +20,6 @@ from .const import (
     CONF_TEMP_ENTITY,
     CONF_WEATHER_ENTITY,
     DOMAIN,
-    _LOGGER,
 )
 from .coordinator import AdaptiveDataUpdateCoordinator
 
@@ -36,7 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if entity is not None:
             _entities.append(entity)
 
-    _LOGGER.debug("Setting up entry %s", entry.data.get("name"))
+    _LOGGER.info("Setting up entry %s", entry.data.get("name"))
 
     entry.async_on_unload(
         async_track_state_change_event(

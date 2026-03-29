@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import logging
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -17,13 +18,13 @@ from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-
 from .const import (
     CONF_SENSOR_TYPE,
     DOMAIN,
-    _LOGGER,
 )
 from .coordinator import AdaptiveDataUpdateCoordinator
+
+_LOGGER = logging.getLogger(__name__)
 
 # Silver: parallel-updates — 0 = illimitato per integrazioni push/coordinator-driven
 PARALLEL_UPDATES = 0

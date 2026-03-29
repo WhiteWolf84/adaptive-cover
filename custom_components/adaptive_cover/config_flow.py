@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import voluptuous as vol
@@ -75,8 +76,9 @@ from .const import (
     CONF_WEATHER_STATE,
     DOMAIN,
     SensorType,
-    _LOGGER,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPE_MENU = [SensorType.BLIND, SensorType.AWNING, SensorType.TILT]
 
@@ -131,12 +133,12 @@ OPTIONS = vol.Schema(
                 min=0, max=90, step=1, mode="slider", unit_of_measurement="°"
             )
         ),
-        vol.Required(CONF_FOV_LEFT, default=90): selector.NumberSelector(
+        vol.Required(CONF_FOV_LEFT, default=45): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=1, max=90, step=1, mode="slider", unit_of_measurement="°"
             )
         ),
-        vol.Required(CONF_FOV_RIGHT, default=90): selector.NumberSelector(
+        vol.Required(CONF_FOV_RIGHT, default=45): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=1, max=90, step=1, mode="slider", unit_of_measurement="°"
             )
@@ -311,12 +313,12 @@ WEATHER_OPTIONS = vol.Schema(
 
 AUTOMATION_CONFIG = vol.Schema(
     {
-        vol.Required(CONF_DELTA_POSITION, default=1): selector.NumberSelector(
+        vol.Required(CONF_DELTA_POSITION, default=5): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=1, max=90, step=1, mode="slider", unit_of_measurement="%"
             )
         ),
-        vol.Optional(CONF_DELTA_TIME, default=2): selector.NumberSelector(
+        vol.Optional(CONF_DELTA_TIME, default=5): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=2, mode="box", unit_of_measurement="minutes"
             )
@@ -326,10 +328,10 @@ AUTOMATION_CONFIG = vol.Schema(
             selector.EntitySelectorConfig(domain=["sensor", "input_datetime"])
         ),
         vol.Required(
-            CONF_MANUAL_OVERRIDE_DURATION, default={"minutes": 15}
+            CONF_MANUAL_OVERRIDE_DURATION, default={"minutes": 60}
         ): selector.DurationSelector(),
         vol.Required(CONF_MANUAL_OVERRIDE_RESET, default=False): selector.BooleanSelector(),
-        vol.Optional(CONF_MANUAL_THRESHOLD): selector.NumberSelector(
+        vol.Optional(CONF_MANUAL_THRESHOLD, default=5): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=0, max=99, step=1, mode="slider", unit_of_measurement="%"
             )
