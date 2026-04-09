@@ -510,12 +510,17 @@ class AdaptiveVerticalCover(AdaptiveGeneralCover):
         """Calculate blind height."""
         # calculate glare height based on distance
         glare_height = (self.distance / cos(rad(self.gamma))) * tan(rad(self.sol_elev))
-        
-        # calculate shadow height from bottom obstacle
+
+        # calculate shadow height from bottom obstacle (hedge/wall)
+        # shadow_height represents how high the obstacle's shadow reaches on the window
         shadow_height = 0
         if self.obstacle_height > 0 and self.obstacle_distance > 0:
-            shadow_height = self.obstacle_height - ((self.obstacle_distance / cos(rad(self.gamma))) * tan(rad(self.sol_elev)))
-            
+            effective_distance = self.obstacle_distance / cos(rad(self.gamma))
+            shadow_height = max(
+                self.obstacle_height - effective_distance * tan(rad(self.sol_elev)),
+                0,
+            )
+
         blind_height = np.clip(
             max(glare_height, shadow_height),
             0,

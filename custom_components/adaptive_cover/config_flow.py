@@ -748,7 +748,7 @@ class OptionsFlowHandler(OptionsFlow):
         if self.options.get(CONF_CLIMATE_MODE, False):
             schema = VERTICAL_OPTIONS
         if user_input is not None:
-            self._set_optional_to_none([CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input)
+            self._set_optional_to_none([CONF_MIN_ELEVATION, CONF_MAX_ELEVATION, CONF_OBSTACLE_HEIGHT, CONF_OBSTACLE_DISTANCE], user_input)
             if (
                 user_input.get(CONF_MAX_ELEVATION) is not None
                 and user_input.get(CONF_MIN_ELEVATION) is not None
