@@ -503,12 +503,21 @@ class AdaptiveVerticalCover(AdaptiveGeneralCover):
 
     distance: float
     h_win: float
+    obstacle_height: float
+    obstacle_distance: float
 
     def calculate_position(self) -> float:
         """Calculate blind height."""
-        # calculate blind height
+        # calculate glare height based on distance
+        glare_height = (self.distance / cos(rad(self.gamma))) * tan(rad(self.sol_elev))
+        
+        # calculate shadow height from bottom obstacle
+        shadow_height = 0
+        if self.obstacle_height > 0 and self.obstacle_distance > 0:
+            shadow_height = self.obstacle_height - ((self.obstacle_distance / cos(rad(self.gamma))) * tan(rad(self.sol_elev)))
+            
         blind_height = np.clip(
-            (self.distance / cos(rad(self.gamma))) * tan(rad(self.sol_elev)),
+            max(glare_height, shadow_height),
             0,
             self.h_win,
         )

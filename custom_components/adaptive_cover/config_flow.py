@@ -55,6 +55,8 @@ from .const import (
     CONF_MIN_ELEVATION,
     CONF_MIN_POSITION,
     CONF_MODE,
+    CONF_OBSTACLE_DISTANCE,
+    CONF_OBSTACLE_HEIGHT,
     CONF_OUTSIDE_THRESHOLD,
     CONF_OUTSIDETEMP_ENTITY,
     CONF_PRESENCE_ENTITY,
@@ -179,6 +181,16 @@ VERTICAL_OPTIONS = vol.Schema(
         vol.Required(CONF_DISTANCE, default=0.5): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=0.1, max=2, step=0.1, mode="slider", unit_of_measurement="m"
+            )
+        ),
+        vol.Optional(CONF_OBSTACLE_HEIGHT, default=0): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=10, step=0.1, mode="slider", unit_of_measurement="m"
+            )
+        ),
+        vol.Optional(CONF_OBSTACLE_DISTANCE, default=0): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=10, step=0.1, mode="slider", unit_of_measurement="m"
             )
         ),
     }
@@ -623,6 +635,8 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
                 CONF_FOV_RIGHT: self.config.get(CONF_FOV_RIGHT),
                 CONF_ENTITIES: self.config.get(CONF_ENTITIES),
                 CONF_INVERSE_STATE: self.config.get(CONF_INVERSE_STATE),
+                CONF_OBSTACLE_HEIGHT: self.config.get(CONF_OBSTACLE_HEIGHT, 0),
+                CONF_OBSTACLE_DISTANCE: self.config.get(CONF_OBSTACLE_DISTANCE, 0),
                 CONF_SUNSET_POS: self.config.get(CONF_SUNSET_POS),
                 CONF_SUNSET_OFFSET: self.config.get(CONF_SUNSET_OFFSET),
                 CONF_SUNRISE_OFFSET: self.config.get(CONF_SUNRISE_OFFSET),
