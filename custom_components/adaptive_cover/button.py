@@ -25,7 +25,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up the button platform."""
     coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
-    
+
     _LOGGER.info("Setting up Adaptive Cover buttons for %s", config_entry.data.get("name"))
 
     reset_manual = AdaptiveCoverButton(

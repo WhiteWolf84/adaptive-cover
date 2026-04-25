@@ -607,14 +607,14 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
             "cover_awning": "Horizontal",
             "cover_tilt": "Tilt",
         }
-        
+
         _LOGGER.info(
             "Creating Adaptive Cover configuration entry for %s (%s)",
             self.config["name"],
             cover_type_labels[self.type_blind],
         )
         _LOGGER.debug("Configuration data initialized: %s", self.config)
-        
+
         return self.async_create_entry(
             title=f"{cover_type_labels[self.type_blind]} {self.config['name']}",
             data={

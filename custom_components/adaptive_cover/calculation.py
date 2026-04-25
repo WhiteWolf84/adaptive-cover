@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 
 import numpy as np
 import pandas as pd
@@ -145,8 +145,8 @@ class AdaptiveGeneralCover(ABC):
         """Determine if it is after sunset plus offset."""
         sunset = self.sun_data.sunset().replace(tzinfo=None)
         sunrise = self.sun_data.sunrise().replace(tzinfo=None)
-        after_sunset = datetime.now(timezone.utc).replace(tzinfo=None) > (sunset + timedelta(minutes=self.sunset_off))
-        before_sunrise = datetime.now(timezone.utc).replace(tzinfo=None) < (
+        after_sunset = datetime.now(UTC).replace(tzinfo=None) > (sunset + timedelta(minutes=self.sunset_off))
+        before_sunrise = datetime.now(UTC).replace(tzinfo=None) < (
             sunrise + timedelta(minutes=self.sunrise_off)
         )
         self.logger.debug(

@@ -99,9 +99,9 @@ from .const import (
     CONF_WEATHER_STATE,
     DOMAIN,
 )
+from .helpers import get_datetime_from_str, get_last_updated, get_safe_state
 
 _LOGGER = logging.getLogger(__name__)
-from .helpers import get_datetime_from_str, get_last_updated, get_safe_state
 
 # Tipi di copertura supportati
 COVER_TYPES: frozenset[str] = frozenset({"cover_blind", "cover_awning", "cover_tilt"})
@@ -327,7 +327,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         if (
             self.first_refresh
             or self._sun_start_time is None
-            or dt.datetime.now(dt.timezone.utc).date() != self._sun_start_time.date()
+            or dt.datetime.now(dt.UTC).date() != self._sun_start_time.date()
         ):
             self.logger.debug("Calculating solar times")
             loop = asyncio.get_running_loop()

@@ -7,8 +7,6 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-
-_LOGGER = logging.getLogger(__name__)
 from homeassistant.helpers.event import (
     async_track_state_change_event,
 )
@@ -19,9 +17,11 @@ from .const import (
     CONF_PRESENCE_ENTITY,
     CONF_TEMP_ENTITY,
     CONF_WEATHER_ENTITY,
-    DOMAIN,
+    DOMAIN as DOMAIN,
 )
 from .coordinator import AdaptiveDataUpdateCoordinator
+
+_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR, Platform.SWITCH, Platform.BINARY_SENSOR, Platform.BUTTON]
 
