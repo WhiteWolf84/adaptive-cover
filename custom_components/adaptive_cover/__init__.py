@@ -7,9 +7,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.event import (
-    async_track_state_change_event,
-)
+from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     CONF_END_ENTITY,
@@ -23,28 +21,43 @@ from .coordinator import AdaptiveDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.SENSOR, Platform.SWITCH, Platform.BINARY_SENSOR, Platform.BUTTON]
+PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
+
+# Typed ConfigEntry — HA core 2024.x best practice. Permette type-checking
+# di entry.runtime_data senza cast.
+type AdaptiveCoverConfigEntry = ConfigEntry[AdaptiveDataUpdateCoordinator]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: AdaptiveCoverConfigEntry
+) -> bool:
     """Set up Adaptive Cover from a config entry."""
-    coordinator = AdaptiveDataUpdateCoordinator(hass)
-    _temp_entity = entry.options.get(CONF_TEMP_ENTITY)
-    _presence_entity = entry.options.get(CONF_PRESENCE_ENTITY)
-    _weather_entity = entry.options.get(CONF_WEATHER_ENTITY)
-    _cover_entities = entry.options.get(CONF_ENTITIES, [])
-    _end_time_entity = entry.options.get(CONF_END_ENTITY)
-    _entities = ["sun.sun"]
-    for entity in [_temp_entity, _presence_entity, _weather_entity, _end_time_entity]:
+    coordinator = AdaptiveDataUpdateCoordinator(hass, entry)
+
+    tracked_entities: list[str] = ["sun.sun"]
+    for option in (
+        CONF_TEMP_ENTITY,
+        CONF_PRESENCE_ENTITY,
+        CONF_WEATHER_ENTITY,
+        CONF_END_ENTITY,
+    ):
+        entity = entry.options.get(option)
         if entity is not None:
-            _entities.append(entity)
+            tracked_entities.append(entity)
+
+    cover_entities: list[str] = entry.options.get(CONF_ENTITIES, [])
 
     _LOGGER.info("Setting up entry %s", entry.data.get("name"))
 
     entry.async_on_unload(
         async_track_state_change_event(
             hass,
-            _entities,
+            tracked_entities,
             coordinator.async_check_entity_state_change,
         )
     )
@@ -52,14 +65,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(
         async_track_state_change_event(
             hass,
-            _cover_entities,
+            cover_entities,
             coordinator.async_check_cover_state_change,
         )
     )
 
     await coordinator.async_config_entry_first_refresh()
 
-    # Silver: usa entry.runtime_data invece di hass.data[DOMAIN] (Bronze: runtime-data rule)
+    # Bronze: runtime-data — usa entry.runtime_data invece di hass.data[DOMAIN]
     entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -68,21 +81,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(
+    hass: HomeAssistant, entry: AdaptiveCoverConfigEntry
+) -> bool:
     """Unload a config entry."""
-    # Silver: config-entry-unloading rule
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
-async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_migrate_entry(
+    hass: HomeAssistant, entry: AdaptiveCoverConfigEntry
+) -> bool:
     """Migrate old config entry to new version."""
     _LOGGER.debug(
-        "Migrating Adaptive Cover config entry from version %s", entry.version
+        "Migrating Adaptive Cover config entry from version %s.%s",
+        entry.version,
+        entry.minor_version,
     )
-    # Future schema migrations go here with entry.version checks
+    # Future schema migrations: branch on entry.version / entry.minor_version
     return True
 
 
-async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+async def _async_update_listener(
+    hass: HomeAssistant, entry: AdaptiveCoverConfigEntry
+) -> None:
     """Handle options update."""
     await hass.config_entries.async_reload(entry.entry_id)

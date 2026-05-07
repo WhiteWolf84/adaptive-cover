@@ -5,11 +5,11 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from homeassistant.components.cover import DOMAIN as COVER_DOMAIN
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_SET_COVER_POSITION,
@@ -22,9 +22,12 @@ from homeassistant.core import (
     State,
     callback,
 )
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceNotFound
 from homeassistant.helpers.event import async_track_point_in_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
 
 from .config_context_adapter import ConfigContextAdapter
 from .calculation import (
@@ -105,8 +108,14 @@ _LOGGER = logging.getLogger(__name__)
 # Tipi di copertura supportati
 COVER_TYPES: frozenset[str] = frozenset({"cover_blind", "cover_awning", "cover_tilt"})
 
+COVER_TYPE_LABELS: dict[str, str] = {
+    "cover_blind": "Vertical",
+    "cover_awning": "Horizontal",
+    "cover_tilt": "Tilt",
+}
 
-@dataclass
+
+@dataclass(slots=True)
 class StateChangedData:
     """StateChangedData class."""
 
@@ -115,13 +124,13 @@ class StateChangedData:
     new_state: State | None
 
 
-@dataclass
+@dataclass(slots=True)
 class AdaptiveCoverData:
     """AdaptiveCoverData class."""
 
     climate_mode_toggle: bool
-    states: dict
-    attributes: dict
+    states: dict[str, Any] = field(default_factory=dict)
+    attributes: dict[str, Any] = field(default_factory=dict)
 
 
 class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
@@ -129,8 +138,19 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
     config_entry: ConfigEntry
 
-    def __init__(self, hass: HomeAssistant) -> None:  # noqa: D107
-        super().__init__(hass, _LOGGER, name=DOMAIN)
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+        """Initialize the coordinator.
+
+        Pass `config_entry` explicitly: HA 2024.10+ requires this; relying on the
+        descriptor fallback emits a deprecation warning starting from 2025.x.
+        """
+        super().__init__(
+            hass,
+            _LOGGER,
+            config_entry=config_entry,
+            name=DOMAIN,
+            update_interval=None,
+        )
 
         self.logger = ConfigContextAdapter(_LOGGER)
         self.logger.set_config_name(self.config_entry.data.get("name"))
@@ -455,16 +475,16 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 self.target_call,
             )
             self.logger.debug("Run %s with data %s", service, service_data)
-            # Silver: action-exceptions — solleva HomeAssistantError in caso di fallimento
+            # Silver: action-exceptions — solleva HomeAssistantError in caso di fallimento.
+            # Catturiamo HomeAssistantError (timeout/Unknown), ServiceNotFound, ValueError;
+            # qualsiasi altro errore è un bug e va lasciato propagare.
             try:
                 await self.hass.services.async_call(
-                    COVER_DOMAIN, service, service_data
+                    COVER_DOMAIN, service, service_data, blocking=False
                 )
-            except Exception as err:  # noqa: BLE001
+            except (HomeAssistantError, ServiceNotFound, ValueError) as err:
                 self.wait_for_target[entity] = False
-                self.logger.error(
-                    "Failed to set position for %s: %s", entity, err
-                )
+                self.logger.error("Failed to set position for %s: %s", entity, err)
                 raise HomeAssistantError(
                     f"Failed to set cover position for {entity}: {err}"
                 ) from err

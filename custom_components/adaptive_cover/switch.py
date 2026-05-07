@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -24,88 +23,72 @@ from .const import (
     CONF_WEATHER_ENTITY,
     DOMAIN,
 )
-from .coordinator import AdaptiveDataUpdateCoordinator
+from .coordinator import COVER_TYPE_LABELS, AdaptiveDataUpdateCoordinator
+
+if TYPE_CHECKING:
+    from . import AdaptiveCoverConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: AdaptiveCoverConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the demo switch platform."""
-    coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
+    """Set up the Adaptive Cover switch platform."""
+    coordinator = config_entry.runtime_data
 
-    _LOGGER.info("Setting up Adaptive Cover switches for %s", config_entry.data.get("name"))
-
-    manual_switch = AdaptiveCoverSwitch(
-        config_entry,
-        config_entry.entry_id,
-        "Manual Override",
-        True,
-        "manual_toggle",
-        coordinator,
-    )
-    control_switch = AdaptiveCoverSwitch(
-        config_entry,
-        config_entry.entry_id,
-        "Toggle Control",
-        True,
-        "control_toggle",
-        coordinator,
-    )
-    climate_switch = AdaptiveCoverSwitch(
-        config_entry,
-        config_entry.entry_id,
-        "Climate Mode",
-        True,
-        "switch_mode",
-        coordinator,
-    )
-    temp_switch = AdaptiveCoverSwitch(
-        config_entry,
-        config_entry.entry_id,
-        "Outside Temperature",
-        False,
-        "temp_toggle",
-        coordinator,
-    )
-    lux_switch = AdaptiveCoverSwitch(
-        config_entry,
-        config_entry.entry_id,
-        "Lux",
-        True,
-        "lux_toggle",
-        coordinator,
-    )
-    irradiance_switch = AdaptiveCoverSwitch(
-        config_entry,
-        config_entry.entry_id,
-        "Irradiance",
-        True,
-        "irradiance_toggle",
-        coordinator,
+    _LOGGER.info(
+        "Setting up Adaptive Cover switches for %s",
+        config_entry.data.get("name"),
     )
 
-    climate_mode = config_entry.options.get(CONF_CLIMATE_MODE)
-    weather_entity = config_entry.options.get(CONF_WEATHER_ENTITY)
-    sensor_entity = config_entry.options.get(CONF_OUTSIDETEMP_ENTITY)
-    lux_entity = config_entry.options.get(CONF_LUX_ENTITY)
-    irradiance_entity = config_entry.options.get(CONF_IRRADIANCE_ENTITY)
-    switches = []
+    options = config_entry.options
+    switches: list[AdaptiveCoverSwitch] = []
 
-    if len(config_entry.options.get(CONF_ENTITIES)) >= 1:
-        switches = [control_switch, manual_switch]
+    if options.get(CONF_ENTITIES):
+        switches.extend(
+            [
+                AdaptiveCoverSwitch(
+                    config_entry, config_entry.entry_id, "Toggle Control", True,
+                    "control_toggle", coordinator,
+                ),
+                AdaptiveCoverSwitch(
+                    config_entry, config_entry.entry_id, "Manual Override", True,
+                    "manual_toggle", coordinator,
+                ),
+            ]
+        )
 
-    if climate_mode:
-        switches.append(climate_switch)
-        if weather_entity or sensor_entity:
-            switches.append(temp_switch)
-        if lux_entity:
-            switches.append(lux_switch)
-        if irradiance_entity:
-            switches.append(irradiance_switch)
+    if options.get(CONF_CLIMATE_MODE):
+        switches.append(
+            AdaptiveCoverSwitch(
+                config_entry, config_entry.entry_id, "Climate Mode", True,
+                "switch_mode", coordinator,
+            )
+        )
+        if options.get(CONF_WEATHER_ENTITY) or options.get(CONF_OUTSIDETEMP_ENTITY):
+            switches.append(
+                AdaptiveCoverSwitch(
+                    config_entry, config_entry.entry_id, "Outside Temperature", False,
+                    "temp_toggle", coordinator,
+                )
+            )
+        if options.get(CONF_LUX_ENTITY):
+            switches.append(
+                AdaptiveCoverSwitch(
+                    config_entry, config_entry.entry_id, "Lux", True,
+                    "lux_toggle", coordinator,
+                )
+            )
+        if options.get(CONF_IRRADIANCE_ENTITY):
+            switches.append(
+                AdaptiveCoverSwitch(
+                    config_entry, config_entry.entry_id, "Irradiance", True,
+                    "irradiance_toggle", coordinator,
+                )
+            )
 
     async_add_entities(switches)
 
@@ -113,14 +96,13 @@ async def async_setup_entry(
 class AdaptiveCoverSwitch(
     CoordinatorEntity[AdaptiveDataUpdateCoordinator], SwitchEntity, RestoreEntity
 ):
-    """Representation of a adaptive cover switch."""
+    """Adaptive Cover switch entity."""
 
     _attr_has_entity_name = True
-    _attr_should_poll = False
 
     def __init__(
         self,
-        config_entry,
+        config_entry: AdaptiveCoverConfigEntry,
         unique_id: str,
         switch_name: str,
         initial_state: bool,
@@ -130,37 +112,28 @@ class AdaptiveCoverSwitch(
     ) -> None:
         """Initialize the switch."""
         super().__init__(coordinator=coordinator)
-        self.type = {
-            "cover_blind": "Vertical",
-            "cover_awning": "Horizontal",
-            "cover_tilt": "Tilt",
-        }
-        self._name = config_entry.data["name"]
-        self._state: bool | None = None
+        self._friendly_name: str = config_entry.data["name"]
         self._key = key
         self._attr_translation_key = key
-        self._device_name = self.type[config_entry.data[CONF_SENSOR_TYPE]]
         self._switch_name = switch_name
         self._attr_device_class = device_class
         self._initial_state = initial_state
         self._attr_unique_id = f"{unique_id}_{switch_name}"
-        self._device_id = unique_id
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self._device_id)},
-            name=self._device_name,
+            identifiers={(DOMAIN, unique_id)},
+            name=COVER_TYPE_LABELS[config_entry.data[CONF_SENSOR_TYPE]],
         )
 
         self.coordinator.logger.debug("Setup switch")
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the entity."""
-        return f"{self._switch_name} {self._name}"
+        return f"{self._switch_name} {self._friendly_name}"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
         _LOGGER.debug("Turning on switch: %s", self.name)
-        self.coordinator.logger.debug("Turning on")
         self._attr_is_on = True
         setattr(self.coordinator, self._key, True)
         if self._key == "control_toggle" and kwargs.get("added") is not True:
@@ -173,24 +146,26 @@ class AdaptiveCoverSwitch(
                         entity, self.coordinator.state
                     )
         await self.coordinator.async_refresh()
-        self.schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        """Turn the device off."""
+        """Turn the switch off."""
         _LOGGER.debug("Turning off switch: %s", self.name)
-        self.coordinator.logger.debug("Turning off")
         self._attr_is_on = False
         setattr(self.coordinator, self._key, False)
         if self._key == "control_toggle" and kwargs.get("added") is not True:
             for entity in self.coordinator.manager.manual_controlled:
                 self.coordinator.manager.reset(entity)
         await self.coordinator.async_refresh()
-        self.schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_added_to_hass(self) -> None:
-        """Call when entity about to be added to hass."""
+        """Restore state and apply initial value when added to HA."""
+        await super().async_added_to_hass()
         last_state = await self.async_get_last_state()
-        self.coordinator.logger.debug("%s: last state is %s", self._name, last_state)
+        self.coordinator.logger.debug(
+            "%s: last state is %s", self._friendly_name, last_state
+        )
         if (last_state is None and self._initial_state) or (
             last_state is not None and last_state.state == STATE_ON
         ):

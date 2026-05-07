@@ -4,25 +4,25 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import (
-    CONF_SENSOR_TYPE,
-    DOMAIN,
-)
-from .coordinator import AdaptiveDataUpdateCoordinator
+
+from .const import CONF_SENSOR_TYPE, DOMAIN
+from .coordinator import COVER_TYPE_LABELS, AdaptiveDataUpdateCoordinator
+
+if TYPE_CHECKING:
+    from . import AdaptiveCoverConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,257 +32,176 @@ PARALLEL_UPDATES = 0
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: AdaptiveCoverConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Initialize Adaptive Cover config entry."""
-    name = config_entry.data["name"]
-    # Bronze: runtime-data — usa entry.runtime_data invece di hass.data[DOMAIN]
-    coordinator: AdaptiveDataUpdateCoordinator = config_entry.runtime_data
+    name: str = config_entry.data["name"]
+    coordinator = config_entry.runtime_data
 
     _LOGGER.info("Setting up Adaptive Cover sensors for %s", name)
 
-    sensor = AdaptiveCoverSensorEntity(
-        config_entry.entry_id, hass, config_entry, name, coordinator
+    async_add_entities(
+        [
+            AdaptiveCoverSensorEntity(config_entry.entry_id, config_entry, name, coordinator),
+            AdaptiveCoverTimeSensorEntity(
+                config_entry.entry_id,
+                config_entry,
+                name,
+                "Start Sun",
+                "start",
+                "mdi:sun-clock-outline",
+                coordinator,
+            ),
+            AdaptiveCoverTimeSensorEntity(
+                config_entry.entry_id,
+                config_entry,
+                name,
+                "End Sun",
+                "end",
+                "mdi:sun-clock",
+                coordinator,
+            ),
+            AdaptiveCoverControlSensorEntity(
+                config_entry.entry_id, config_entry, name, coordinator
+            ),
+        ]
     )
-    start = AdaptiveCoverTimeSensorEntity(
-        config_entry.entry_id,
-        hass,
-        config_entry,
-        name,
-        "Start Sun",
-        "start",
-        "mdi:sun-clock-outline",
-        coordinator,
-    )
-    end = AdaptiveCoverTimeSensorEntity(
-        config_entry.entry_id,
-        hass,
-        config_entry,
-        name,
-        "End Sun",
-        "end",
-        "mdi:sun-clock",
-        coordinator,
-    )
-    control = AdaptiveCoverControlSensorEntity(
-        config_entry.entry_id, hass, config_entry, name, coordinator
-    )
-    async_add_entities([sensor, start, end, control])
 
 
-class AdaptiveCoverSensorEntity(
+class _BaseAdaptiveCoverSensor(
     CoordinatorEntity[AdaptiveDataUpdateCoordinator], SensorEntity
 ):
-    """Adaptive Cover Sensor."""
+    """Common base for adaptive cover sensors."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        unique_id: str,
+        config_entry: AdaptiveCoverConfigEntry,
+        coordinator: AdaptiveDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the base sensor."""
+        super().__init__(coordinator=coordinator)
+        self._device_id = unique_id
+        device_name = COVER_TYPE_LABELS[config_entry.data[CONF_SENSOR_TYPE]]
+        self._attr_device_info = DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, self._device_id)},
+            name=device_name,
+        )
+
+    @property
+    def available(self) -> bool:
+        """Return False if coordinator update has failed or no data yet."""
+        return self.coordinator.last_update_success and self.coordinator.data is not None
+
+
+class AdaptiveCoverSensorEntity(_BaseAdaptiveCoverSensor):
+    """Adaptive Cover position sensor."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_icon = "mdi:sun-compass"
-    _attr_has_entity_name = True
-    _attr_should_poll = False
 
     def __init__(
         self,
         unique_id: str,
-        hass,
-        config_entry,
+        config_entry: AdaptiveCoverConfigEntry,
         name: str,
         coordinator: AdaptiveDataUpdateCoordinator,
     ) -> None:
-        """Initialize adaptive_cover Sensor."""
-        super().__init__(coordinator=coordinator)
-        self.type = {
-            "cover_blind": "Vertical",
-            "cover_awning": "Horizontal",
-            "cover_tilt": "Tilt",
-        }
-        self.coordinator = coordinator
-        self.data = self.coordinator.data
+        """Initialize the sensor."""
+        super().__init__(unique_id, config_entry, coordinator)
         self._sensor_name = "Cover Position"
         self._attr_unique_id = f"{unique_id}_{self._sensor_name}"
-        self.hass = hass
-        self.config_entry = config_entry
-        self._name = name
-        self._device_name = self.type[self.config_entry.data[CONF_SENSOR_TYPE]]
-        self._device_id = unique_id
+        self._friendly_name = name
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self.data = self.coordinator.data
         _LOGGER.debug(
-            "AdaptiveCoverSensorEntity %s updated from coordinator. New state: %s",
+            "AdaptiveCoverSensorEntity %s updated. State: %s",
             self.name,
-            self.data.states.get("state"),
+            self.coordinator.data.states.get("state"),
         )
-        self.async_write_ha_state()
+        super()._handle_coordinator_update()
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the entity."""
-        return f"{self._sensor_name} {self._name}"
+        return f"{self._sensor_name} {self._friendly_name}"
 
     @property
-    def available(self) -> bool:
-        """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
-        is_available = self.coordinator.last_update_success and self.data is not None
-        if not is_available:
-            _LOGGER.warning("AdaptiveCoverSensorEntity %s is unavailable", self.name)
-        return is_available
+    def native_value(self) -> int | None:
+        """Return current adaptive cover position."""
+        return self.coordinator.data.states.get("state")
 
     @property
-    def native_value(self) -> str | None:
-        """Handle when entity is added."""
-        return self.data.states["state"]
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device info."""
-        return DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, self._device_id)},
-            name=self._device_name,
-        )
-
-    @property
-    def extra_state_attributes(self) -> Mapping[str, Any] | None:  # noqa: D102
-        return self.data.attributes
+    def extra_state_attributes(self) -> Mapping[str, Any] | None:
+        """Return diagnostic attributes."""
+        return self.coordinator.data.attributes
 
 
-class AdaptiveCoverTimeSensorEntity(
-    CoordinatorEntity[AdaptiveDataUpdateCoordinator], SensorEntity
-):
-    """Adaptive Cover Time Sensor."""
+class AdaptiveCoverTimeSensorEntity(_BaseAdaptiveCoverSensor):
+    """Adaptive Cover time sensor (start / end of sun)."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
-    _attr_has_entity_name = True
-    _attr_should_poll = False
 
     def __init__(
         self,
         unique_id: str,
-        hass,
-        config_entry,
+        config_entry: AdaptiveCoverConfigEntry,
         name: str,
         sensor_name: str,
         key: str,
         icon: str,
         coordinator: AdaptiveDataUpdateCoordinator,
     ) -> None:
-        """Initialize adaptive_cover Sensor."""
-        super().__init__(coordinator=coordinator)
-        self.type = {
-            "cover_blind": "Vertical",
-            "cover_awning": "Horizontal",
-            "cover_tilt": "Tilt",
-        }
+        """Initialize the time sensor."""
+        super().__init__(unique_id, config_entry, coordinator)
         self._attr_icon = icon
-        self.key = key
-        self.coordinator = coordinator
-        self.data = self.coordinator.data
-        self._attr_unique_id = f"{unique_id}_{sensor_name}"
-        self._device_id = unique_id
-        self.hass = hass
-        self.config_entry = config_entry
-        self._name = name
-        self._cover_type = self.config_entry.data["sensor_type"]
+        self._key = key
         self._sensor_name = sensor_name
-        self._device_name = self.type[config_entry.data[CONF_SENSOR_TYPE]]
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self.data = self.coordinator.data
-        self.async_write_ha_state()
+        self._friendly_name = name
+        self._attr_unique_id = f"{unique_id}_{sensor_name}"
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the entity."""
-        return f"{self._sensor_name} {self._name}"
+        return f"{self._sensor_name} {self._friendly_name}"
 
     @property
-    def available(self) -> bool:
-        """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
-        return self.coordinator.last_update_success and self.data is not None
-
-    @property
-    def native_value(self) -> str | None:
-        """Handle when entity is added."""
-        return self.data.states[self.key]
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device info."""
-        return DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, self._device_id)},
-            name=self._device_name,
-        )
+    def native_value(self):
+        """Return start/end timestamp."""
+        return self.coordinator.data.states.get(self._key)
 
 
-class AdaptiveCoverControlSensorEntity(
-    CoordinatorEntity[AdaptiveDataUpdateCoordinator], SensorEntity
-):
-    """Adaptive Cover Control method Sensor."""
+class AdaptiveCoverControlSensorEntity(_BaseAdaptiveCoverSensor):
+    """Adaptive Cover control method sensor."""
 
-    _attr_has_entity_name = True
-    _attr_should_poll = False
     _attr_translation_key = "control"
 
     def __init__(
         self,
         unique_id: str,
-        hass,
-        config_entry,
+        config_entry: AdaptiveCoverConfigEntry,
         name: str,
         coordinator: AdaptiveDataUpdateCoordinator,
     ) -> None:
-        """Initialize adaptive_cover Sensor."""
-        super().__init__(coordinator=coordinator)
-        self.type = {
-            "cover_blind": "Vertical",
-            "cover_awning": "Horizontal",
-            "cover_tilt": "Tilt",
-        }
-        self.coordinator = coordinator
-        self.data = self.coordinator.data
+        """Initialize the control method sensor."""
+        super().__init__(unique_id, config_entry, coordinator)
         self._sensor_name = "Control Method"
+        self._friendly_name = name
         self._attr_unique_id = f"{unique_id}_{self._sensor_name}"
-        self._device_id = unique_id
-        self.id = unique_id
-        self.hass = hass
-        self.config_entry = config_entry
-        self._name = name
-        self._cover_type = self.config_entry.data["sensor_type"]
-        self._device_name = self.type[config_entry.data[CONF_SENSOR_TYPE]]
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self.data = self.coordinator.data
-        self.async_write_ha_state()
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the entity."""
-        return f"{self._sensor_name} {self._name}"
-
-    @property
-    def available(self) -> bool:
-        """Silver: entity-unavailable — non disponibile se coordinator fallisce."""
-        return self.coordinator.last_update_success and self.data is not None
+        return f"{self._sensor_name} {self._friendly_name}"
 
     @property
     def native_value(self) -> str | None:
-        """Handle when entity is added."""
-        return self.data.states["control"]
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device info."""
-        return DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, self._device_id)},
-            name=self._device_name,
-        )
+        """Return current control method."""
+        return self.coordinator.data.states.get("control")
