@@ -7,11 +7,10 @@ from datetime import datetime, timedelta, UTC
 import numpy as np
 import pandas as pd
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.template import state_attr
 from numpy import cos, sin, tan
 from numpy import radians as rad
 
-from .helpers import get_domain, get_safe_state
+from .helpers import get_domain, get_safe_state, state_attr
 from .sun import SunData
 from .config_context_adapter import ConfigContextAdapter
 

@@ -7,6 +7,17 @@ from dateutil import parser
 from homeassistant.core import HomeAssistant, split_entity_id
 
 
+def state_attr(hass: HomeAssistant, entity_id: str, attr: str):
+    """Return attribute of an entity's state, or None if unavailable.
+
+    Replaces homeassistant.helpers.template.state_attr, removed in HA 2026.5.
+    """
+    state = hass.states.get(entity_id)
+    if state is None:
+        return None
+    return state.attributes.get(attr)
+
+
 def get_safe_state(hass: HomeAssistant, entity_id: str):
     """Get a safe state value if not available."""
     state = hass.states.get(entity_id)

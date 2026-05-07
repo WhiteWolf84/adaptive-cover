@@ -24,7 +24,6 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.event import async_track_point_in_time
-from homeassistant.helpers.template import state_attr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .config_context_adapter import ConfigContextAdapter
@@ -99,7 +98,7 @@ from .const import (
     CONF_WEATHER_STATE,
     DOMAIN,
 )
-from .helpers import get_datetime_from_str, get_last_updated, get_safe_state
+from .helpers import get_datetime_from_str, get_last_updated, get_safe_state, state_attr
 
 _LOGGER = logging.getLogger(__name__)
 
