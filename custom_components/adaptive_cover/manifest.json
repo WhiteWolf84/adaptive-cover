@@ -16,5 +16,5 @@
   "issue_tracker": "https://github.com/basbruss/adaptive-cover/issues",
   "quality_scale": "silver",
   "requirements": ["numpy"],
-  "version": "0.3.0"
+  "version": "1.4.7"
 }
