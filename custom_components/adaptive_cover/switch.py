@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.const import STATE_ON
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -29,6 +29,12 @@ if TYPE_CHECKING:
     from . import AdaptiveCoverConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
+
+PARALLEL_UPDATES = 0
+
+_CONFIG_SWITCH_KEYS: frozenset[str] = frozenset(
+    {"switch_mode", "temp_toggle", "lux_toggle", "irradiance_toggle"}
+)
 
 
 async def async_setup_entry(
@@ -112,24 +118,19 @@ class AdaptiveCoverSwitch(
     ) -> None:
         """Initialize the switch."""
         super().__init__(coordinator=coordinator)
-        self._friendly_name: str = config_entry.data["name"]
         self._key = key
         self._attr_translation_key = key
-        self._switch_name = switch_name
         self._attr_device_class = device_class
         self._initial_state = initial_state
         self._attr_unique_id = f"{unique_id}_{switch_name}"
+        if key in _CONFIG_SWITCH_KEYS:
+            self._attr_entity_category = EntityCategory.CONFIG
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},
             name=COVER_TYPE_LABELS[config_entry.data[CONF_SENSOR_TYPE]],
         )
 
         self.coordinator.logger.debug("Setup switch")
-
-    @property
-    def name(self) -> str:
-        """Name of the entity."""
-        return f"{self._switch_name} {self._friendly_name}"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
@@ -164,7 +165,7 @@ class AdaptiveCoverSwitch(
         await super().async_added_to_hass()
         last_state = await self.async_get_last_state()
         self.coordinator.logger.debug(
-            "%s: last state is %s", self._friendly_name, last_state
+            "%s: last state is %s", self.entity_id, last_state
         )
         if (last_state is None and self._initial_state) or (
             last_state is not None and last_state.state == STATE_ON

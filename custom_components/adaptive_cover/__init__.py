@@ -8,11 +8,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.util import slugify
 
 from .const import (
     CONF_END_ENTITY,
     CONF_ENTITIES,
     CONF_PRESENCE_ENTITY,
+    CONF_SENSOR_TYPE,
     CONF_TEMP_ENTITY,
     CONF_WEATHER_ENTITY,
     DOMAIN as DOMAIN,
@@ -37,6 +39,13 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: AdaptiveCoverConfigEntry
 ) -> bool:
     """Set up Adaptive Cover from a config entry."""
+    # Backfill unique_id on entries created before 1.5.0 (config flow now sets it).
+    if entry.unique_id is None:
+        new_unique_id = (
+            f"{entry.data[CONF_SENSOR_TYPE]}_{slugify(entry.data['name'])}"
+        )
+        hass.config_entries.async_update_entry(entry, unique_id=new_unique_id)
+
     coordinator = AdaptiveDataUpdateCoordinator(hass, entry)
 
     tracked_entities: list[str] = ["sun.sun"]

@@ -507,5 +507,54 @@
         "mode2": "Bi-direzionale (0% = chiusa / 50% = aperta / 100% = chiusa)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": {
+        "name": "Posizione tapparella"
+      },
+      "start_sun": {
+        "name": "Inizio sole"
+      },
+      "end_sun": {
+        "name": "Fine sole"
+      },
+      "control": {
+        "name": "Metodo di controllo"
+      }
+    },
+    "binary_sensor": {
+      "sun_motion": {
+        "name": "Sole davanti"
+      },
+      "manual_override": {
+        "name": "Sovrascrittura manuale"
+      }
+    },
+    "switch": {
+      "control_toggle": {
+        "name": "Attiva controllo"
+      },
+      "manual_toggle": {
+        "name": "Sovrascrittura manuale"
+      },
+      "switch_mode": {
+        "name": "Modalità climatica"
+      },
+      "temp_toggle": {
+        "name": "Temperatura esterna"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Irraggiamento"
+      }
+    },
+    "button": {
+      "reset_manual_override": {
+        "name": "Reset sovrascrittura manuale"
+      }
+    }
   }
 }

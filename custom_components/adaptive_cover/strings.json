@@ -485,5 +485,28 @@
         "mode2": "bi-directional (0% = closed / 50% = open / 100% = closed)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": { "name": "Cover position" },
+      "start_sun": { "name": "Start sun" },
+      "end_sun": { "name": "End sun" },
+      "control": { "name": "Control method" }
+    },
+    "binary_sensor": {
+      "sun_motion": { "name": "Sun in front" },
+      "manual_override": { "name": "Manual override" }
+    },
+    "switch": {
+      "control_toggle": { "name": "Toggle control" },
+      "manual_toggle": { "name": "Manual override" },
+      "switch_mode": { "name": "Climate mode" },
+      "temp_toggle": { "name": "Outside temperature" },
+      "lux_toggle": { "name": "Lux" },
+      "irradiance_toggle": { "name": "Irradiance" }
+    },
+    "button": {
+      "reset_manual_override": { "name": "Reset manual override" }
+    }
   }
 }

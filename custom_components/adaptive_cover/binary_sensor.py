@@ -81,19 +81,12 @@ class AdaptiveCoverBinarySensor(
         super().__init__(coordinator=coordinator)
         self._key = key
         self._attr_translation_key = key
-        self._friendly_name: str = config_entry.data["name"]
-        self._binary_name = binary_name
         self._attr_unique_id = f"{unique_id}_{binary_name}"
         self._attr_device_class = device_class
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},
             name=COVER_TYPE_LABELS[config_entry.data[CONF_SENSOR_TYPE]],
         )
-
-    @property
-    def name(self) -> str:
-        """Name of the entity."""
-        return f"{self._binary_name} {self._friendly_name}"
 
     @property
     def is_on(self) -> bool | None:

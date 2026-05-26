@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -19,6 +19,8 @@ if TYPE_CHECKING:
     from . import AdaptiveCoverConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
+
+PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
@@ -56,6 +58,8 @@ class AdaptiveCoverButton(
 
     _attr_has_entity_name = True
     _attr_icon = "mdi:cog-refresh-outline"
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_translation_key = "reset_manual_override"
 
     def __init__(
         self,
@@ -66,19 +70,12 @@ class AdaptiveCoverButton(
     ) -> None:
         """Initialize the button."""
         super().__init__(coordinator=coordinator)
-        self._friendly_name: str = config_entry.data["name"]
         self._attr_unique_id = f"{unique_id}_{button_name}"
-        self._button_name = button_name
         self._entities: list[str] = config_entry.options.get(CONF_ENTITIES, [])
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},
             name=COVER_TYPE_LABELS[config_entry.data[CONF_SENSOR_TYPE]],
         )
-
-    @property
-    def name(self) -> str:
-        """Name of the entity."""
-        return f"{self._button_name} {self._friendly_name}"
 
     async def async_press(self) -> None:
         """Reset manual overrides for all configured covers."""

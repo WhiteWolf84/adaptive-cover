@@ -499,5 +499,54 @@
         "mode2": "bidirectionnel (0% = fermé / 50% = ouvert / 100% = fermé)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": {
+        "name": "Position du store"
+      },
+      "start_sun": {
+        "name": "Début du soleil"
+      },
+      "end_sun": {
+        "name": "Fin du soleil"
+      },
+      "control": {
+        "name": "Méthode de contrôle"
+      }
+    },
+    "binary_sensor": {
+      "sun_motion": {
+        "name": "Soleil en façade"
+      },
+      "manual_override": {
+        "name": "Remplacement manuel"
+      }
+    },
+    "switch": {
+      "control_toggle": {
+        "name": "Activer le contrôle"
+      },
+      "manual_toggle": {
+        "name": "Remplacement manuel"
+      },
+      "switch_mode": {
+        "name": "Mode climatique"
+      },
+      "temp_toggle": {
+        "name": "Température extérieure"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Irradiance"
+      }
+    },
+    "button": {
+      "reset_manual_override": {
+        "name": "Réinitialiser le remplacement manuel"
+      }
+    }
   }
 }

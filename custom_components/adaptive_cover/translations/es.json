@@ -499,5 +499,54 @@
         "mode2": "bidireccional (0% = cerrado / 50% = abierto / 100% = cerrado)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": {
+        "name": "Posición de la cubierta"
+      },
+      "start_sun": {
+        "name": "Inicio del sol"
+      },
+      "end_sun": {
+        "name": "Fin del sol"
+      },
+      "control": {
+        "name": "Método de control"
+      }
+    },
+    "binary_sensor": {
+      "sun_motion": {
+        "name": "Sol enfrente"
+      },
+      "manual_override": {
+        "name": "Anulación manual"
+      }
+    },
+    "switch": {
+      "control_toggle": {
+        "name": "Activar control"
+      },
+      "manual_toggle": {
+        "name": "Anulación manual"
+      },
+      "switch_mode": {
+        "name": "Modo climático"
+      },
+      "temp_toggle": {
+        "name": "Temperatura exterior"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Irradiancia"
+      }
+    },
+    "button": {
+      "reset_manual_override": {
+        "name": "Restablecer anulación manual"
+      }
+    }
   }
 }

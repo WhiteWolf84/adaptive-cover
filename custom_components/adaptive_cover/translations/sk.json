@@ -499,5 +499,54 @@
         "mode2": "obojsmerné (0 % = zatvorené / 50 % = otvorené / 100 % = zatvorené)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": {
+        "name": "Poloha krytu"
+      },
+      "start_sun": {
+        "name": "Začiatok slnka"
+      },
+      "end_sun": {
+        "name": "Koniec slnka"
+      },
+      "control": {
+        "name": "Spôsob ovládania"
+      }
+    },
+    "binary_sensor": {
+      "sun_motion": {
+        "name": "Slnko spredu"
+      },
+      "manual_override": {
+        "name": "Manuálne prepísanie"
+      }
+    },
+    "switch": {
+      "control_toggle": {
+        "name": "Prepnúť ovládanie"
+      },
+      "manual_toggle": {
+        "name": "Manuálne prepísanie"
+      },
+      "switch_mode": {
+        "name": "Klimatický režim"
+      },
+      "temp_toggle": {
+        "name": "Vonkajšia teplota"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Žiarivosť"
+      }
+    },
+    "button": {
+      "reset_manual_override": {
+        "name": "Resetovať manuálne prepísanie"
+      }
+    }
   }
 }

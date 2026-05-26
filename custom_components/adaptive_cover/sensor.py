@@ -104,6 +104,7 @@ class AdaptiveCoverSensorEntity(_BaseAdaptiveCoverSensor):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_icon = "mdi:sun-compass"
+    _attr_translation_key = "cover_position"
 
     def __init__(
         self,
@@ -114,9 +115,7 @@ class AdaptiveCoverSensorEntity(_BaseAdaptiveCoverSensor):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(unique_id, config_entry, coordinator)
-        self._sensor_name = "Cover Position"
-        self._attr_unique_id = f"{unique_id}_{self._sensor_name}"
-        self._friendly_name = name
+        self._attr_unique_id = f"{unique_id}_Cover Position"
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -127,11 +126,6 @@ class AdaptiveCoverSensorEntity(_BaseAdaptiveCoverSensor):
             self.coordinator.data.states.get("state"),
         )
         super()._handle_coordinator_update()
-
-    @property
-    def name(self) -> str:
-        """Name of the entity."""
-        return f"{self._sensor_name} {self._friendly_name}"
 
     @property
     def native_value(self) -> int | None:
@@ -163,14 +157,8 @@ class AdaptiveCoverTimeSensorEntity(_BaseAdaptiveCoverSensor):
         super().__init__(unique_id, config_entry, coordinator)
         self._attr_icon = icon
         self._key = key
-        self._sensor_name = sensor_name
-        self._friendly_name = name
+        self._attr_translation_key = "start_sun" if key == "start" else "end_sun"
         self._attr_unique_id = f"{unique_id}_{sensor_name}"
-
-    @property
-    def name(self) -> str:
-        """Name of the entity."""
-        return f"{self._sensor_name} {self._friendly_name}"
 
     @property
     def native_value(self):
@@ -192,14 +180,7 @@ class AdaptiveCoverControlSensorEntity(_BaseAdaptiveCoverSensor):
     ) -> None:
         """Initialize the control method sensor."""
         super().__init__(unique_id, config_entry, coordinator)
-        self._sensor_name = "Control Method"
-        self._friendly_name = name
-        self._attr_unique_id = f"{unique_id}_{self._sensor_name}"
-
-    @property
-    def name(self) -> str:
-        """Name of the entity."""
-        return f"{self._sensor_name} {self._friendly_name}"
+        self._attr_unique_id = f"{unique_id}_Control Method"
 
     @property
     def native_value(self) -> str | None:

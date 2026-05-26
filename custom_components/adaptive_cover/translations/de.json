@@ -499,5 +499,54 @@
         "mode2": "Bidirektional (0% = geschlossen / 50% = offen / 100% = geschlossen)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": {
+        "name": "Behangposition"
+      },
+      "start_sun": {
+        "name": "Sonne Start"
+      },
+      "end_sun": {
+        "name": "Sonne Ende"
+      },
+      "control": {
+        "name": "Steuerungsmethode"
+      }
+    },
+    "binary_sensor": {
+      "sun_motion": {
+        "name": "Sonne davor"
+      },
+      "manual_override": {
+        "name": "Manuelle Übersteuerung"
+      }
+    },
+    "switch": {
+      "control_toggle": {
+        "name": "Steuerung umschalten"
+      },
+      "manual_toggle": {
+        "name": "Manuelle Übersteuerung"
+      },
+      "switch_mode": {
+        "name": "Klima-Modus"
+      },
+      "temp_toggle": {
+        "name": "Außentemperatur"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Sonneneinstrahlung"
+      }
+    },
+    "button": {
+      "reset_manual_override": {
+        "name": "Manuelle Übersteuerung zurücksetzen"
+      }
+    }
   }
 }

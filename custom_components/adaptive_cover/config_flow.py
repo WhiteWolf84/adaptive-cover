@@ -14,6 +14,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers import selector
+from homeassistant.util import slugify
 
 from .const import (
     CONF_AWNING_ANGLE,
@@ -389,7 +390,12 @@ def _get_azimuth_edges(data: dict[str, Any]) -> int:
 
 
 class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
-    """Handle ConfigFlow."""
+    """Handle ConfigFlow.
+
+    Reauthentication flow is not implemented on purpose: this integration is
+    stateless and calculated (no credentials, no remote service), so the
+    Silver quality-scale rule `reauthentication-flow` is not applicable.
+    """
 
     VERSION = 1
     MINOR_VERSION = 1
@@ -614,6 +620,13 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
             cover_type_labels[self.type_blind],
         )
         _LOGGER.debug("Configuration data initialized: %s", self.config)
+
+        # Silver: deduplicate config entries on (type_blind, slug(name)).
+        # Reauth not applicable: integration is stateless/calculated, no credentials.
+        await self.async_set_unique_id(
+            f"{self.type_blind}_{slugify(self.config['name'])}"
+        )
+        self._abort_if_unique_id_configured()
 
         return self.async_create_entry(
             title=f"{cover_type_labels[self.type_blind]} {self.config['name']}",

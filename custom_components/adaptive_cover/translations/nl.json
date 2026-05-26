@@ -481,5 +481,54 @@
         "mode2": "twee-richtings (0% = dicht / 50% = open / 100% = dicht)"
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "cover_position": {
+        "name": "Positie van de bedekking"
+      },
+      "start_sun": {
+        "name": "Begin zon"
+      },
+      "end_sun": {
+        "name": "Einde zon"
+      },
+      "control": {
+        "name": "Besturingsmethode"
+      }
+    },
+    "binary_sensor": {
+      "sun_motion": {
+        "name": "Zon ervoor"
+      },
+      "manual_override": {
+        "name": "Handmatige overschrijving"
+      }
+    },
+    "switch": {
+      "control_toggle": {
+        "name": "Besturing inschakelen"
+      },
+      "manual_toggle": {
+        "name": "Handmatige overschrijving"
+      },
+      "switch_mode": {
+        "name": "Klimaatmodus"
+      },
+      "temp_toggle": {
+        "name": "Buitentemperatuur"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Stralingsintensiteit"
+      }
+    },
+    "button": {
+      "reset_manual_override": {
+        "name": "Handmatige overschrijving resetten"
+      }
+    }
   }
 }
