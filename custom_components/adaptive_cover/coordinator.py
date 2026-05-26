@@ -516,36 +516,58 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
     def get_blind_data(self, options):
         """Assign correct class for type of blind."""
-        # Fix: usato elif + raise ValueError per evitare UnboundLocalError su tipo sconosciuto
+        sol_azi, sol_elev = self.pos_sun
+        common_kwargs = {
+            "hass": self.hass,
+            "logger": self.logger,
+            "sol_azi": sol_azi,
+            "sol_elev": sol_elev,
+            "sunset_pos": options.get(CONF_SUNSET_POS),
+            "sunset_off": options.get(CONF_SUNSET_OFFSET),
+            "sunrise_off": options.get(
+                CONF_SUNRISE_OFFSET, options.get(CONF_SUNSET_OFFSET)
+            ),
+            "timezone": self.hass.config.time_zone,
+            "fov_left": options.get(CONF_FOV_LEFT),
+            "fov_right": options.get(CONF_FOV_RIGHT),
+            "win_azi": options.get(CONF_AZIMUTH),
+            "h_def": options.get(CONF_DEFAULT_HEIGHT),
+            "max_pos": options.get(CONF_MAX_POSITION),
+            "min_pos": options.get(CONF_MIN_POSITION),
+            "max_pos_bool": options.get(CONF_ENABLE_MAX_POSITION, False),
+            "min_pos_bool": options.get(CONF_ENABLE_MIN_POSITION, False),
+            "blind_spot_left": options.get(CONF_BLIND_SPOT_LEFT),
+            "blind_spot_right": options.get(CONF_BLIND_SPOT_RIGHT),
+            "blind_spot_elevation": options.get(CONF_BLIND_SPOT_ELEVATION),
+            "blind_spot_on": options.get(CONF_ENABLE_BLIND_SPOT, False),
+            "min_elevation": options.get(CONF_MIN_ELEVATION),
+            "max_elevation": options.get(CONF_MAX_ELEVATION),
+        }
+        vertical_kwargs = {
+            "distance": options.get(CONF_DISTANCE),
+            "h_win": options.get(CONF_HEIGHT_WIN),
+            "obstacle_height": options.get(CONF_OBSTACLE_HEIGHT, 0),
+            "obstacle_distance": options.get(CONF_OBSTACLE_DISTANCE, 0),
+        }
         if self._cover_type == "cover_blind":
-            return AdaptiveVerticalCover(
-                self.hass,
-                self.logger,
-                *self.pos_sun,
-                *self.common_data(options),
-                *self.vertical_data(options),
-            )
-        elif self._cover_type == "cover_awning":
+            return AdaptiveVerticalCover(**common_kwargs, **vertical_kwargs)
+        if self._cover_type == "cover_awning":
             return AdaptiveHorizontalCover(
-                self.hass,
-                self.logger,
-                *self.pos_sun,
-                *self.common_data(options),
-                *self.vertical_data(options),
-                *self.horizontal_data(options),
+                **common_kwargs,
+                **vertical_kwargs,
+                awn_length=options.get(CONF_LENGTH_AWNING),
+                awn_angle=options.get(CONF_AWNING_ANGLE),
             )
-        elif self._cover_type == "cover_tilt":
+        if self._cover_type == "cover_tilt":
             return AdaptiveTiltCover(
-                self.hass,
-                self.logger,
-                *self.pos_sun,
-                *self.common_data(options),
-                *self.tilt_data(options),
+                **common_kwargs,
+                slat_distance=options.get(CONF_TILT_DISTANCE),
+                depth=options.get(CONF_TILT_DEPTH),
+                mode=options.get(CONF_TILT_MODE),
             )
-        else:
-            raise ValueError(
-                f"Unknown cover type: {self._cover_type!r}. Expected one of {COVER_TYPES}"
-            )
+        raise ValueError(
+            f"Unknown cover type: {self._cover_type!r}. Expected one of {COVER_TYPES}"
+        )
 
     @property
     def check_adaptive_time(self):
@@ -690,57 +712,29 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 self._sun_available = True
         return [azimuth, elevation]
 
-    def common_data(self, options):
-        """Update shared parameters."""
-        return [
-            options.get(CONF_SUNSET_POS),
-            options.get(CONF_SUNSET_OFFSET),
-            options.get(CONF_SUNRISE_OFFSET, options.get(CONF_SUNSET_OFFSET)),
-            self.hass.config.time_zone,
-            options.get(CONF_FOV_LEFT),
-            options.get(CONF_FOV_RIGHT),
-            options.get(CONF_AZIMUTH),
-            options.get(CONF_DEFAULT_HEIGHT),
-            options.get(CONF_MAX_POSITION),
-            options.get(CONF_MIN_POSITION),
-            options.get(CONF_ENABLE_MAX_POSITION, False),
-            options.get(CONF_ENABLE_MIN_POSITION, False),
-            options.get(CONF_BLIND_SPOT_LEFT),
-            options.get(CONF_BLIND_SPOT_RIGHT),
-            options.get(CONF_BLIND_SPOT_ELEVATION),
-            options.get(CONF_ENABLE_BLIND_SPOT, False),
-            options.get(CONF_MIN_ELEVATION, None),
-            options.get(CONF_MAX_ELEVATION, None),
-        ]
-
-    def get_climate_data(self, options):
-        """Update climate data."""
-        return [
-            self.hass,
-            self.logger,
-            options.get(CONF_TEMP_ENTITY),
-            options.get(CONF_TEMP_LOW),
-            options.get(CONF_TEMP_HIGH),
-            options.get(CONF_PRESENCE_ENTITY),
-            options.get(CONF_WEATHER_ENTITY),
-            options.get(CONF_WEATHER_STATE),
-            options.get(CONF_OUTSIDETEMP_ENTITY),
-            self._temp_toggle,
-            self._cover_type,
-            options.get(CONF_TRANSPARENT_BLIND),
-            options.get(CONF_LUX_ENTITY),
-            options.get(CONF_IRRADIANCE_ENTITY),
-            options.get(CONF_LUX_THRESHOLD),
-            options.get(CONF_IRRADIANCE_THRESHOLD),
-            options.get(CONF_OUTSIDE_THRESHOLD),
-            self._lux_toggle,
-            self._irradiance_toggle,
-        ]
-
     def climate_mode_data(self, options, cover_data):
         """Update climate mode data and control method."""
-        climate = ClimateCoverData(*self.get_climate_data(options))
-        # Fix: era istanziato due volte ClimateCoverState — ora una sola volta
+        climate = ClimateCoverData(
+            hass=self.hass,
+            logger=self.logger,
+            temp_entity=options.get(CONF_TEMP_ENTITY),
+            temp_low=options.get(CONF_TEMP_LOW),
+            temp_high=options.get(CONF_TEMP_HIGH),
+            presence_entity=options.get(CONF_PRESENCE_ENTITY),
+            weather_entity=options.get(CONF_WEATHER_ENTITY),
+            weather_condition=options.get(CONF_WEATHER_STATE),
+            outside_entity=options.get(CONF_OUTSIDETEMP_ENTITY),
+            temp_switch=self._temp_toggle,
+            blind_type=self._cover_type,
+            transparent_blind=options.get(CONF_TRANSPARENT_BLIND),
+            lux_entity=options.get(CONF_LUX_ENTITY),
+            irradiance_entity=options.get(CONF_IRRADIANCE_ENTITY),
+            lux_threshold=options.get(CONF_LUX_THRESHOLD),
+            irradiance_threshold=options.get(CONF_IRRADIANCE_THRESHOLD),
+            temp_summer_outside=options.get(CONF_OUTSIDE_THRESHOLD),
+            _use_lux=self._lux_toggle,
+            _use_irradiance=self._irradiance_toggle,
+        )
         climate_cover_state = ClimateCoverState(cover_data, climate)
         self.climate_state = round(climate_cover_state.get_state())
         climate_data = climate_cover_state.climate_data
@@ -751,30 +745,6 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.logger.debug(
             "Climate mode control method was set to %s", self.control_method
         )
-
-    def vertical_data(self, options):
-        """Update data for vertical blinds."""
-        return [
-            options.get(CONF_DISTANCE),
-            options.get(CONF_HEIGHT_WIN),
-            options.get(CONF_OBSTACLE_HEIGHT, 0),
-            options.get(CONF_OBSTACLE_DISTANCE, 0),
-        ]
-
-    def horizontal_data(self, options):
-        """Update data for horizontal blinds."""
-        return [
-            options.get(CONF_LENGTH_AWNING),
-            options.get(CONF_AWNING_ANGLE),
-        ]
-
-    def tilt_data(self, options):
-        """Update data for tilted blinds."""
-        return [
-            options.get(CONF_TILT_DISTANCE),
-            options.get(CONF_TILT_DEPTH),
-            options.get(CONF_TILT_MODE),
-        ]
 
     @property
     def state(self) -> int:

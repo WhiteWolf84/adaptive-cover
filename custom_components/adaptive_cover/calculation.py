@@ -240,7 +240,7 @@ class ClimateCoverData:
     weather_entity: str
     weather_condition: list[str]
     outside_entity: str
-    temp_switch: bool
+    temp_switch: bool | None
     blind_type: str
     transparent_blind: bool
     lux_entity: str
@@ -248,8 +248,8 @@ class ClimateCoverData:
     lux_threshold: int
     irradiance_threshold: int
     temp_summer_outside: float
-    _use_lux: bool
-    _use_irradiance: bool
+    _use_lux: bool | None
+    _use_irradiance: bool | None
 
     @property
     def outside_temperature(self):
