@@ -143,7 +143,7 @@ class AdaptiveCoverSwitch(
                     not self.coordinator.manager.is_cover_manual(entity)
                     and self.coordinator.check_adaptive_time
                 ):
-                    await self.coordinator.async_set_position(
+                    await self.coordinator.service.set_position(
                         entity, self.coordinator.state
                     )
         await self.coordinator.async_refresh()

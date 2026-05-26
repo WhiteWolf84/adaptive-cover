@@ -9,12 +9,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from homeassistant.components.cover import DOMAIN as COVER_DOMAIN
-from homeassistant.const import (
-    ATTR_ENTITY_ID,
-    SERVICE_SET_COVER_POSITION,
-    SERVICE_SET_COVER_TILT_POSITION,
-)
 from homeassistant.core import (
     Event,
     EventStateChangedData,
@@ -22,7 +16,6 @@ from homeassistant.core import (
     State,
     callback,
 )
-from homeassistant.exceptions import HomeAssistantError, ServiceNotFound
 from homeassistant.helpers.event import async_track_point_in_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -32,8 +25,6 @@ if TYPE_CHECKING:
 from ..config_context_adapter import ConfigContextAdapter
 from ..calculation import ClimateCoverData, ClimateCoverState, NormalCoverState
 from ..const import (
-    ATTR_POSITION,
-    ATTR_TILT_POSITION,
     CONF_AZIMUTH,
     CONF_BLIND_SPOT_ELEVATION,
     CONF_CLIMATE_MODE,
@@ -75,14 +66,10 @@ from ..const import (
     CONF_WEATHER_STATE,
     DOMAIN,
 )
-from ..helpers import (
-    get_datetime_from_str,
-    get_last_updated,
-    get_safe_state,
-    state_attr,
-)
+from ..helpers import get_datetime_from_str, get_safe_state, state_attr
 from .blinds import COVER_TYPE_LABELS, COVER_TYPES, build_cover
 from .manager import AdaptiveCoverManager
+from .service import CoverServiceCaller
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -92,6 +79,7 @@ __all__ = [
     "AdaptiveDataUpdateCoordinator",
     "COVER_TYPES",
     "COVER_TYPE_LABELS",
+    "CoverServiceCaller",
     "StateChangedData",
 ]
 
@@ -168,8 +156,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.control_method = "intermediate"
         self.state_change_data: StateChangedData | None = None
         self.manager = AdaptiveCoverManager(self.manual_duration, self.logger)
-        self.wait_for_target: dict[str, bool] = {}
-        self.target_call: dict[str, int] = {}
+        self.service = CoverServiceCaller(self.hass, self.logger, self._cover_type)
         self.ignore_intermediate_states = self.config_entry.options.get(
             CONF_MANUAL_IGNORE_INTERMEDIATE, False
         )
@@ -246,16 +233,15 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         ]:
             self.logger.debug("Ignoring intermediate state change for %s", entity_id)
             return
-        if self.wait_for_target.get(entity_id):
+        if self.service.wait_for_target.get(entity_id):
             position = event.new_state.attributes.get(
                 "current_position"
                 if self._cover_type != "cover_tilt"
                 else "current_tilt_position"
             )
-            if position == self.target_call.get(entity_id):
-                self.wait_for_target[entity_id] = False
+            if self.service.acknowledge_target(entity_id, position):
                 self.logger.debug("Position %s reached for %s", position, entity_id)
-            self.logger.debug("Wait for target: %s", self.wait_for_target)
+            self.logger.debug("Wait for target: %s", self.service.wait_for_target)
         else:
             self.logger.debug("No wait for target call for %s", entity_id)
 
@@ -370,7 +356,13 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         """Handle state change from tracked entities."""
         if self.control_toggle:
             for cover in self.entities:
-                await self.async_handle_call_service(cover, state, options)
+                await self.service.handle_call_service(
+                    cover,
+                    state,
+                    options,
+                    is_adaptive_time=self.check_adaptive_time,
+                    is_cover_manual=self.manager.is_cover_manual,
+                )
         else:
             self.logger.debug("State change but control toggle is off")
         self.state_change = False
@@ -384,7 +376,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 state,
                 self._cover_type,
                 self.manual_reset,
-                self.wait_for_target,
+                self.service.wait_for_target,
                 self.manual_threshold,
             )
         self.cover_state_change = False
@@ -397,9 +389,9 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 if (
                     self.check_adaptive_time
                     and not self.manager.is_cover_manual(cover)
-                    and self.check_position_delta(cover, state, options)
+                    and self.service.check_position_delta(cover, state, options)
                 ):
-                    await self.async_set_position(cover, state)
+                    await self.service.set_position(cover, state)
         else:
             self.logger.debug("First refresh but control toggle is off")
         self.first_refresh = False
@@ -413,7 +405,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         )
         if self.control_toggle:
             for cover in self.entities:
-                await self.async_set_manual_position(
+                await self.service.set_manual_position(
                     cover,
                     (
                         inverse_state(options.get(CONF_SUNSET_POS))
@@ -425,53 +417,6 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             self.logger.debug("Timed refresh but control toggle is off")
         self.timed_refresh = False
         self.logger.debug("Timed refresh handled")
-
-    async def async_handle_call_service(self, entity, state: int, options) -> None:
-        """Handle call service."""
-        if (
-            self.check_adaptive_time
-            and self.check_position_delta(entity, state, options)
-            and self.check_time_delta(entity)
-            and not self.manager.is_cover_manual(entity)
-        ):
-            await self.async_set_position(entity, state)
-
-    async def async_set_position(self, entity, state: int) -> None:
-        """Call service to set cover position."""
-        await self.async_set_manual_position(entity, state)
-
-    async def async_set_manual_position(self, entity, state) -> None:
-        """Call service to set cover position."""
-        if not self.check_position(entity, state):
-            return
-
-        service = SERVICE_SET_COVER_POSITION
-        service_data: dict = {ATTR_ENTITY_ID: entity}
-
-        if self._cover_type == "cover_tilt":
-            service = SERVICE_SET_COVER_TILT_POSITION
-            service_data[ATTR_TILT_POSITION] = state
-        else:
-            service_data[ATTR_POSITION] = state
-
-        self.wait_for_target[entity] = True
-        self.target_call[entity] = state
-        self.logger.debug(
-            "Set wait for target %s and target call %s",
-            self.wait_for_target,
-            self.target_call,
-        )
-        self.logger.debug("Run %s with data %s", service, service_data)
-        try:
-            await self.hass.services.async_call(
-                COVER_DOMAIN, service, service_data, blocking=False
-            )
-        except (HomeAssistantError, ServiceNotFound, ValueError) as err:
-            self.wait_for_target[entity] = False
-            self.logger.error("Failed to set position for %s: %s", entity, err)
-            raise HomeAssistantError(
-                f"Failed to set cover position for {entity}: {err}"
-            ) from err
 
     def _update_options(self, options) -> None:
         """Update options."""
@@ -491,6 +436,9 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.end_value = options.get(CONF_INTERP_END)
         self.normal_list = options.get(CONF_INTERP_LIST)
         self.new_list = options.get(CONF_INTERP_LIST_NEW)
+        self.service.configure(
+            min_change=self.min_change, time_threshold=self.time_threshold
+        )
 
     def _update_manager_and_covers(self) -> None:
         self.manager.add_covers(self.entities)
@@ -562,62 +510,6 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 now < self._end_time,
             )
             return now < self._end_time
-        return True
-
-    def _get_current_position(self, entity) -> int | None:
-        """Get current position of cover."""
-        if self._cover_type == "cover_tilt":
-            return state_attr(self.hass, entity, "current_tilt_position")
-        return state_attr(self.hass, entity, "current_position")
-
-    def check_position(self, entity, state) -> bool:
-        """Check if position is different from state."""
-        position = self._get_current_position(entity)
-        if position is not None:
-            return position != state
-        self.logger.debug(
-            "Cannot check position for %s: current position is unavailable", entity
-        )
-        return False
-
-    def check_position_delta(self, entity, state: int, options) -> bool:
-        """Check cover positions to reduce calls."""
-        position = self._get_current_position(entity)
-        if position is not None:
-            condition = abs(position - state) >= self.min_change
-            self.logger.debug(
-                "Entity: %s,  position: %s, state: %s, delta position: %s, min_change: %s, condition: %s",
-                entity,
-                position,
-                state,
-                abs(position - state),
-                self.min_change,
-                condition,
-            )
-            if state in [
-                options.get(CONF_SUNSET_POS),
-                options.get(CONF_DEFAULT_HEIGHT),
-                0,
-                100,
-            ]:
-                condition = True
-            return condition
-        return True
-
-    def check_time_delta(self, entity) -> bool:
-        """Check if time delta is passed."""
-        now = dt.datetime.now(dt.UTC)
-        last_updated = get_last_updated(entity, self.hass)
-        if last_updated is not None:
-            condition = now - last_updated >= dt.timedelta(minutes=self.time_threshold)
-            self.logger.debug(
-                "Entity: %s, time delta: %s, threshold: %s, condition: %s",
-                entity,
-                now - last_updated,
-                self.time_threshold,
-                condition,
-            )
-            return condition
         return True
 
     @property

@@ -1,35 +1,41 @@
-# artifacts
-__pycache__
-.pytest*
-*.egg-info
-*/build/*
-*/dist/*
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
 
-
-# misc
+# Test / coverage
+.pytest_cache/
 .coverage
-.vscode
-.claude/
 coverage.xml
+.tox/
 
+# Linter caches
+.ruff_cache/
+.mypy_cache/
 
-# Home Assistant configuration
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+.github/.DS_Store
+
+# Claude Code workspace
+.claude/
+
+# Python virtualenvs
+.venv/
+venv/
+
+# Home Assistant local test config (keep only the example)
 config/*
 !config/configuration.yaml
+
+# Notebooks scratch
 API.ipynb
-.github/.DS_Store
-.DS_Store
 notebooks/test_python.ipynb
-
-
-# Python env
-.venv/
-poetry.lock
-
-
-# Linting cache
-.ruff_cache/
-
 
 # graphify knowledge graph (generated, large)
 graphify-out/
