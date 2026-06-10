@@ -86,8 +86,16 @@ class AdaptiveCoverButton(
                 await self.coordinator.service.set_position(
                     entity, self.coordinator.state
                 )
-                while self.coordinator.service.wait_for_target.get(entity):
-                    await asyncio.sleep(1)
+                try:
+                    async with asyncio.timeout(60):
+                        while self.coordinator.service.is_waiting(entity):
+                            await asyncio.sleep(1)
+                except TimeoutError:
+                    _LOGGER.warning(
+                        "Timed out waiting for %s to reach its target position; "
+                        "resetting manual override anyway",
+                        entity,
+                    )
                 self.coordinator.manager.reset(entity)
             else:
                 _LOGGER.debug(

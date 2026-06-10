@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+from collections.abc import Callable
 from typing import Any
 
 
@@ -27,7 +28,7 @@ class AdaptiveCoverManager:
         our_state: int,
         blind_type: str,
         allow_reset: bool,
-        wait_target_call: dict[str, bool],
+        is_waiting: Callable[[str], bool],
         manual_threshold: int | None,
     ) -> None:
         """Process state change event."""
@@ -37,7 +38,7 @@ class AdaptiveCoverManager:
         entity_id = event.entity_id
         if entity_id not in self.covers:
             return
-        if wait_target_call.get(entity_id):
+        if is_waiting(entity_id):
             return
 
         new_state = event.new_state
@@ -46,6 +47,12 @@ class AdaptiveCoverManager:
             new_position = new_state.attributes.get("current_tilt_position")
         else:
             new_position = new_state.attributes.get("current_position")
+
+        if new_position is None:
+            self.logger.debug(
+                "No position attribute for %s; skipping manual detection", entity_id
+            )
+            return
 
         if new_position != our_state:
             if (

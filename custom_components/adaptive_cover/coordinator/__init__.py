@@ -17,7 +17,10 @@ from homeassistant.core import (
     callback,
 )
 from homeassistant.helpers.event import async_track_point_in_time
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -162,7 +165,6 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         )
         self._update_listener = None
         self._scheduled_time = dt.datetime.now()
-        self._cached_options = None
         # Silver: log-when-unavailable — traccia disponibilita' sun.sun
         self._sun_available: bool = True
 
@@ -188,7 +190,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             return
 
         time_check = now - get_datetime_from_str(time)
-        if time_check <= dt.timedelta(seconds=1):
+        if dt.timedelta(0) <= time_check <= dt.timedelta(seconds=1):
             self.timed_refresh = True
             self.logger.debug("Timed refresh triggered")
             await self.async_refresh()
@@ -233,7 +235,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         ]:
             self.logger.debug("Ignoring intermediate state change for %s", entity_id)
             return
-        if self.service.wait_for_target.get(entity_id):
+        if self.service.is_waiting(entity_id):
             position = event.new_state.attributes.get(
                 "current_position"
                 if self._cover_type != "cover_tilt"
@@ -270,14 +272,17 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
     async def _async_update_data(self) -> AdaptiveCoverData:
         self.logger.debug("Updating data")
-        if self.first_refresh:
-            self._cached_options = self.config_entry.options
-
         options = self.config_entry.options
         self._update_options(options)
 
+        sun_position = self.pos_sun
+        if None in sun_position:
+            raise UpdateFailed(
+                "Sun entity (sun.sun) is unavailable; cannot calculate cover position"
+            )
+
         cover_data = build_cover(
-            self._cover_type, options, self.pos_sun, self.hass, self.logger
+            self._cover_type, options, sun_position, self.hass, self.logger
         )
         self._update_manager_and_covers()
 
@@ -376,7 +381,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
                 state,
                 self._cover_type,
                 self.manual_reset,
-                self.service.wait_for_target,
+                self.service.is_waiting,
                 self.manual_threshold,
             )
         self.cover_state_change = False
@@ -604,10 +609,13 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             normal_range = list(map(int, self.normal_list))
             new_range = list(map(int, self.new_list))
         if new_range:
-            state = np.interp(state, normal_range, new_range)
-            if state == new_range[0]:
+            state = round(float(np.interp(state, normal_range, new_range)))
+            # At the edges of the mapped range, send the real fully-closed/open
+            # values to the cover; min/max (not [0]/[-1]) so a descending list
+            # used to inverse the state keeps its endpoints intact.
+            if state == min(new_range):
                 state = 0
-            if state == new_range[-1]:
+            elif state == max(new_range):
                 state = 100
         return state
 

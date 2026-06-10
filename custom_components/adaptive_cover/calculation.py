@@ -72,11 +72,6 @@ class AdaptiveGeneralCover(ABC):
             )
 
     @property
-    def _get_azimuth_edges(self) -> tuple[int, int]:
-        """Calculate azimuth edges."""
-        return self.fov_left + self.fov_right
-
-    @property
     def is_sun_in_blind_spot(self) -> bool:
         """Check if sun is in blind spot."""
         if (
@@ -278,13 +273,13 @@ class ClimateCoverData:
             return temp
 
     @property
-    def get_current_temperature(self) -> float:
+    def get_current_temperature(self) -> float | None:
         """Get temperature."""
-        if self.temp_switch:
-            if self.outside_temperature:
-                return float(self.outside_temperature)
-        if self.inside_temperature:
+        if self.temp_switch and self.outside_temperature is not None:
+            return float(self.outside_temperature)
+        if self.inside_temperature is not None:
             return float(self.inside_temperature)
+        return None
 
     @property
     def is_presence(self):
@@ -349,16 +344,16 @@ class ClimateCoverData:
     @property
     def is_sunny(self) -> bool:
         """Check if condition can contain radiation in winter."""
-        weather_state = None
-        if self.weather_entity is not None:
-            weather_state = get_safe_state(self.hass, self.weather_entity)
-        else:
+        if self.weather_entity is None:
             self.logger.debug("is_sunny(): No weather entity defined")
             return True
-        if self.weather_condition is not None:
-            matches = weather_state in self.weather_condition
-            self.logger.debug("is_sunny(): Weather: %s = %s", weather_state, matches)
-            return matches
+        if self.weather_condition is None:
+            self.logger.debug("is_sunny(): No weather conditions configured")
+            return True
+        weather_state = get_safe_state(self.hass, self.weather_entity)
+        matches = weather_state in self.weather_condition
+        self.logger.debug("is_sunny(): Weather: %s = %s", weather_state, matches)
+        return matches
 
     @property
     def lux(self) -> bool:

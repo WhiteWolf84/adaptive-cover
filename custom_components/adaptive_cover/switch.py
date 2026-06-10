@@ -134,29 +134,32 @@ class AdaptiveCoverSwitch(
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
-        _LOGGER.debug("Turning on switch: %s", self.name)
-        self._attr_is_on = True
-        setattr(self.coordinator, self._key, True)
-        if self._key == "control_toggle" and kwargs.get("added") is not True:
-            for entity in self.coordinator.entities:
-                if (
-                    not self.coordinator.manager.is_cover_manual(entity)
-                    and self.coordinator.check_adaptive_time
-                ):
-                    await self.coordinator.service.set_position(
-                        entity, self.coordinator.state
-                    )
-        await self.coordinator.async_refresh()
-        self.async_write_ha_state()
+        await self._async_set_state(True)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
-        _LOGGER.debug("Turning off switch: %s", self.name)
-        self._attr_is_on = False
-        setattr(self.coordinator, self._key, False)
-        if self._key == "control_toggle" and kwargs.get("added") is not True:
-            for entity in self.coordinator.manager.manual_controlled:
-                self.coordinator.manager.reset(entity)
+        await self._async_set_state(False)
+
+    async def _async_set_state(
+        self, value: bool, *, from_restore: bool = False
+    ) -> None:
+        """Apply the switch state to the coordinator and refresh."""
+        _LOGGER.debug("Turning %s switch: %s", "on" if value else "off", self.name)
+        self._attr_is_on = value
+        setattr(self.coordinator, self._key, value)
+        if self._key == "control_toggle" and not from_restore:
+            if value:
+                for entity in self.coordinator.entities:
+                    if (
+                        not self.coordinator.manager.is_cover_manual(entity)
+                        and self.coordinator.check_adaptive_time
+                    ):
+                        await self.coordinator.service.set_position(
+                            entity, self.coordinator.state
+                        )
+            else:
+                for entity in self.coordinator.manager.manual_controlled:
+                    self.coordinator.manager.reset(entity)
         await self.coordinator.async_refresh()
         self.async_write_ha_state()
 
@@ -167,9 +170,7 @@ class AdaptiveCoverSwitch(
         self.coordinator.logger.debug(
             "%s: last state is %s", self.entity_id, last_state
         )
-        if (last_state is None and self._initial_state) or (
+        restored_on = (last_state is None and self._initial_state) or (
             last_state is not None and last_state.state == STATE_ON
-        ):
-            await self.async_turn_on(added=True)
-        else:
-            await self.async_turn_off(added=True)
+        )
+        await self._async_set_state(restored_on, from_restore=True)

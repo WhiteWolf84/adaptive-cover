@@ -13,8 +13,10 @@ from homeassistant.util import slugify
 from .const import (
     CONF_END_ENTITY,
     CONF_ENTITIES,
+    CONF_OUTSIDETEMP_ENTITY,
     CONF_PRESENCE_ENTITY,
     CONF_SENSOR_TYPE,
+    CONF_START_ENTITY,
     CONF_TEMP_ENTITY,
     CONF_WEATHER_ENTITY,
     DOMAIN as DOMAIN,
@@ -48,11 +50,16 @@ async def async_setup_entry(
 
     coordinator = AdaptiveDataUpdateCoordinator(hass, entry)
 
+    # Lux/irradiance entities are intentionally not tracked: they can update
+    # very frequently and their thresholds are re-evaluated on every sun.sun
+    # update anyway.
     tracked_entities: list[str] = ["sun.sun"]
     for option in (
         CONF_TEMP_ENTITY,
+        CONF_OUTSIDETEMP_ENTITY,
         CONF_PRESENCE_ENTITY,
         CONF_WEATHER_ENTITY,
+        CONF_START_ENTITY,
         CONF_END_ENTITY,
     ):
         entity = entry.options.get(option)

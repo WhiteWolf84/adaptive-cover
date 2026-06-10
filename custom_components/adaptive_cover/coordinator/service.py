@@ -31,6 +31,13 @@ from ..helpers import get_last_updated, state_attr
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
+# Position tolerance when acknowledging a target: many cover motors stop a
+# percent off the requested value, which must still count as "reached".
+TARGET_TOLERANCE = 1
+# Safety net: a wait that was never acknowledged expires after this long, so a
+# cover that stalls mid-travel cannot suppress manual-override detection forever.
+TARGET_WAIT_TIMEOUT = dt.timedelta(minutes=2)
+
 
 class CoverServiceCaller:
     """Issue cover service calls and track target/throttle state."""
@@ -47,6 +54,7 @@ class CoverServiceCaller:
         self._cover_type = cover_type
         self.wait_for_target: dict[str, bool] = {}
         self.target_call: dict[str, int] = {}
+        self._target_set_at: dict[str, dt.datetime] = {}
         self.min_change: int = 1
         self.time_threshold: int = 2
 
@@ -98,6 +106,7 @@ class CoverServiceCaller:
 
         self.wait_for_target[entity] = True
         self.target_call[entity] = state
+        self._target_set_at[entity] = dt.datetime.now(dt.UTC)
         self.logger.debug(
             "Set wait for target %s and target call %s",
             self.wait_for_target,
@@ -116,10 +125,26 @@ class CoverServiceCaller:
             ) from err
 
     def acknowledge_target(self, entity: str, position: int | None) -> bool:
-        """Mark target reached if `position` matches. Returns True when reached."""
-        if position is None or position != self.target_call.get(entity):
+        """Mark target reached if `position` is within tolerance. Returns True when reached."""
+        target = self.target_call.get(entity)
+        if position is None or target is None:
+            return False
+        if abs(position - target) > TARGET_TOLERANCE:
             return False
         self.wait_for_target[entity] = False
+        return True
+
+    def is_waiting(self, entity: str) -> bool:
+        """Return True while a recent set_position call is awaiting its target."""
+        if not self.wait_for_target.get(entity):
+            return False
+        set_at = self._target_set_at.get(entity)
+        if set_at is None or dt.datetime.now(dt.UTC) - set_at > TARGET_WAIT_TIMEOUT:
+            self.wait_for_target[entity] = False
+            self.logger.debug(
+                "Target wait for %s expired without acknowledgement", entity
+            )
+            return False
         return True
 
     def _get_current_position(self, entity: str) -> int | None:
