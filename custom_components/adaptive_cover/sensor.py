@@ -43,7 +43,9 @@ async def async_setup_entry(
 
     async_add_entities(
         [
-            AdaptiveCoverSensorEntity(config_entry.entry_id, config_entry, name, coordinator),
+            AdaptiveCoverSensorEntity(
+                config_entry.entry_id, config_entry, name, coordinator
+            ),
             AdaptiveCoverTimeSensorEntity(
                 config_entry.entry_id,
                 config_entry,
@@ -95,7 +97,9 @@ class _BaseAdaptiveCoverSensor(
     @property
     def available(self) -> bool:
         """Return False if coordinator update has failed or no data yet."""
-        return self.coordinator.last_update_success and self.coordinator.data is not None
+        return (
+            self.coordinator.last_update_success and self.coordinator.data is not None
+        )
 
 
 class AdaptiveCoverSensorEntity(_BaseAdaptiveCoverSensor):

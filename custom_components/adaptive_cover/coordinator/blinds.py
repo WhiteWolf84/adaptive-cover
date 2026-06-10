@@ -42,9 +42,7 @@ from ..calculation import (
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-COVER_TYPES: frozenset[str] = frozenset(
-    {"cover_blind", "cover_awning", "cover_tilt"}
-)
+COVER_TYPES: frozenset[str] = frozenset({"cover_blind", "cover_awning", "cover_tilt"})
 
 COVER_TYPE_LABELS: dict[str, str] = {
     "cover_blind": "Vertical",

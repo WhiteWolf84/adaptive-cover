@@ -36,16 +36,12 @@ class SunData:
     @property
     def solar_azimuth(self) -> list[float]:
         """Solar azimuth at every step in `times`."""
-        return [
-            self.location.solar_azimuth(t, self.elevation) for t in self.times
-        ]
+        return [self.location.solar_azimuth(t, self.elevation) for t in self.times]
 
     @property
     def solar_elevation(self) -> list[float]:
         """Solar elevation at every step in `times`."""
-        return [
-            self.location.solar_elevation(t, self.elevation) for t in self.times
-        ]
+        return [self.location.solar_elevation(t, self.elevation) for t in self.times]
 
     def sunset(self) -> datetime:
         """Today's sunset time (UTC)."""

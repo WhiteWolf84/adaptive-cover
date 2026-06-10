@@ -43,9 +43,7 @@ async def async_setup_entry(
     """Set up Adaptive Cover from a config entry."""
     # Backfill unique_id on entries created before 1.5.0 (config flow now sets it).
     if entry.unique_id is None:
-        new_unique_id = (
-            f"{entry.data[CONF_SENSOR_TYPE]}_{slugify(entry.data['name'])}"
-        )
+        new_unique_id = f"{entry.data[CONF_SENSOR_TYPE]}_{slugify(entry.data['name'])}"
         hass.config_entries.async_update_entry(entry, unique_id=new_unique_id)
 
     coordinator = AdaptiveDataUpdateCoordinator(hass, entry)

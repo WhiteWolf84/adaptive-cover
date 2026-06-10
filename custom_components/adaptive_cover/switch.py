@@ -57,12 +57,20 @@ async def async_setup_entry(
         switches.extend(
             [
                 AdaptiveCoverSwitch(
-                    config_entry, config_entry.entry_id, "Toggle Control", True,
-                    "control_toggle", coordinator,
+                    config_entry,
+                    config_entry.entry_id,
+                    "Toggle Control",
+                    True,
+                    "control_toggle",
+                    coordinator,
                 ),
                 AdaptiveCoverSwitch(
-                    config_entry, config_entry.entry_id, "Manual Override", True,
-                    "manual_toggle", coordinator,
+                    config_entry,
+                    config_entry.entry_id,
+                    "Manual Override",
+                    True,
+                    "manual_toggle",
+                    coordinator,
                 ),
             ]
         )
@@ -70,29 +78,45 @@ async def async_setup_entry(
     if options.get(CONF_CLIMATE_MODE):
         switches.append(
             AdaptiveCoverSwitch(
-                config_entry, config_entry.entry_id, "Climate Mode", True,
-                "switch_mode", coordinator,
+                config_entry,
+                config_entry.entry_id,
+                "Climate Mode",
+                True,
+                "switch_mode",
+                coordinator,
             )
         )
         if options.get(CONF_WEATHER_ENTITY) or options.get(CONF_OUTSIDETEMP_ENTITY):
             switches.append(
                 AdaptiveCoverSwitch(
-                    config_entry, config_entry.entry_id, "Outside Temperature", False,
-                    "temp_toggle", coordinator,
+                    config_entry,
+                    config_entry.entry_id,
+                    "Outside Temperature",
+                    False,
+                    "temp_toggle",
+                    coordinator,
                 )
             )
         if options.get(CONF_LUX_ENTITY):
             switches.append(
                 AdaptiveCoverSwitch(
-                    config_entry, config_entry.entry_id, "Lux", True,
-                    "lux_toggle", coordinator,
+                    config_entry,
+                    config_entry.entry_id,
+                    "Lux",
+                    True,
+                    "lux_toggle",
+                    coordinator,
                 )
             )
         if options.get(CONF_IRRADIANCE_ENTITY):
             switches.append(
                 AdaptiveCoverSwitch(
-                    config_entry, config_entry.entry_id, "Irradiance", True,
-                    "irradiance_toggle", coordinator,
+                    config_entry,
+                    config_entry.entry_id,
+                    "Irradiance",
+                    True,
+                    "irradiance_toggle",
+                    coordinator,
                 )
             )
 

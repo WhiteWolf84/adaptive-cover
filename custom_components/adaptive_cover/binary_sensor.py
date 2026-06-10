@@ -97,5 +97,7 @@ class AdaptiveCoverBinarySensor(
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         """Return list of manually-controlled covers for the override sensor."""
         if self._key == "manual_override":
-            return {"manual_controlled": self.coordinator.data.states.get("manual_list")}
+            return {
+                "manual_controlled": self.coordinator.data.states.get("manual_list")
+            }
         return None

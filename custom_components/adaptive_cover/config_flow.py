@@ -119,13 +119,17 @@ OPTIONS = vol.Schema(
                 min=1, max=100, step=1, mode="slider", unit_of_measurement="%"
             )
         ),
-        vol.Optional(CONF_ENABLE_MAX_POSITION, default=False): selector.BooleanSelector(),
+        vol.Optional(
+            CONF_ENABLE_MAX_POSITION, default=False
+        ): selector.BooleanSelector(),
         vol.Optional(CONF_MIN_POSITION): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=0, max=99, step=1, mode="slider", unit_of_measurement="%"
             )
         ),
-        vol.Optional(CONF_ENABLE_MIN_POSITION, default=False): selector.BooleanSelector(),
+        vol.Optional(
+            CONF_ENABLE_MIN_POSITION, default=False
+        ): selector.BooleanSelector(),
         vol.Optional(CONF_MIN_ELEVATION): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=0, max=90, step=1, mode="slider", unit_of_measurement="°"
@@ -343,13 +347,17 @@ AUTOMATION_CONFIG = vol.Schema(
         vol.Required(
             CONF_MANUAL_OVERRIDE_DURATION, default={"minutes": 60}
         ): selector.DurationSelector(),
-        vol.Required(CONF_MANUAL_OVERRIDE_RESET, default=False): selector.BooleanSelector(),
+        vol.Required(
+            CONF_MANUAL_OVERRIDE_RESET, default=False
+        ): selector.BooleanSelector(),
         vol.Optional(CONF_MANUAL_THRESHOLD, default=5): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=0, max=99, step=1, mode="slider", unit_of_measurement="%"
             )
         ),
-        vol.Optional(CONF_MANUAL_IGNORE_INTERMEDIATE, default=False): selector.BooleanSelector(),
+        vol.Optional(
+            CONF_MANUAL_IGNORE_INTERMEDIATE, default=False
+        ): selector.BooleanSelector(),
         vol.Optional(CONF_END_TIME, default="00:00:00"): selector.TimeSelector(),
         vol.Optional(CONF_END_ENTITY): selector.EntitySelector(
             selector.EntitySelectorConfig(domain=["sensor", "input_datetime"])
@@ -528,7 +536,9 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Show interpolation options."""
         if user_input is not None:
-            if len(user_input[CONF_INTERP_LIST]) != len(user_input[CONF_INTERP_LIST_NEW]):
+            if len(user_input[CONF_INTERP_LIST]) != len(
+                user_input[CONF_INTERP_LIST_NEW]
+            ):
                 return self.async_show_form(
                     step_id="interp",
                     data_schema=INTERPOLATION_OPTIONS,
@@ -641,9 +651,13 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
                 CONF_DISTANCE: self.config.get(CONF_DISTANCE),
                 CONF_DEFAULT_HEIGHT: self.config.get(CONF_DEFAULT_HEIGHT),
                 CONF_MAX_POSITION: self.config.get(CONF_MAX_POSITION),
-                CONF_ENABLE_MAX_POSITION: self.config.get(CONF_ENABLE_MAX_POSITION, False),
+                CONF_ENABLE_MAX_POSITION: self.config.get(
+                    CONF_ENABLE_MAX_POSITION, False
+                ),
                 CONF_MIN_POSITION: self.config.get(CONF_MIN_POSITION),
-                CONF_ENABLE_MIN_POSITION: self.config.get(CONF_ENABLE_MIN_POSITION, False),
+                CONF_ENABLE_MIN_POSITION: self.config.get(
+                    CONF_ENABLE_MIN_POSITION, False
+                ),
                 CONF_FOV_LEFT: self.config.get(CONF_FOV_LEFT),
                 CONF_FOV_RIGHT: self.config.get(CONF_FOV_RIGHT),
                 CONF_ENTITIES: self.config.get(CONF_ENTITIES),
@@ -673,10 +687,14 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
                 CONF_END_TIME: self.config.get(CONF_END_TIME),
                 CONF_END_ENTITY: self.config.get(CONF_END_ENTITY),
                 CONF_RETURN_SUNSET: self.config.get(CONF_RETURN_SUNSET, False),
-                CONF_MANUAL_OVERRIDE_DURATION: self.config.get(CONF_MANUAL_OVERRIDE_DURATION),
+                CONF_MANUAL_OVERRIDE_DURATION: self.config.get(
+                    CONF_MANUAL_OVERRIDE_DURATION
+                ),
                 CONF_MANUAL_OVERRIDE_RESET: self.config.get(CONF_MANUAL_OVERRIDE_RESET),
                 CONF_MANUAL_THRESHOLD: self.config.get(CONF_MANUAL_THRESHOLD),
-                CONF_MANUAL_IGNORE_INTERMEDIATE: self.config.get(CONF_MANUAL_IGNORE_INTERMEDIATE),
+                CONF_MANUAL_IGNORE_INTERMEDIATE: self.config.get(
+                    CONF_MANUAL_IGNORE_INTERMEDIATE
+                ),
                 CONF_BLIND_SPOT_RIGHT: self.config.get(CONF_BLIND_SPOT_RIGHT),
                 CONF_BLIND_SPOT_LEFT: self.config.get(CONF_BLIND_SPOT_LEFT),
                 CONF_BLIND_SPOT_ELEVATION: self.config.get(CONF_BLIND_SPOT_ELEVATION),
@@ -761,7 +779,15 @@ class OptionsFlowHandler(OptionsFlow):
         if self.options.get(CONF_CLIMATE_MODE, False):
             schema = VERTICAL_OPTIONS
         if user_input is not None:
-            self._set_optional_to_none([CONF_MIN_ELEVATION, CONF_MAX_ELEVATION, CONF_OBSTACLE_HEIGHT, CONF_OBSTACLE_DISTANCE], user_input)
+            self._set_optional_to_none(
+                [
+                    CONF_MIN_ELEVATION,
+                    CONF_MAX_ELEVATION,
+                    CONF_OBSTACLE_HEIGHT,
+                    CONF_OBSTACLE_DISTANCE,
+                ],
+                user_input,
+            )
             if (
                 user_input.get(CONF_MAX_ELEVATION) is not None
                 and user_input.get(CONF_MIN_ELEVATION) is not None
@@ -800,7 +826,9 @@ class OptionsFlowHandler(OptionsFlow):
         if self.options.get(CONF_CLIMATE_MODE, False):
             schema = HORIZONTAL_OPTIONS
         if user_input is not None:
-            self._set_optional_to_none([CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input)
+            self._set_optional_to_none(
+                [CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input
+            )
             if (
                 user_input.get(CONF_MAX_ELEVATION) is not None
                 and user_input.get(CONF_MIN_ELEVATION) is not None
@@ -835,7 +863,9 @@ class OptionsFlowHandler(OptionsFlow):
         if self.options.get(CONF_CLIMATE_MODE, False):
             schema = TILT_OPTIONS
         if user_input is not None:
-            self._set_optional_to_none([CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input)
+            self._set_optional_to_none(
+                [CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input
+            )
             if (
                 user_input.get(CONF_MAX_ELEVATION) is not None
                 and user_input.get(CONF_MIN_ELEVATION) is not None
@@ -867,7 +897,9 @@ class OptionsFlowHandler(OptionsFlow):
     ) -> ConfigFlowResult:
         """Show interpolation options."""
         if user_input is not None:
-            if len(user_input[CONF_INTERP_LIST]) != len(user_input[CONF_INTERP_LIST_NEW]):
+            if len(user_input[CONF_INTERP_LIST]) != len(
+                user_input[CONF_INTERP_LIST_NEW]
+            ):
                 return self.async_show_form(
                     step_id="interp",
                     data_schema=INTERPOLATION_OPTIONS,
@@ -965,9 +997,7 @@ class OptionsFlowHandler(OptionsFlow):
         return self.async_create_entry(data=self.options)
 
     @staticmethod
-    def _set_optional_to_none(
-        keys: list[str], user_input: dict[str, Any]
-    ) -> None:
+    def _set_optional_to_none(keys: list[str], user_input: dict[str, Any]) -> None:
         """Set missing optional keys to None in user_input."""
         for key in keys:
             if key not in user_input:
