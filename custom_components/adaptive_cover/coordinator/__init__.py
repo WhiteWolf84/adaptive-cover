@@ -218,8 +218,17 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             data["entity_id"], data["old_state"], data["new_state"]
         )
         if self.state_change_data.old_state.state != "unknown":
-            self.cover_state_change = True
             self.process_entity_state_change()
+            if self.service.is_waiting(self.state_change_data.entity_id):
+                # Cover is still travelling towards a position we commanded;
+                # manual-override detection is suppressed while waiting, so a
+                # full refresh would be a no-op until the target is reached.
+                self.logger.debug(
+                    "Skipping refresh while waiting for target on %s",
+                    self.state_change_data.entity_id,
+                )
+                return
+            self.cover_state_change = True
             await self.async_refresh()
         else:
             self.logger.debug("Old state is unknown, not processing")
