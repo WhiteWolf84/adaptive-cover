@@ -5,3 +5,4 @@ colorlog~=6.10
 pvlib~=0.15
 matplotlib~=3.10
 ipykernel~=6.29
+pytest~=8.3

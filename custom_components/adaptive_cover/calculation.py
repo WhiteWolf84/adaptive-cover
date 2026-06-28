@@ -2,11 +2,12 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import timedelta
+from functools import cached_property
 
 import numpy as np
-import pandas as pd
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from numpy import cos, sin, tan
 from numpy import radians as rad
 
@@ -48,28 +49,25 @@ class AdaptiveGeneralCover(ABC):
         self.sun_data = SunData(self.timezone, self.hass)
 
     def solar_times(self):
-        """Determine start/end times."""
-        df_today = pd.DataFrame(
-            {
-                "azimuth": self.sun_data.solar_azimuth,
-                "elevation": self.sun_data.solar_elevation,
-            }
-        )
-        solpos = df_today.set_index(self.sun_data.times)
+        """Return first/last time today the sun is within the window's FOV.
 
-        alpha = solpos["azimuth"]
-        frame = (
-            (alpha - self.azi_min_abs) % 360
-            <= (self.azi_max_abs - self.azi_min_abs) % 360
-        ) & (solpos["elevation"] > 0)
-
-        if solpos[frame].empty:
-            return None, None
-        else:
-            return (
-                solpos[frame].index[0].to_pydatetime(),
-                solpos[frame].index[-1].to_pydatetime(),
+        Pure-Python scan over the precomputed 5-minute grid; no DataFrame is
+        needed to find the first and last qualifying timestamp.
+        """
+        azi_min = self.azi_min_abs
+        azi_span = (self.azi_max_abs - azi_min) % 360
+        within_window = [
+            moment
+            for moment, azimuth, elevation in zip(
+                self.sun_data.times,
+                self.sun_data.solar_azimuth,
+                self.sun_data.solar_elevation,
             )
+            if (azimuth - azi_min) % 360 <= azi_span and elevation > 0
+        ]
+        if not within_window:
+            return None, None
+        return within_window[0], within_window[-1]
 
     @property
     def is_sun_in_blind_spot(self) -> bool:
@@ -134,16 +132,18 @@ class AdaptiveGeneralCover(ABC):
         self.logger.debug("Sun in front of window (ignoring blindspot)? %s", valid)
         return valid
 
-    @property
+    @cached_property
     def sunset_valid(self) -> bool:
-        """Determine if it is after sunset plus offset."""
-        sunset = self.sun_data.sunset().replace(tzinfo=None)
-        sunrise = self.sun_data.sunrise().replace(tzinfo=None)
-        after_sunset = datetime.now(UTC).replace(tzinfo=None) > (
-            sunset + timedelta(minutes=self.sunset_off)
-        )
-        before_sunrise = datetime.now(UTC).replace(tzinfo=None) < (
-            sunrise + timedelta(minutes=self.sunrise_off)
+        """Determine if it is before sunrise or after sunset (plus offsets).
+
+        All operands are timezone-aware UTC, so the comparison is DST-safe.
+        Cached for the tick to avoid recomputing astral sunrise/sunset on every
+        read (``default``/``direct_sun_valid`` access this repeatedly).
+        """
+        now = dt_util.utcnow()
+        after_sunset = now > self.sun_data.sunset() + timedelta(minutes=self.sunset_off)
+        before_sunrise = now < self.sun_data.sunrise() + timedelta(
+            minutes=self.sunrise_off
         )
         self.logger.debug(
             "After sunset plus offset? %s", (after_sunset or before_sunrise)
@@ -248,7 +248,7 @@ class ClimateCoverData:
     _use_lux: bool | None
     _use_irradiance: bool | None
 
-    @property
+    @cached_property
     def outside_temperature(self):
         """Get outside temperature."""
         temp = None
@@ -261,7 +261,7 @@ class ClimateCoverData:
             temp = state_attr(self.hass, self.weather_entity, "temperature")
         return temp
 
-    @property
+    @cached_property
     def inside_temperature(self):
         """Get inside temp from entity."""
         if self.temp_entity is not None:
@@ -274,7 +274,7 @@ class ClimateCoverData:
                 temp = state_attr(self.hass, self.temp_entity, "current_temperature")
             return temp
 
-    @property
+    @cached_property
     def get_current_temperature(self) -> float | None:
         """Get temperature."""
         if self.temp_switch and self.outside_temperature is not None:
@@ -283,7 +283,7 @@ class ClimateCoverData:
             return float(self.inside_temperature)
         return None
 
-    @property
+    @cached_property
     def is_presence(self):
         """Checks if people are present."""
         presence = None
@@ -300,7 +300,7 @@ class ClimateCoverData:
                 return presence == "on"
         return True
 
-    @property
+    @cached_property
     def is_winter(self) -> bool:
         """Check if temperature is below threshold."""
         if self.temp_low is not None and self.get_current_temperature is not None:
@@ -316,7 +316,7 @@ class ClimateCoverData:
         )
         return is_it
 
-    @property
+    @cached_property
     def outside_high(self) -> bool:
         """Check if outdoor temperature is above threshold."""
         if (
@@ -326,7 +326,7 @@ class ClimateCoverData:
             return float(self.outside_temperature) > self.temp_summer_outside
         return True
 
-    @property
+    @cached_property
     def is_summer(self) -> bool:
         """Check if temperature is over threshold."""
         if self.temp_high is not None and self.get_current_temperature is not None:
@@ -343,7 +343,7 @@ class ClimateCoverData:
         )
         return is_it
 
-    @property
+    @cached_property
     def is_sunny(self) -> bool:
         """Check if condition can contain radiation in winter."""
         if self.weather_entity is None:
@@ -357,7 +357,7 @@ class ClimateCoverData:
         self.logger.debug("is_sunny(): Weather: %s = %s", weather_state, matches)
         return matches
 
-    @property
+    @cached_property
     def lux(self) -> bool:
         """Get lux value and compare to threshold."""
         if not self._use_lux:
@@ -369,7 +369,7 @@ class ClimateCoverData:
             return float(value) <= self.lux_threshold
         return False
 
-    @property
+    @cached_property
     def irradiance(self) -> bool:
         """Get irradiance value and compare to threshold."""
         if not self._use_irradiance:

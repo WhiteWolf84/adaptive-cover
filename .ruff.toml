@@ -38,6 +38,10 @@ lint.ignore = [
     "E731",  # do not assign a lambda expression, use a def
 ]
 
+[lint.per-file-ignores]
+# Test modules: docstrings on every test add noise without value.
+"tests/*" = ["D100", "D103"]
+
 [lint.flake8-pytest-style]
 fixture-parentheses = false
 
