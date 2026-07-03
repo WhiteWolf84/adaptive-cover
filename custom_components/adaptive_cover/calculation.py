@@ -585,13 +585,14 @@ class AdaptiveTiltCover(AdaptiveGeneralCover):
         """
         beta = self.beta
 
+        # Radicand of the venetian-slat equation. It only goes negative when the
+        # slat spacing exceeds the slat depth (a misconfiguration where perfect
+        # blocking is geometrically impossible); clamp at 0 so np.sqrt yields the
+        # maximum achievable angle instead of NaN, which would later crash
+        # round(NaN) and abort the whole coordinator tick.
+        radicand = (tan(beta) ** 2) - ((self.slat_distance / self.depth) ** 2) + 1
         slat = 2 * np.arctan(
-            (
-                tan(beta)
-                + np.sqrt(
-                    (tan(beta) ** 2) - ((self.slat_distance / self.depth) ** 2) + 1
-                )
-            )
+            (tan(beta) + np.sqrt(max(radicand, 0)))
             / (1 + self.slat_distance / self.depth)
         )
         result = np.rad2deg(slat)

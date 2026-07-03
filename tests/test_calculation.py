@@ -6,7 +6,10 @@ from datetime import datetime, timedelta, UTC
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import math
+
 from custom_components.adaptive_cover.calculation import (
+    AdaptiveTiltCover,
     AdaptiveVerticalCover,
     ClimateCoverData,
 )
@@ -226,3 +229,58 @@ def test_get_current_temperature_value():
         assert data.get_current_temperature == 30.0
         assert data.is_summer is True
         assert data.is_winter is False
+
+
+# ------------------------------------------------------------- tilt geometry
+def make_tilt(**overrides) -> AdaptiveTiltCover:
+    """Build a venetian (tilt) cover with a fake astral location."""
+    kwargs = {
+        "hass": MagicMock(),
+        "logger": MagicMock(),
+        "sol_azi": 180.0,
+        "sol_elev": 30.0,
+        "sunset_pos": 0,
+        "sunset_off": 0,
+        "sunrise_off": 0,
+        "timezone": "Europe/Rome",
+        "fov_left": 90,
+        "fov_right": 90,
+        "win_azi": 180,
+        "h_def": 60,
+        "max_pos": 100,
+        "min_pos": 0,
+        "max_pos_bool": False,
+        "min_pos_bool": False,
+        "blind_spot_left": None,
+        "blind_spot_right": None,
+        "blind_spot_elevation": None,
+        "blind_spot_on": False,
+        "min_elevation": None,
+        "max_elevation": None,
+        "slat_distance": 2.0,
+        "depth": 3.0,
+        "mode": "mode1",
+    }
+    kwargs.update(overrides)
+    with patch(
+        "custom_components.adaptive_cover.sun.get_astral_location",
+        return_value=(MagicMock(), 0.0),
+    ):
+        return AdaptiveTiltCover(**kwargs)
+
+
+def test_tilt_position_no_nan_when_slat_exceeds_depth():
+    """slat_distance > depth drives the sqrt radicand negative; must not NaN/crash."""
+    cover = make_tilt(slat_distance=10.0, depth=5.0, sol_elev=30.0)
+    result = cover.calculate_position()
+    assert not math.isnan(result)
+    # round(NaN) used to raise ValueError and abort the coordinator tick.
+    assert isinstance(cover.calculate_percentage(), int)
+
+
+def test_tilt_position_valid_config_is_finite():
+    """A geometrically valid config (slat_distance < depth) is unchanged/finite."""
+    cover = make_tilt(slat_distance=2.0, depth=3.0, sol_elev=30.0)
+    result = cover.calculate_position()
+    assert not math.isnan(result)
+    assert 0 <= result <= 180

@@ -26,7 +26,7 @@ from ..const import (
     CONF_DEFAULT_HEIGHT,
     CONF_SUNSET_POS,
 )
-from ..helpers import get_last_updated, state_attr
+from ..helpers import state_attr
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -154,10 +154,16 @@ class CoverServiceCaller:
         return state_attr(self.hass, entity, "current_position")
 
     def check_position(self, entity: str, state: int) -> bool:
-        """Return True iff cover's current position differs from desired state."""
+        """Return True iff cover's current position differs from desired state.
+
+        Uses the same TARGET_TOLERANCE as ``acknowledge_target`` so a motor that
+        stops a percent short of the requested value is considered "there" and is
+        not re-commanded forever (which happens at boundary states 0/100 where
+        ``check_position_delta`` bypasses ``min_change``).
+        """
         position = self._get_current_position(entity)
         if position is not None:
-            return position != state
+            return abs(position - state) > TARGET_TOLERANCE
         self.logger.debug(
             "Cannot check position for %s: current position is unavailable", entity
         )
@@ -190,9 +196,16 @@ class CoverServiceCaller:
         return condition
 
     def check_time_delta(self, entity: str) -> bool:
-        """Return True iff enough time has passed since the last update."""
+        """Return True iff enough time has passed since our last command.
+
+        Measures elapsed time since the integration itself last issued a
+        ``set_position`` (``_target_set_at``), not the cover entity's global
+        ``last_updated``: the latter is bumped by any attribute report (battery,
+        signal, power) and would let a chatty device suppress adaptive control
+        indefinitely. User-initiated moves stay protected by manual-override.
+        """
         now = dt.datetime.now(dt.UTC)
-        last_updated = get_last_updated(entity, self.hass)
+        last_updated = self._target_set_at.get(entity)
         if last_updated is None:
             return True
         condition = now - last_updated >= dt.timedelta(minutes=self.time_threshold)

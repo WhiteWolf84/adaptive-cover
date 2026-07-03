@@ -43,14 +43,28 @@ class AdaptiveCoverManager:
 
         new_state = event.new_state
 
+        old_state = event.old_state
         if blind_type == "cover_tilt":
-            new_position = new_state.attributes.get("current_tilt_position")
+            attr = "current_tilt_position"
         else:
-            new_position = new_state.attributes.get("current_position")
+            attr = "current_position"
+        new_position = new_state.attributes.get(attr)
+        old_position = old_state.attributes.get(attr) if old_state else None
 
         if new_position is None:
             self.logger.debug(
                 "No position attribute for %s; skipping manual detection", entity_id
+            )
+            return
+
+        # Only treat this as a possible manual override when the cover actually
+        # moved. Routine attribute-only updates (battery, linkquality, ...) fire a
+        # state-change event with the position unchanged; without this guard a
+        # throttled cover whose ideal state has drifted would be flagged as
+        # manually overridden by unrelated telemetry.
+        if old_position is not None and new_position == old_position:
+            self.logger.debug(
+                "Position unchanged for %s (%s); not a manual move", entity_id, new_position
             )
             return
 

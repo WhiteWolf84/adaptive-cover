@@ -53,6 +53,28 @@ def _install_homeassistant_stub() -> None:
     sun = types.ModuleType("homeassistant.helpers.sun")
     sun.get_astral_location = lambda hass: (object(), 0.0)
 
+    # Minimal surface used by the coordinator service layer (service.py).
+    components = types.ModuleType("homeassistant.components")
+    components.__path__ = []
+    cover = types.ModuleType("homeassistant.components.cover")
+    cover.DOMAIN = "cover"
+
+    const = types.ModuleType("homeassistant.const")
+    const.ATTR_ENTITY_ID = "entity_id"
+    const.SERVICE_SET_COVER_POSITION = "set_cover_position"
+    const.SERVICE_SET_COVER_TILT_POSITION = "set_cover_tilt_position"
+
+    exceptions = types.ModuleType("homeassistant.exceptions")
+
+    class HomeAssistantError(Exception):
+        """Stub HomeAssistantError."""
+
+    class ServiceNotFound(HomeAssistantError):
+        """Stub ServiceNotFound."""
+
+    exceptions.HomeAssistantError = HomeAssistantError
+    exceptions.ServiceNotFound = ServiceNotFound
+
     sys.modules.update(
         {
             "homeassistant": ha,
@@ -61,6 +83,10 @@ def _install_homeassistant_stub() -> None:
             "homeassistant.util.dt": dt_mod,
             "homeassistant.helpers": helpers,
             "homeassistant.helpers.sun": sun,
+            "homeassistant.components": components,
+            "homeassistant.components.cover": cover,
+            "homeassistant.const": const,
+            "homeassistant.exceptions": exceptions,
         }
     )
 

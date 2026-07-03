@@ -17,6 +17,7 @@ from homeassistant.core import (
     callback,
 )
 from homeassistant.helpers.event import async_track_point_in_time
+from homeassistant.util import dt as dt_util
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
@@ -145,6 +146,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self._start_time = None
         self._sun_end_time = None
         self._sun_start_time = None
+        self._solar_times_date = None
         self.manual_reset = self.config_entry.options.get(
             CONF_MANUAL_OVERRIDE_RESET, False
         )
@@ -328,16 +330,19 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             await self.async_handle_timed_refresh(options)
 
         normal_cover = self.normal_cover_state.cover
-        if (
-            self.first_refresh
-            or self._sun_start_time is None
-            or dt.datetime.now(dt.UTC).date() != self._sun_start_time.date()
-        ):
+        # Cache solar_times() for the whole local day. Keying on a stored local
+        # date (rather than on ``_sun_start_time`` itself) avoids two per-tick
+        # recomputations: when solar_times() returns None (sun never enters the
+        # window, e.g. a north-facing cover) and during the pre-dawn hours when
+        # now(UTC).date() and a UTC sunrise date disagree.
+        current_date = dt_util.now().date()
+        if self.first_refresh or self._solar_times_date != current_date:
             self.logger.debug("Calculating solar times")
             loop = asyncio.get_running_loop()
             start, end = await loop.run_in_executor(None, normal_cover.solar_times)
             self._sun_start_time = start
             self._sun_end_time = end
+            self._solar_times_date = current_date
             self.logger.debug("Sun start time: %s, Sun end time: %s", start, end)
         else:
             start, end = self._sun_start_time, self._sun_end_time
