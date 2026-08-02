@@ -397,6 +397,63 @@ def _get_azimuth_edges(data: dict[str, Any]) -> int:
     return data[CONF_FOV_LEFT] + data[CONF_FOV_RIGHT]
 
 
+def _has_elevation_range_error(user_input: dict[str, Any]) -> bool:
+    """Return True when both elevation bounds are set but max is not above min.
+
+    Shared by the vertical/horizontal/tilt steps of both the config and the
+    options flow — six call sites that previously held six identical copies.
+    """
+    minimum = user_input.get(CONF_MIN_ELEVATION)
+    maximum = user_input.get(CONF_MAX_ELEVATION)
+    if minimum is None or maximum is None or maximum > minimum:
+        return False
+    _LOGGER.warning(
+        "Max elevation (%s) is <= min elevation (%s). Showing error.",
+        maximum,
+        minimum,
+    )
+    return True
+
+
+def _get_interp_list_error(user_input: dict[str, Any]) -> str | None:
+    """Validate the interpolation lists, returning a translation key or None.
+
+    Both selectors use ``custom_value=True``, so whatever the user types arrives
+    here verbatim. ``AdaptiveDataUpdateCoordinator.interpolate_states`` runs
+    ``map(int, ...)`` over these lists on *every* tick and feeds the first one to
+    ``np.interp`` as ``xp``, so an unvalidated entry is not a cosmetic problem:
+
+    * a non-numeric value raises ValueError inside ``_async_update_data`` and
+      takes the whole integration down on every update;
+    * a non-ascending list makes ``np.interp`` return silently wrong positions,
+      because numpy does not check that ``xp`` is sorted;
+    * a single-element list maps every input to one constant.
+    """
+    normal = user_input.get(CONF_INTERP_LIST) or []
+    new = user_input.get(CONF_INTERP_LIST_NEW) or []
+
+    if len(normal) != len(new):
+        return "interp_list_length"
+    if not normal:
+        # Both empty: interpolation falls back to the start/end values.
+        return None
+
+    try:
+        normal_values = [int(value) for value in normal]
+        [int(value) for value in new]
+    except (TypeError, ValueError):
+        return "interp_list_not_numeric"
+
+    if len(normal_values) < 2:
+        return "interp_list_too_short"
+    if any(
+        following <= current
+        for current, following in zip(normal_values, normal_values[1:], strict=False)
+    ):
+        return "interp_list_not_ascending"
+    return None
+
+
 class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
     """Handle ConfigFlow.
 
@@ -442,21 +499,12 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         """Show basic config for vertical blinds."""
         self.type_blind = SensorType.BLIND
         if user_input is not None:
-            if (
-                user_input.get(CONF_MAX_ELEVATION) is not None
-                and user_input.get(CONF_MIN_ELEVATION) is not None
-            ):
-                if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
-                    _LOGGER.warning(
-                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
-                        user_input[CONF_MAX_ELEVATION],
-                        user_input[CONF_MIN_ELEVATION],
-                    )
-                    return self.async_show_form(
-                        step_id="vertical",
-                        data_schema=CLIMATE_MODE.extend(VERTICAL_OPTIONS.schema),
-                        errors={CONF_MAX_ELEVATION: "elevation_range"},
-                    )
+            if _has_elevation_range_error(user_input):
+                return self.async_show_form(
+                    step_id="vertical",
+                    data_schema=CLIMATE_MODE.extend(VERTICAL_OPTIONS.schema),
+                    errors={CONF_MAX_ELEVATION: "elevation_range"},
+                )
             self.config.update(user_input)
             if self.config[CONF_INTERP]:
                 return await self.async_step_interp()
@@ -474,21 +522,12 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         """Show basic config for horizontal blinds."""
         self.type_blind = SensorType.AWNING
         if user_input is not None:
-            if (
-                user_input.get(CONF_MAX_ELEVATION) is not None
-                and user_input.get(CONF_MIN_ELEVATION) is not None
-            ):
-                if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
-                    _LOGGER.warning(
-                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
-                        user_input[CONF_MAX_ELEVATION],
-                        user_input[CONF_MIN_ELEVATION],
-                    )
-                    return self.async_show_form(
-                        step_id="horizontal",
-                        data_schema=CLIMATE_MODE.extend(HORIZONTAL_OPTIONS.schema),
-                        errors={CONF_MAX_ELEVATION: "elevation_range"},
-                    )
+            if _has_elevation_range_error(user_input):
+                return self.async_show_form(
+                    step_id="horizontal",
+                    data_schema=CLIMATE_MODE.extend(HORIZONTAL_OPTIONS.schema),
+                    errors={CONF_MAX_ELEVATION: "elevation_range"},
+                )
             self.config.update(user_input)
             if self.config[CONF_INTERP]:
                 return await self.async_step_interp()
@@ -506,21 +545,12 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         """Show basic config for tilted blinds."""
         self.type_blind = SensorType.TILT
         if user_input is not None:
-            if (
-                user_input.get(CONF_MAX_ELEVATION) is not None
-                and user_input.get(CONF_MIN_ELEVATION) is not None
-            ):
-                if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
-                    _LOGGER.warning(
-                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
-                        user_input[CONF_MAX_ELEVATION],
-                        user_input[CONF_MIN_ELEVATION],
-                    )
-                    return self.async_show_form(
-                        step_id="tilt",
-                        data_schema=CLIMATE_MODE.extend(TILT_OPTIONS.schema),
-                        errors={CONF_MAX_ELEVATION: "elevation_range"},
-                    )
+            if _has_elevation_range_error(user_input):
+                return self.async_show_form(
+                    step_id="tilt",
+                    data_schema=CLIMATE_MODE.extend(TILT_OPTIONS.schema),
+                    errors={CONF_MAX_ELEVATION: "elevation_range"},
+                )
             self.config.update(user_input)
             if self.config[CONF_INTERP]:
                 return await self.async_step_interp()
@@ -536,13 +566,12 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Show interpolation options."""
         if user_input is not None:
-            if len(user_input[CONF_INTERP_LIST]) != len(
-                user_input[CONF_INTERP_LIST_NEW]
-            ):
+            error = _get_interp_list_error(user_input)
+            if error is not None:
                 return self.async_show_form(
                     step_id="interp",
                     data_schema=INTERPOLATION_OPTIONS,
-                    errors={CONF_INTERP_LIST_NEW: "interp_list_length"},
+                    errors={CONF_INTERP_LIST_NEW: error},
                 )
             self.config.update(user_input)
             if self.config[CONF_ENABLE_BLIND_SPOT]:
@@ -788,21 +817,12 @@ class OptionsFlowHandler(OptionsFlow):
                 ],
                 user_input,
             )
-            if (
-                user_input.get(CONF_MAX_ELEVATION) is not None
-                and user_input.get(CONF_MIN_ELEVATION) is not None
-            ):
-                if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
-                    _LOGGER.warning(
-                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
-                        user_input[CONF_MAX_ELEVATION],
-                        user_input[CONF_MIN_ELEVATION],
-                    )
-                    return self.async_show_form(
-                        step_id="vertical",
-                        data_schema=CLIMATE_MODE.extend(VERTICAL_OPTIONS.schema),
-                        errors={CONF_MAX_ELEVATION: "elevation_range"},
-                    )
+            if _has_elevation_range_error(user_input):
+                return self.async_show_form(
+                    step_id="vertical",
+                    data_schema=CLIMATE_MODE.extend(VERTICAL_OPTIONS.schema),
+                    errors={CONF_MAX_ELEVATION: "elevation_range"},
+                )
             self.options.update(user_input)
             if self.options.get(CONF_INTERP, False):
                 return await self.async_step_interp()
@@ -829,21 +849,12 @@ class OptionsFlowHandler(OptionsFlow):
             self._set_optional_to_none(
                 [CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input
             )
-            if (
-                user_input.get(CONF_MAX_ELEVATION) is not None
-                and user_input.get(CONF_MIN_ELEVATION) is not None
-            ):
-                if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
-                    _LOGGER.warning(
-                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
-                        user_input[CONF_MAX_ELEVATION],
-                        user_input[CONF_MIN_ELEVATION],
-                    )
-                    return self.async_show_form(
-                        step_id="horizontal",
-                        data_schema=CLIMATE_MODE.extend(HORIZONTAL_OPTIONS.schema),
-                        errors={CONF_MAX_ELEVATION: "elevation_range"},
-                    )
+            if _has_elevation_range_error(user_input):
+                return self.async_show_form(
+                    step_id="horizontal",
+                    data_schema=CLIMATE_MODE.extend(HORIZONTAL_OPTIONS.schema),
+                    errors={CONF_MAX_ELEVATION: "elevation_range"},
+                )
             self.options.update(user_input)
             if self.options.get(CONF_CLIMATE_MODE, False):
                 return await self.async_step_climate()
@@ -866,21 +877,12 @@ class OptionsFlowHandler(OptionsFlow):
             self._set_optional_to_none(
                 [CONF_MIN_ELEVATION, CONF_MAX_ELEVATION], user_input
             )
-            if (
-                user_input.get(CONF_MAX_ELEVATION) is not None
-                and user_input.get(CONF_MIN_ELEVATION) is not None
-            ):
-                if user_input[CONF_MAX_ELEVATION] <= user_input[CONF_MIN_ELEVATION]:
-                    _LOGGER.warning(
-                        "Max elevation (%s) is <= min elevation (%s). Showing error.",
-                        user_input[CONF_MAX_ELEVATION],
-                        user_input[CONF_MIN_ELEVATION],
-                    )
-                    return self.async_show_form(
-                        step_id="tilt",
-                        data_schema=CLIMATE_MODE.extend(TILT_OPTIONS.schema),
-                        errors={CONF_MAX_ELEVATION: "elevation_range"},
-                    )
+            if _has_elevation_range_error(user_input):
+                return self.async_show_form(
+                    step_id="tilt",
+                    data_schema=CLIMATE_MODE.extend(TILT_OPTIONS.schema),
+                    errors={CONF_MAX_ELEVATION: "elevation_range"},
+                )
             self.options.update(user_input)
             if self.options.get(CONF_CLIMATE_MODE, False):
                 return await self.async_step_climate()
@@ -897,13 +899,12 @@ class OptionsFlowHandler(OptionsFlow):
     ) -> ConfigFlowResult:
         """Show interpolation options."""
         if user_input is not None:
-            if len(user_input[CONF_INTERP_LIST]) != len(
-                user_input[CONF_INTERP_LIST_NEW]
-            ):
+            error = _get_interp_list_error(user_input)
+            if error is not None:
                 return self.async_show_form(
                     step_id="interp",
                     data_schema=INTERPOLATION_OPTIONS,
-                    errors={CONF_INTERP_LIST_NEW: "interp_list_length"},
+                    errors={CONF_INTERP_LIST_NEW: error},
                 )
             self.options.update(user_input)
             return await self._update_options()

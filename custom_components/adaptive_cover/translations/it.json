@@ -243,6 +243,14 @@
         "title": "Aggiustamento Intervalli",
         "description": "Regola i valori a cui la tua tenda si apre o si chiude efficacemente. Ideale per tende che non si aprono pienamente a 0% o si chiudono a 100%. \n I primi due indicatori formano l'aggiustamento a 2 punti, la lista di opzioni formano l'aggiustamento a punti multipli."
       }
+    },
+    "error": {
+      "blind_spot_range": "Il bordo destro del punto cieco deve essere maggiore del bordo sinistro.",
+      "elevation_range": "L'elevazione massima deve essere maggiore di quella minima.",
+      "interp_list_length": "Le due liste di interpolazione devono avere lo stesso numero di elementi.",
+      "interp_list_not_ascending": "La prima lista di interpolazione deve essere in ordine crescente.",
+      "interp_list_not_numeric": "Le liste di interpolazione possono contenere solo numeri interi.",
+      "interp_list_too_short": "Una lista di interpolazione richiede almeno due elementi."
     }
   },
   "options": {
@@ -491,6 +499,14 @@
         "title": "Aggiustamento Intervalli",
         "description": "Regola i valori a cui la tua tenda si apre o si chiude efficacemente. Ideale per tende che non si aprono pienamente a 0% o si chiudono a 100%. \n I primi due indicatori formano l'aggiustamento a 2 punti, la lista di opzioni formano l'aggiustamento a punti multipli."
       }
+    },
+    "error": {
+      "blind_spot_range": "Il bordo destro del punto cieco deve essere maggiore del bordo sinistro.",
+      "elevation_range": "L'elevazione massima deve essere maggiore di quella minima.",
+      "interp_list_length": "Le due liste di interpolazione devono avere lo stesso numero di elementi.",
+      "interp_list_not_ascending": "La prima lista di interpolazione deve essere in ordine crescente.",
+      "interp_list_not_numeric": "Le liste di interpolazione possono contenere solo numeri interi.",
+      "interp_list_too_short": "Una lista di interpolazione richiede almeno due elementi."
     }
   },
   "selector": {

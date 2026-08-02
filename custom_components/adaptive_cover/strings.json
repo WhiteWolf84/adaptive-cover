@@ -1,6 +1,14 @@
 {
   "title": "Adaptive Cover",
   "config": {
+    "error": {
+      "blind_spot_range": "The blind spot right edge must be higher than the left edge.",
+      "elevation_range": "Max elevation must be higher than min elevation.",
+      "interp_list_length": "Both interpolation lists must have the same number of entries.",
+      "interp_list_not_ascending": "The first interpolation list must be in ascending order.",
+      "interp_list_not_numeric": "Interpolation lists may only contain whole numbers.",
+      "interp_list_too_short": "An interpolation list needs at least two entries."
+    },
     "step": {
       "user": {
         "data": {
@@ -469,6 +477,14 @@
         "title": "Range Adjustment",
         "description": "Adjust the values at which your Cover effectively opens or closes. Ideal for Covers that don't fully open at 0% or close at 100%. \n The first two sliders are for a 2 point adjustment, the list options are for a multiple point adjustment"
       }
+    },
+    "error": {
+      "blind_spot_range": "The blind spot right edge must be higher than the left edge.",
+      "elevation_range": "Max elevation must be higher than min elevation.",
+      "interp_list_length": "Both interpolation lists must have the same number of entries.",
+      "interp_list_not_ascending": "The first interpolation list must be in ascending order.",
+      "interp_list_not_numeric": "Interpolation lists may only contain whole numbers.",
+      "interp_list_too_short": "An interpolation list needs at least two entries."
     }
   },
   "selector": {
@@ -488,25 +504,51 @@
   },
   "entity": {
     "sensor": {
-      "cover_position": { "name": "Cover position" },
-      "start_sun": { "name": "Start sun" },
-      "end_sun": { "name": "End sun" },
-      "control": { "name": "Control method" }
+      "cover_position": {
+        "name": "Cover position"
+      },
+      "start_sun": {
+        "name": "Start sun"
+      },
+      "end_sun": {
+        "name": "End sun"
+      },
+      "control": {
+        "name": "Control method"
+      }
     },
     "binary_sensor": {
-      "sun_motion": { "name": "Sun in front" },
-      "manual_override": { "name": "Manual override" }
+      "sun_motion": {
+        "name": "Sun in front"
+      },
+      "manual_override": {
+        "name": "Manual override"
+      }
     },
     "switch": {
-      "control_toggle": { "name": "Toggle control" },
-      "manual_toggle": { "name": "Manual override" },
-      "switch_mode": { "name": "Climate mode" },
-      "temp_toggle": { "name": "Outside temperature" },
-      "lux_toggle": { "name": "Lux" },
-      "irradiance_toggle": { "name": "Irradiance" }
+      "control_toggle": {
+        "name": "Toggle control"
+      },
+      "manual_toggle": {
+        "name": "Manual override"
+      },
+      "switch_mode": {
+        "name": "Climate mode"
+      },
+      "temp_toggle": {
+        "name": "Outside temperature"
+      },
+      "lux_toggle": {
+        "name": "Lux"
+      },
+      "irradiance_toggle": {
+        "name": "Irradiance"
+      }
     },
     "button": {
-      "reset_manual_override": { "name": "Reset manual override" }
+      "reset_manual_override": {
+        "name": "Reset manual override"
+      }
     }
   }
 }
