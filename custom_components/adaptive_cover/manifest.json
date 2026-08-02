@@ -1,9 +1,6 @@
 {
   "domain": "adaptive_cover",
   "name": "Adaptive Cover",
-  "codeowners": ["@basbruss", "@WhiteWolf84"],
-  "config_flow": true,
-  "dependencies": ["sun"],
   "after_dependencies": [
     "climate",
     "device_tracker",
@@ -11,6 +8,9 @@
     "weather",
     "zone"
   ],
+  "codeowners": ["@basbruss", "@WhiteWolf84"],
+  "config_flow": true,
+  "dependencies": ["sun"],
   "documentation": "https://github.com/basbruss/adaptive-cover",
   "integration_type": "service",
   "iot_class": "calculated",
@@ -18,5 +18,5 @@
   "loggers": ["custom_components.adaptive_cover"],
   "quality_scale": "silver",
   "requirements": ["numpy>=1.26.0"],
-  "version": "1.5.6"
+  "version": "1.5.7"
 }
