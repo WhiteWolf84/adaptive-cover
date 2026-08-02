@@ -477,9 +477,13 @@ class ClimateCoverState(NormalCoverState):
 
     def get_state(self) -> int:
         """Return state."""
-        result = self.normal_type_cover()
+        # Tilt covers are decided entirely by tilt_state(); computing
+        # normal_type_cover() first threw the result away and, worse, emitted
+        # debug lines describing decisions that were never applied.
         if self.climate_data.blind_type == "cover_tilt":
             result = self.tilt_state()
+        else:
+            result = self.normal_type_cover()
         if self.cover.apply_max_position and result > self.cover.max_pos:
             self.cover.logger.debug(
                 "Climate state: Max position applied (%s > %s)",
@@ -601,13 +605,8 @@ class AdaptiveTiltCover(AdaptiveGeneralCover):
 
     def calculate_percentage(self):
         """Convert tilt angle to percentages or default value."""
-        # 0 degrees is closed, 90 degrees is open, 180 degrees is closed
-        percentage_single = self.calculate_position() / 90 * 100  # single directional
-        percentage_bi = self.calculate_position() / 180 * 100  # bi-directional
-
-        if self.mode == "mode1":
-            percentage = percentage_single
-        else:
-            percentage = percentage_bi
-
-        return round(percentage)
+        # 0 degrees is closed, 90 degrees is open, 180 degrees is closed.
+        # mode1 is single directional, mode2 bi-directional. Compute the angle
+        # once: it runs arctan/sqrt/tan and only one of the two scalings is used.
+        degrees = 90 if self.mode == "mode1" else 180
+        return round(self.calculate_position() / degrees * 100)

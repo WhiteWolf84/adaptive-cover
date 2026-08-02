@@ -8,10 +8,13 @@ from unittest.mock import MagicMock, patch
 
 import math
 
+import pytest
+
 from custom_components.adaptive_cover.calculation import (
     AdaptiveTiltCover,
     AdaptiveVerticalCover,
     ClimateCoverData,
+    ClimateCoverState,
 )
 
 BASE = datetime(2026, 6, 28, tzinfo=UTC)
@@ -284,3 +287,66 @@ def test_tilt_position_valid_config_is_finite():
     result = cover.calculate_position()
     assert not math.isnan(result)
     assert 0 <= result <= 180
+
+
+# --------------------------------------------------- redundant tilt computation
+def test_tilt_percentage_computes_the_angle_once():
+    """calculate_position ran twice (once per scaling) while only one was used."""
+    cover = make_tilt()
+    with patch.object(
+        AdaptiveTiltCover, "calculate_position", return_value=45.0
+    ) as position:
+        cover.calculate_percentage()
+    assert position.call_count == 1
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected"),
+    [("mode1", 50), ("mode2", 25)],  # 45/90*100 and 45/180*100
+)
+def test_tilt_percentage_scaling_per_mode(mode, expected):
+    """Equivalence check: the single-call version keeps both mappings intact."""
+    cover = make_tilt(mode=mode)
+    with patch.object(AdaptiveTiltCover, "calculate_position", return_value=45.0):
+        assert cover.calculate_percentage() == expected
+
+
+def test_climate_tilt_state_skips_the_normal_branch():
+    """For tilt covers normal_type_cover()'s result was computed then thrown away.
+
+    Besides the wasted work it emitted debug lines describing decisions that were
+    never applied, which made the logs actively misleading.
+    """
+    cover = make_tilt()
+    state = ClimateCoverState(cover, make_climate(blind_type="cover_tilt"))
+
+    with (
+        patch.object(ClimateCoverState, "tilt_state", return_value=42) as tilt_state,
+        patch.object(ClimateCoverState, "normal_type_cover") as normal,
+        patch(
+            "custom_components.adaptive_cover.calculation.get_safe_state",
+            return_value="21.0",
+        ),
+    ):
+        assert state.get_state() == 42
+
+    tilt_state.assert_called_once()
+    normal.assert_not_called()
+
+
+def test_climate_non_tilt_state_still_uses_the_normal_branch():
+    cover = make_cover()
+    state = ClimateCoverState(cover, make_climate(blind_type="cover_blind"))
+
+    with (
+        patch.object(ClimateCoverState, "normal_type_cover", return_value=37) as normal,
+        patch.object(ClimateCoverState, "tilt_state") as tilt_state,
+        patch(
+            "custom_components.adaptive_cover.calculation.get_safe_state",
+            return_value="21.0",
+        ),
+    ):
+        assert state.get_state() == 37
+
+    normal.assert_called_once()
+    tilt_state.assert_not_called()
