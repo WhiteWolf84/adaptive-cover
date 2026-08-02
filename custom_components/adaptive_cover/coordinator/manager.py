@@ -18,6 +18,10 @@ class AdaptiveCoverManager:
         self.reset_duration = dt.timedelta(**reset_duration)
         self.logger = logger
 
+    def set_reset_duration(self, reset_duration: dict[str, int]) -> None:
+        """Update the manual-override lifetime from current options."""
+        self.reset_duration = dt.timedelta(**reset_duration)
+
     def add_covers(self, entity: list[str]) -> None:
         """Update set with entities."""
         self.covers.update(entity)
@@ -64,7 +68,9 @@ class AdaptiveCoverManager:
         # manually overridden by unrelated telemetry.
         if old_position is not None and new_position == old_position:
             self.logger.debug(
-                "Position unchanged for %s (%s); not a manual move", entity_id, new_position
+                "Position unchanged for %s (%s); not a manual move",
+                entity_id,
+                new_position,
             )
             return
 

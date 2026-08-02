@@ -10,7 +10,10 @@ Covers two regressions:
 from __future__ import annotations
 
 import datetime as dt
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.adaptive_cover.coordinator.service import (
     TARGET_TOLERANCE,
@@ -73,9 +76,7 @@ def test_time_delta_false_within_threshold():
 def test_time_delta_true_after_threshold():
     caller = make_caller()
     caller.configure(min_change=1, time_threshold=2)
-    caller._target_set_at["cover.x"] = dt.datetime.now(dt.UTC) - dt.timedelta(
-        minutes=3
-    )
+    caller._target_set_at["cover.x"] = dt.datetime.now(dt.UTC) - dt.timedelta(minutes=3)
     assert caller.check_time_delta("cover.x") is True
 
 
@@ -92,3 +93,41 @@ def test_time_delta_ignores_chatty_entity_last_updated():
 
 def test_tolerance_constant_is_one():
     assert TARGET_TOLERANCE == 1
+
+
+# ------------------------------------------------- failed call rolls the clock back
+async def test_failed_service_call_does_not_arm_the_throttle():
+    """A command that never ran must not suppress the next one.
+
+    set_manual_position stamps _target_set_at *before* calling the service. On
+    failure it used to clear only wait_for_target, so check_time_delta — which
+    measures from _target_set_at — blocked adaptive control for time_threshold
+    minutes because of a command that never reached the cover.
+    """
+    caller = make_caller()
+    caller.configure(min_change=1, time_threshold=2)
+    caller.hass.services.async_call = AsyncMock(
+        side_effect=HomeAssistantError("cover offline")
+    )
+
+    with _with_position(0), pytest.raises(HomeAssistantError):
+        await caller.set_manual_position("cover.x", 100)
+
+    assert caller.wait_for_target["cover.x"] is False
+    assert "cover.x" not in caller._target_set_at
+    assert "cover.x" not in caller.target_call
+    assert caller.check_time_delta("cover.x") is True
+    assert caller.is_waiting("cover.x") is False
+
+
+async def test_successful_service_call_arms_the_throttle():
+    caller = make_caller()
+    caller.configure(min_change=1, time_threshold=2)
+    caller.hass.services.async_call = AsyncMock()
+
+    with _with_position(0):
+        await caller.set_manual_position("cover.x", 100)
+
+    assert caller.wait_for_target["cover.x"] is True
+    assert caller.target_call["cover.x"] == 100
+    assert caller.check_time_delta("cover.x") is False

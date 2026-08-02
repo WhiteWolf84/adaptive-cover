@@ -28,14 +28,30 @@ class SunData:
         self.timezone = timezone
 
     @cached_property
+    def _tzinfo(self):
+        """Resolved tzinfo for the configured timezone."""
+        return dt_util.get_time_zone(self.timezone)
+
+    @cached_property
+    def _today(self) -> date:
+        """Today's date in the *configured* timezone.
+
+        Deliberately not ``date.today()``: that reads the host clock, which is
+        not the Home Assistant timezone (HA never calls ``time.tzset()``). With a
+        UTC container and a local HA timezone the two disagree for part of every
+        day, which would shift the whole grid — and the sunrise/sunset used by
+        ``sunset_valid`` — by a full day.
+        """
+        return dt_util.utcnow().astimezone(self._tzinfo).date()
+
+    @cached_property
     def times(self) -> list[datetime]:
         """Timezone-aware grid, every 5 min over the next 24h.
 
         Cached for the lifetime of the instance: a fresh ``SunData`` is built on
         every coordinator tick, so the grid is computed at most once per update.
         """
-        tzinfo = dt_util.get_time_zone(self.timezone)
-        start = datetime.combine(date.today(), time(), tzinfo=tzinfo)
+        start = datetime.combine(self._today, time(), tzinfo=self._tzinfo)
         return [start + _STEP * step for step in range(_STEPS)]
 
     @cached_property
@@ -50,8 +66,8 @@ class SunData:
 
     def sunset(self) -> datetime:
         """Today's sunset time (UTC, timezone-aware)."""
-        return self.location.sunset(date.today(), local=False)
+        return self.location.sunset(self._today, local=False)
 
     def sunrise(self) -> datetime:
         """Today's sunrise time (UTC, timezone-aware)."""
-        return self.location.sunrise(date.today(), local=False)
+        return self.location.sunrise(self._today, local=False)

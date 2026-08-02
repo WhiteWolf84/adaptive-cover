@@ -68,8 +68,6 @@ def test_real_move_within_threshold_does_not_lock():
 
 def test_tilt_attribute_only_update_does_not_lock():
     manager = make_manager()
-    event = make_event(
-        "cover.x", new_pos=50, old_pos=50, attr="current_tilt_position"
-    )
+    event = make_event("cover.x", new_pos=50, old_pos=50, attr="current_tilt_position")
     _handle(manager, event, our_state=55, blind_type="cover_tilt")
     assert manager.is_cover_manual("cover.x") is False

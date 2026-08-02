@@ -119,6 +119,11 @@ class CoverServiceCaller:
             )
         except (HomeAssistantError, ServiceNotFound, ValueError) as err:
             self.wait_for_target[entity] = False
+            # Roll back the throttle clock too: check_time_delta measures from
+            # _target_set_at, so leaving it set would suppress adaptive control
+            # for time_threshold minutes because of a command that never ran.
+            self._target_set_at.pop(entity, None)
+            self.target_call.pop(entity, None)
             self.logger.error("Failed to set position for %s: %s", entity, err)
             raise HomeAssistantError(
                 f"Failed to set cover position for {entity}: {err}"

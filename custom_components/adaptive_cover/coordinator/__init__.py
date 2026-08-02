@@ -77,6 +77,11 @@ from .service import CoverServiceCaller
 
 _LOGGER = logging.getLogger(__name__)
 
+# ``async_track_point_in_time`` fires "at or after" the requested instant, so a
+# busy event loop delivers the callback late. Anything within this window of the
+# instant we scheduled still counts as that firing.
+_TIMED_REFRESH_TOLERANCE = dt.timedelta(seconds=1)
+
 __all__ = [
     "AdaptiveCoverData",
     "AdaptiveCoverManager",
@@ -158,6 +163,12 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.first_refresh = False
         self.timed_refresh = False
         self.climate_state = None
+        # Populated by _async_update_data. Declared here so a failed first
+        # refresh (e.g. sun.sun unavailable -> UpdateFailed) cannot leave the
+        # switch/button platforms hitting AttributeError on coordinator.state.
+        self.default_state: int = 0
+        self.normal_cover_state: NormalCoverState | None = None
+        self._start_after_end_logged = False
         self.control_method = "intermediate"
         self.state_change_data: StateChangedData | None = None
         self.manager = AdaptiveCoverManager(self.manual_duration, self.logger)
@@ -166,7 +177,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             CONF_MANUAL_IGNORE_INTERMEDIATE, False
         )
         self._update_listener = None
-        self._scheduled_time = dt.datetime.now()
+        self._scheduled_time: dt.datetime | None = None
         # Silver: log-when-unavailable — traccia disponibilita' sun.sun
         self._sun_available: bool = True
 
@@ -177,27 +188,27 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.logger.info("Config entry first refresh completed")
 
     async def async_timed_refresh(self, event) -> None:
-        """Control state at end time."""
-        now = dt.datetime.now()
-        time = None
-        if self.end_time is not None:
-            time = self.end_time
-        if self.end_time_entity is not None:
-            time = get_safe_state(self.hass, self.end_time_entity)
+        """Control state at end time.
 
-        self.logger.debug("Checking timed refresh. End time: %s, now: %s", time, now)
-
-        if time is None:
-            self.logger.debug("Timed refresh skipped: no end time configured")
+        Compares against the instant we actually scheduled rather than
+        re-reading and re-parsing the end-time option: the option may have been
+        edited since, and the previous +-1s window against a freshly parsed
+        value silently dropped any firing the event loop delivered late, so the
+        end-of-day position was simply never applied.
+        """
+        scheduled = self._scheduled_time
+        if scheduled is None:
+            self.logger.debug("Timed refresh skipped: nothing scheduled")
             return
 
-        time_check = now - get_datetime_from_str(time)
-        if dt.timedelta(0) <= time_check <= dt.timedelta(seconds=1):
-            self.timed_refresh = True
-            self.logger.debug("Timed refresh triggered")
-            await self.async_refresh()
-        else:
-            self.logger.debug("Timed refresh, but: not equal to end time")
+        drift = dt_util.now() - scheduled
+        if drift < -_TIMED_REFRESH_TOLERANCE:
+            self.logger.debug("Timed refresh fired %s early; ignoring", -drift)
+            return
+
+        self.timed_refresh = True
+        self.logger.debug("Timed refresh triggered (drift %s)", drift)
+        await self.async_refresh()
 
     async def async_check_entity_state_change(
         self, event: Event[EventStateChangedData]
@@ -215,6 +226,12 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         data = event.data
         if data["old_state"] is None:
             self.logger.debug("Old state is None")
+            return
+        if data["new_state"] is None:
+            # Fired when the entity is removed from the state machine. Every
+            # consumer below dereferences new_state (.state, .attributes,
+            # .last_updated), so there is nothing to process.
+            self.logger.debug("New state is None (entity removed); not processing")
             return
         self.state_change_data = StateChangedData(
             data["entity_id"], data["old_state"], data["new_state"]
@@ -265,21 +282,23 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             self._update_listener()
             self._update_listener = None
 
-    async def async_timed_end_time(self) -> None:
-        """Control state at end time."""
-        self.logger.debug("Scheduling end time update at %s", self._end_time)
+    async def async_timed_end_time(self, end_time: dt.datetime) -> None:
+        """Schedule the end-of-window refresh at `end_time`.
+
+        Takes the already-resolved instant instead of re-reading the ``_end_time``
+        property: each read parses a datetime string, and the previous version
+        read it five times per call.
+        """
         self._async_cancel_update_listener()
         self.logger.debug(
-            "End time: %s, Track end time: %s, Scheduled time: %s, Condition: %s",
-            self._end_time,
-            self._track_end_time,
+            "Scheduling end time update at %s (previously scheduled: %s)",
+            end_time,
             self._scheduled_time,
-            self._end_time > self._scheduled_time,
         )
         self._update_listener = async_track_point_in_time(
-            self.hass, self.async_timed_refresh, self._end_time
+            self.hass, self.async_timed_refresh, end_time
         )
-        self._scheduled_time = self._end_time
+        self._scheduled_time = end_time
 
     async def _async_update_data(self) -> AdaptiveCoverData:
         self.logger.debug("Updating data")
@@ -313,13 +332,15 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
         await self.manager.reset_if_needed()
 
+        end_time = self._resolve_end_time()
         if (
-            self._end_time
+            end_time
             and self._track_end_time
-            and self._end_time > self._scheduled_time
+            and (self._scheduled_time is None or end_time > self._scheduled_time)
         ):
-            await self.async_timed_end_time()
+            await self.async_timed_end_time(end_time)
 
+        was_first_refresh = self.first_refresh
         if self.state_change:
             await self.async_handle_state_change(state, options)
         if self.cover_state_change:
@@ -336,7 +357,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         # window, e.g. a north-facing cover) and during the pre-dawn hours when
         # now(UTC).date() and a UTC sunrise date disagree.
         current_date = dt_util.now().date()
-        if self.first_refresh or self._solar_times_date != current_date:
+        if was_first_refresh or self._solar_times_date != current_date:
             self.logger.debug("Calculating solar times")
             loop = asyncio.get_running_loop()
             start, end = await loop.run_in_executor(None, normal_cover.solar_times)
@@ -404,9 +425,12 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
     async def async_handle_first_refresh(self, state: int, options) -> None:
         """Handle first refresh."""
         if self.control_toggle:
+            # Hoisted out of the loop: it is constant for the tick and each read
+            # parses two datetime strings.
+            is_adaptive_time = self.check_adaptive_time
             for cover in self.entities:
                 if (
-                    self.check_adaptive_time
+                    is_adaptive_time
                     and not self.manager.is_cover_manual(cover)
                     and self.service.check_position_delta(cover, state, options)
                 ):
@@ -450,6 +474,9 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self.manual_duration = options.get(
             CONF_MANUAL_OVERRIDE_DURATION, {"minutes": 15}
         )
+        # Propagate to the manager: it captured the duration at construction, so
+        # assigning only to self.manual_duration had no effect on the reset logic.
+        self.manager.set_reset_duration(self.manual_duration)
         self.manual_threshold = options.get(CONF_MANUAL_THRESHOLD)
         self.start_value = options.get(CONF_INTERP_START)
         self.end_value = options.get(CONF_INTERP_END)
@@ -465,71 +492,84 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
             for entity in self.manager.manual_controlled:
                 self.manager.reset(entity)
 
+    def _resolve_start_time(self) -> dt.datetime | None:
+        """Resolve the configured start time, entity taking precedence."""
+        if self.start_time_entity is not None:
+            return get_datetime_from_str(
+                get_safe_state(self.hass, self.start_time_entity)
+            )
+        if self.start_time is not None:
+            return get_datetime_from_str(self.start_time)
+        return None
+
+    def _resolve_end_time(self) -> dt.datetime | None:
+        """Resolve the configured end time, entity taking precedence."""
+        if self.end_time_entity is not None:
+            return get_datetime_from_str(
+                get_safe_state(self.hass, self.end_time_entity)
+            )
+        if self.end_time is not None:
+            end = get_datetime_from_str(self.end_time)
+            if end is not None and end.time() == dt.time(0, 0):
+                # "00:00" means the end of today, not its start.
+                end += dt.timedelta(days=1)
+            return end
+        return None
+
     @property
     def check_adaptive_time(self) -> bool:
-        """Check if time is within start and end times."""
-        if self._start_time and self._end_time and self._start_time > self._end_time:
-            if not getattr(self, "_start_after_end_logged", False):
+        """Check if time is within start and end times.
+
+        Resolves both bounds once. The previous version read the ``_end_time``
+        property four times and relied on ``after_start_time`` to populate
+        ``_start_time`` as a side effect — but compared ``_start_time`` *before*
+        that ran, so the start-after-end guard saw the previous tick's value (or
+        None on the first tick, skipping the check entirely).
+        """
+        start = self._resolve_start_time()
+        end = self._resolve_end_time()
+        self._start_time = start
+
+        if start is not None and end is not None and start > end:
+            if not self._start_after_end_logged:
                 self.logger.warning(
                     "Start time (%s) is after end time (%s); "
                     "adaptive control is disabled until this is corrected",
-                    self._start_time,
-                    self._end_time,
+                    start,
+                    end,
                 )
                 self._start_after_end_logged = True
             return False
         self._start_after_end_logged = False
-        return self.before_end_time and self.after_start_time
+
+        now = dt_util.now()
+        within = (end is None or now < end) and (start is None or now >= start)
+        self.logger.debug(
+            "Adaptive window: start=%s, end=%s, now=%s, within=%s",
+            start,
+            end,
+            now,
+            within,
+        )
+        return within
 
     @property
     def after_start_time(self) -> bool:
         """Check if time is after start time."""
-        now = dt.datetime.now()
-        if self.start_time_entity is not None:
-            time = get_datetime_from_str(
-                get_safe_state(self.hass, self.start_time_entity)
-            )
-            self.logger.debug(
-                "Start time: %s, now: %s, now >= time: %s ", time, now, now >= time
-            )
-            self._start_time = time
-            return now >= time
-        if self.start_time is not None:
-            time = get_datetime_from_str(self.start_time)
-            self.logger.debug(
-                "Start time: %s, now: %s, now >= time: %s", time, now, now >= time
-            )
-            self._start_time = time
-            return now >= time
-        return True
+        start = self._resolve_start_time()
+        self._start_time = start
+        return start is None or dt_util.now() >= start
 
     @property
     def _end_time(self) -> dt.datetime | None:
         """Get end time."""
-        time = None
-        if self.end_time_entity is not None:
-            time = get_datetime_from_str(
-                get_safe_state(self.hass, self.end_time_entity)
-            )
-        elif self.end_time is not None:
-            time = get_datetime_from_str(self.end_time)
-            if time.time() == dt.time(0, 0):
-                time = time + dt.timedelta(days=1)
-        return time
+        return self._resolve_end_time()
 
     @property
     def before_end_time(self) -> bool:
         """Check if time is before end time."""
-        if self._end_time is not None:
-            now = dt.datetime.now()
-            self.logger.debug(
-                "End time: %s, now: %s, now < time: %s",
-                self._end_time,
-                now,
-                now < self._end_time,
-            )
-            return now < self._end_time
-        return True
+        end = self._resolve_end_time()
+        return end is None or dt_util.now() < end
 
     @property
     def pos_sun(self) -> list[float | None]:
@@ -617,7 +657,10 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         """Interpolate states."""
         normal_range = [0, 100]
         new_range = []
-        if self.start_value and self.end_value:
+        # `is not None`, not truthiness: 0 is a valid endpoint (the selector
+        # allows min=0) and a descending range such as 20 -> 0 is the documented
+        # way to invert the state. Truthiness silently skipped both.
+        if self.start_value is not None and self.end_value is not None:
             new_range = [self.start_value, self.end_value]
         if self.normal_list and self.new_list:
             normal_range = list(map(int, self.normal_list))
