@@ -51,7 +51,15 @@ def _install_homeassistant_stub() -> None:
     helpers = types.ModuleType("homeassistant.helpers")
     helpers.__path__ = []
     sun = types.ModuleType("homeassistant.helpers.sun")
-    sun.get_astral_location = lambda hass: (object(), 0.0)
+
+    def _get_astral_observer(hass):
+        from astral import Observer
+
+        return Observer(0.0, 0.0, 0.0)
+
+    # Only the modern name: get_astral_location is deprecated upstream and the
+    # integration must never reach for it when the new helper exists.
+    sun.get_astral_observer = _get_astral_observer
 
     # Minimal surface used by the coordinator service layer (service.py).
     components = types.ModuleType("homeassistant.components")

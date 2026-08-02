@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 import math
 
 import pytest
+from astral import Observer
 
 from custom_components.adaptive_cover.calculation import (
     AdaptiveTiltCover,
@@ -52,8 +53,8 @@ def make_cover(**overrides) -> AdaptiveVerticalCover:
     }
     kwargs.update(overrides)
     with patch(
-        "custom_components.adaptive_cover.sun.get_astral_location",
-        return_value=(MagicMock(), 0.0),
+        "custom_components.adaptive_cover.sun.get_observer",
+        return_value=Observer(41.9, 12.5, 0.0),
     ):
         return AdaptiveVerticalCover(**kwargs)
 
@@ -266,8 +267,8 @@ def make_tilt(**overrides) -> AdaptiveTiltCover:
     }
     kwargs.update(overrides)
     with patch(
-        "custom_components.adaptive_cover.sun.get_astral_location",
-        return_value=(MagicMock(), 0.0),
+        "custom_components.adaptive_cover.sun.get_observer",
+        return_value=Observer(41.9, 12.5, 0.0),
     ):
         return AdaptiveTiltCover(**kwargs)
 
