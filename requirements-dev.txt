@@ -1,8 +1,12 @@
 -r requirements.txt
-pre-commit~=3.7
-ruff~=0.4
+pre-commit~=4.0
+ruff~=0.16
 colorlog~=6.10
+pytest~=9.0
+# Provides the HA test harness (hass fixture, autouse event-loop fixtures).
+# Required for the suite to collect at all — see [tool.pytest.ini_options].
+pytest-homeassistant-custom-component~=0.13
+# Notebooks under notebooks/ only; not needed to run the test suite.
 pvlib~=0.15
 matplotlib~=3.10
 ipykernel~=6.29
-pytest~=8.3

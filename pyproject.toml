@@ -5,7 +5,7 @@ classifiers = [
   "Framework :: AsyncIO",
   "Intended Audience :: Developers",
   "Natural Language :: English",
-  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3",
 ]
 description = "Adaptive Cover"
@@ -20,15 +20,16 @@ repository = "https://github.com/basbruss/adaptive-cover"
 version = "0.0.0"
 
 [tool.poetry.dependencies]
-homeassistant = "2023.11.1"
-python = "^3.11"
+homeassistant = ">=2026.5.0"
+python = "^3.13"
 
 [tool.poetry.group.dev.dependencies]
-hass-nabucasa = "0.75.1"
-pre-commit = "4.0.1"
-pre-commit-hooks = "5.0.0"
-pylint = "3.3.1"
-ruff = "0.9.1"
+pre-commit = "^4.0"
+pre-commit-hooks = "^5.0"
+pylint = "^3.3"
+pytest = "^9.0"
+pytest-homeassistant-custom-component = "^0.13"
+ruff = "^0.16"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/basbruss/adaptive-cover/issues"
@@ -38,44 +39,16 @@ Changelog = "https://github.com/basbruss/adaptive-cover/releases"
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
-[tool.ruff]
-ignore = [
-  "ANN101", # Self... explanatory
-  "ANN401", # Opiniated warning on disallowing dynamically typed expressions
-  "D203", # Conflicts with other rules
-  "D213", # Conflicts with other rules
-  "TID252", # Relative imports
-  "RUF012", # Just broken
+[tool.pytest.ini_options]
+# pytest-homeassistant-custom-component ships an autouse *async* fixture
+# (enable_event_loop_debug). Under pytest-asyncio's default strict mode a sync
+# test requesting it is a collection error, so the whole suite fails to run.
+asyncio_mode = "auto"
+testpaths = ["tests"]
 
-  # Formatter conflicts
-  "COM812",
-  "COM819",
-  "D206",
-  "E501",
-  "ISC001",
-  "Q000",
-  "Q001",
-  "Q002",
-  "Q003",
-  "W191",
-]
-select = ["ALL"]
-src = ["custom_components/adaptive_cover"]
-
-[tool.ruff.flake8-import-conventions.extend-aliases]
-"homeassistant.helpers.area_registry" = "ar"
-"homeassistant.helpers.config_validation" = "cv"
-"homeassistant.helpers.device_registry" = "dr"
-"homeassistant.helpers.entity_registry" = "er"
-"homeassistant.helpers.issue_registry" = "ir"
-voluptuous = "vol"
-
-[tool.ruff.isort]
-force-sort-within-sections = true
-known-first-party = [
-    "homeassistant",
-]
-combine-as-imports = true
+# Ruff is configured in .ruff.toml, which takes precedence over any
+# [tool.ruff] table here — keeping a second copy in this file only creates
+# two sources of truth that silently disagree.
 
 [tool.pylint."MESSAGES CONTROL"]
 # Reasons disabled:
