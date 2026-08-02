@@ -43,13 +43,10 @@ async def async_setup_entry(
 
     async_add_entities(
         [
-            AdaptiveCoverSensorEntity(
-                config_entry.entry_id, config_entry, name, coordinator
-            ),
+            AdaptiveCoverSensorEntity(config_entry.entry_id, config_entry, coordinator),
             AdaptiveCoverTimeSensorEntity(
                 config_entry.entry_id,
                 config_entry,
-                name,
                 "Start Sun",
                 "start",
                 "mdi:sun-clock-outline",
@@ -58,14 +55,13 @@ async def async_setup_entry(
             AdaptiveCoverTimeSensorEntity(
                 config_entry.entry_id,
                 config_entry,
-                name,
                 "End Sun",
                 "end",
                 "mdi:sun-clock",
                 coordinator,
             ),
             AdaptiveCoverControlSensorEntity(
-                config_entry.entry_id, config_entry, name, coordinator
+                config_entry.entry_id, config_entry, coordinator
             ),
         ]
     )
@@ -114,7 +110,6 @@ class AdaptiveCoverSensorEntity(_BaseAdaptiveCoverSensor):
         self,
         unique_id: str,
         config_entry: AdaptiveCoverConfigEntry,
-        name: str,
         coordinator: AdaptiveDataUpdateCoordinator,
     ) -> None:
         """Initialize the sensor."""
@@ -151,7 +146,6 @@ class AdaptiveCoverTimeSensorEntity(_BaseAdaptiveCoverSensor):
         self,
         unique_id: str,
         config_entry: AdaptiveCoverConfigEntry,
-        name: str,
         sensor_name: str,
         key: str,
         icon: str,
@@ -179,7 +173,6 @@ class AdaptiveCoverControlSensorEntity(_BaseAdaptiveCoverSensor):
         self,
         unique_id: str,
         config_entry: AdaptiveCoverConfigEntry,
-        name: str,
         coordinator: AdaptiveDataUpdateCoordinator,
     ) -> None:
         """Initialize the control method sensor."""

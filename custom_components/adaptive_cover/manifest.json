@@ -3,13 +3,13 @@
   "name": "Adaptive Cover",
   "codeowners": ["@basbruss", "@WhiteWolf84"],
   "config_flow": true,
-  "dependencies": [
-    "sun",
-    "device_tracker",
-    "zone",
+  "dependencies": ["sun"],
+  "after_dependencies": [
     "climate",
+    "device_tracker",
     "sensor",
-    "weather"
+    "weather",
+    "zone"
   ],
   "documentation": "https://github.com/basbruss/adaptive-cover",
   "integration_type": "service",
@@ -18,5 +18,5 @@
   "loggers": ["custom_components.adaptive_cover"],
   "quality_scale": "silver",
   "requirements": ["numpy>=1.26.0"],
-  "version": "1.5.4"
+  "version": "1.5.5"
 }
