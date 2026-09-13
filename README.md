@@ -23,6 +23,7 @@ This integration builds upon the template sensor from this forum post [Automatic
     - [Basic mode](#basic-mode)
     - [Climate mode](#climate-mode)
       - [Climate strategies](#climate-strategies)
+      - [Security mode](#security-mode)
   - [Variables](#variables)
     - [Common](#common)
     - [Vertical](#vertical)
@@ -52,6 +53,8 @@ This integration builds upon the template sensor from this forum post [Automatic
   - Presence based operation
   - Switch to toggle climate mode
   - Sensor for displaying the operation modus (`winter`,`intermediate`,`summer`)
+  - [Security mode](#security-mode) to close covers while nobody is home
+  - Diagnostic sensor exposing every input of the climate decision
 
 - **Adaptive Control**
 
@@ -182,6 +185,15 @@ This mode is split up in two types of strategies; Presence and No Presence, both
   The objective is to reduce glare while providing daylight to the room. All calculation is done by the basic model for Horizontal and Vertical blinds. <br> <br>
   If you added a weather entity, it will only use the above calculations if the weather state corresponds with the existence of direct sun rays. These states are `sunny`, `partlycloudy`, `cloudy` and `clear` by default, but you can change the list of states in the weather options. If not equal to these states the position will default to the default value to allow more sunlight entering the room with minimizing the glare due to the weather condition. <br><br>
   Tilted blinds will only deviate from the above approach if the inside temperature is above the maximum comfort temperature. In that case, the slats will be positioned at 45 degrees as this is [found optimal](https://www.mdpi.com/1996-1073/13/7/1731).
+
+#### Security mode
+
+When a presence entity is configured, the `Security Mode` switch (off by default) closes the covers whenever nobody is home. It takes precedence over the calculated position, the start/end time window and the position at end time.
+
+- **Position**: fully closed (0%). With climate mode on and a strategy other than `summer`, the Minimal Position is used instead, so rooms are not sealed completely. Inverse State is honoured.
+- **Manual override wins**: covers under manual override are left where the user put them, and nothing moves while Toggle Control is off.
+- **Fail-safe**: an unknown or unavailable presence entity counts as someone at home, so a sensor failure never closes the covers.
+- **Immediate**: turning the switch on or off moves the covers right away when it changes whether the away position applies. When someone comes home, adaptive control resumes on the presence change.
 
 ## Variables
 
@@ -323,6 +335,8 @@ When climate mode is setup you will also get these entities:
 | `switch.vertical_outside_temperature`  | `off`   | a weather or outdoor temperature entity is set | Switches between inside and outside temperatures as the basis for determining the climate control strategy. |
 | `switch.vertical_lux`                  | `on`    | a lux entity is set                      | Lets the lux threshold take part in the glare decision.                                                     |
 | `switch.vertical_irradiance`           | `on`    | an irradiance entity is set              | Lets the irradiance threshold take part in the glare decision.                                              |
+| `switch.vertical_security_mode`        | `off`   | a presence entity is set and at least one cover is assigned | Enables [security mode](#security-mode): covers close while nobody is home.                  |
+| `sensor.vertical_climate_debug`        | disabled | always, in climate mode                 | Diagnostic entity, disabled by default. State is the active strategy; attributes hold every input of the climate decision (temperatures, thresholds, presence, lux, irradiance, weather). Enable it while troubleshooting only: its attributes change on every update. |
 
 ![entities](https://github.com/WhiteWolf84/adaptive-cover/blob/main/images/entities.png)
 
