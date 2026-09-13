@@ -513,6 +513,9 @@
       },
       "control": {
         "name": "Spôsob ovládania"
+      },
+      "climate_debug": {
+        "name": "Ladenie klímy"
       }
     },
     "binary_sensor": {
@@ -541,6 +544,9 @@
       },
       "irradiance_toggle": {
         "name": "Žiarivosť"
+      },
+      "security_toggle": {
+        "name": "Bezpečnostný režim"
       }
     },
     "button": {

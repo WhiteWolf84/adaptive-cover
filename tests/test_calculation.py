@@ -351,3 +351,9 @@ def test_climate_non_tilt_state_still_uses_the_normal_branch():
 
     normal.assert_called_once()
     tilt_state.assert_not_called()
+
+
+def test_is_presence_tolerates_a_non_numeric_zone_state():
+    data = make_climate(presence_entity="zone.home")
+    data.hass.states.get.return_value = MagicMock(state="not-a-count")
+    assert data.is_presence is True

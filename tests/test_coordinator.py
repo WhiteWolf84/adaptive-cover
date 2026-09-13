@@ -231,3 +231,205 @@ def test_explicit_lists_take_precedence():
     # Hitting min/max of the mapped range sends the real fully-closed/open value.
     assert coordinator.interpolate_states(0) == 0
     assert coordinator.interpolate_states(100) == 100
+
+
+# ---------------------------------------------------------- climate_mode_data
+def _climate_coordinator(**overrides) -> AdaptiveDataUpdateCoordinator:
+    defaults = {
+        "_switch_mode": True,
+        "_temp_toggle": None,
+        "_lux_toggle": None,
+        "_irradiance_toggle": None,
+        "control_method": "intermediate",
+        "climate_debug": None,
+    }
+    defaults.update(overrides)
+    return make_coordinator(**defaults)
+
+
+def _run_climate_mode_data(coordinator, *, is_winter=False, is_summer=False):
+    climate_state = MagicMock()
+    climate_state.get_state.return_value = 40
+    climate_state.climate_data = MagicMock(is_winter=is_winter, is_summer=is_summer)
+    with (
+        patch("custom_components.adaptive_cover.coordinator.ClimateCoverData"),
+        patch(
+            "custom_components.adaptive_cover.coordinator.ClimateCoverState",
+            return_value=climate_state,
+        ),
+    ):
+        coordinator.climate_mode_data({}, MagicMock())
+
+
+def test_control_method_returns_to_intermediate_after_summer():
+    """Once summer was set, nothing ever reset it until the entry was reloaded."""
+    coordinator = _climate_coordinator()
+    _run_climate_mode_data(coordinator, is_summer=True)
+    assert coordinator.control_method == "summer"
+
+    _run_climate_mode_data(coordinator)
+    assert coordinator.control_method == "intermediate"
+
+
+@pytest.mark.parametrize(
+    ("is_winter", "is_summer", "switch_mode", "expected"),
+    [
+        (True, False, True, "winter"),
+        (False, True, True, "summer"),
+        (True, True, True, "winter"),  # previous precedence preserved
+        (False, True, False, "intermediate"),
+    ],
+)
+def test_control_method_branches(is_winter, is_summer, switch_mode, expected):
+    coordinator = _climate_coordinator(_switch_mode=switch_mode)
+    _run_climate_mode_data(coordinator, is_winter=is_winter, is_summer=is_summer)
+    assert coordinator.control_method == expected
+
+
+def test_climate_debug_snapshot_tracks_the_decision():
+    coordinator = _climate_coordinator()
+    _run_climate_mode_data(coordinator, is_winter=True)
+    assert coordinator.climate_debug["active_branch"] == "winter"
+    assert coordinator.climate_debug["climate_position"] == 40
+    assert coordinator.climate_debug["is_winter"] is True
+
+
+# --------------------------------------------------------------- security mode
+def _security_coordinator(
+    presence_state: str | None = "off", *, options=None, **overrides
+) -> AdaptiveDataUpdateCoordinator:
+    hass = MagicMock()
+    hass.states.get.return_value = (
+        None if presence_state is None else MagicMock(state=presence_state)
+    )
+    entry = MagicMock()
+    entry.options = {"presence_entity": "binary_sensor.home", **(options or {})}
+    service = MagicMock(
+        set_manual_position=AsyncMock(),
+        set_position=AsyncMock(),
+        handle_call_service=AsyncMock(),
+    )
+    manager = MagicMock()
+    manager.is_cover_manual.return_value = False
+    defaults = {
+        "hass": hass,
+        "config_entry": entry,
+        "service": service,
+        "manager": manager,
+        "_security_toggle": True,
+        "_control_toggle": True,
+        "_switch_mode": False,
+        "_inverse_state": False,
+        "_use_interpolation": False,
+        "control_method": "intermediate",
+        "default_state": 55,
+        "climate_state": None,
+        "entities": ["cover.a", "cover.b"],
+        "state_change": True,
+    }
+    defaults.update(overrides)
+    return make_coordinator(**defaults)
+
+
+@pytest.mark.parametrize(
+    ("toggle", "presence_entity", "presence_state", "expected"),
+    [
+        (False, "binary_sensor.home", "off", False),
+        (True, "binary_sensor.home", "off", True),
+        (True, "binary_sensor.home", "on", False),
+        (True, "binary_sensor.home", "unavailable", False),
+        (True, None, "off", False),
+    ],
+)
+def test_security_active(toggle, presence_entity, presence_state, expected):
+    coordinator = _security_coordinator(
+        presence_state,
+        options={"presence_entity": presence_entity},
+        _security_toggle=toggle,
+    )
+    assert coordinator.security_active is expected
+
+
+@pytest.mark.parametrize(
+    ("switch_mode", "control_method", "min_position", "inverse", "expected"),
+    [
+        (False, "intermediate", 20, False, 0),
+        (True, "intermediate", 20, False, 20),
+        (True, "winter", 20, False, 20),
+        (True, "summer", 20, False, 0),
+        (True, "winter", None, False, 0),
+        (False, "intermediate", None, True, 100),
+    ],
+)
+def test_security_position(
+    switch_mode, control_method, min_position, inverse, expected
+):
+    coordinator = _security_coordinator(
+        options={"min_position": min_position},
+        _switch_mode=switch_mode,
+        control_method=control_method,
+        _inverse_state=inverse,
+    )
+    assert coordinator.security_position == expected
+
+
+async def test_state_change_applies_security_and_skips_manual_covers():
+    coordinator = _security_coordinator()
+    coordinator.manager.is_cover_manual.side_effect = lambda cover: cover == "cover.b"
+
+    await coordinator.async_handle_state_change(55, {})
+
+    coordinator.service.set_manual_position.assert_awaited_once_with("cover.a", 0)
+    coordinator.service.handle_call_service.assert_not_awaited()
+    assert coordinator.state_change is False
+
+
+async def test_state_change_uses_adaptive_path_when_someone_is_home():
+    coordinator = _security_coordinator("on")
+
+    await coordinator.async_handle_state_change(55, {})
+
+    assert coordinator.service.handle_call_service.await_count == 2
+    coordinator.service.set_manual_position.assert_not_awaited()
+
+
+async def test_security_does_nothing_with_control_toggle_off():
+    coordinator = _security_coordinator(_control_toggle=False)
+
+    await coordinator.async_handle_state_change(55, {})
+
+    coordinator.service.set_manual_position.assert_not_awaited()
+    coordinator.service.handle_call_service.assert_not_awaited()
+
+
+async def test_timed_refresh_prefers_security_over_sunset_position():
+    coordinator = _security_coordinator(timed_refresh=True)
+
+    await coordinator.async_handle_timed_refresh({"sunset_position": 30})
+
+    assert [
+        c.args for c in coordinator.service.set_manual_position.await_args_list
+    ] == [
+        ("cover.a", 0),
+        ("cover.b", 0),
+    ]
+    assert coordinator.timed_refresh is False
+
+
+async def test_apply_target_now_uses_adaptive_state_when_home():
+    coordinator = _security_coordinator("on")
+    coordinator.manager.is_cover_manual.side_effect = lambda cover: cover == "cover.b"
+
+    await coordinator.async_apply_target_now()
+
+    coordinator.service.set_position.assert_awaited_once_with("cover.a", 55)
+    coordinator.service.set_manual_position.assert_not_awaited()
+
+
+async def test_apply_target_now_uses_security_when_away():
+    coordinator = _security_coordinator("off")
+
+    await coordinator.async_apply_target_now()
+
+    assert coordinator.service.set_manual_position.await_count == 2
+    coordinator.service.set_position.assert_not_awaited()

@@ -14,10 +14,11 @@ from homeassistant.components.sensor import (
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_SENSOR_TYPE, DOMAIN
+from .const import CONF_CLIMATE_MODE, CONF_SENSOR_TYPE, DOMAIN
 from .coordinator import COVER_TYPE_LABELS, AdaptiveDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -40,30 +41,35 @@ async def async_setup_entry(
 
     _LOGGER.info("Setting up Adaptive Cover sensors for %s", name)
 
-    async_add_entities(
-        [
-            AdaptiveCoverSensorEntity(config_entry.entry_id, config_entry, coordinator),
-            AdaptiveCoverTimeSensorEntity(
-                config_entry.entry_id,
-                config_entry,
-                "Start Sun",
-                "start",
-                "mdi:sun-clock-outline",
-                coordinator,
-            ),
-            AdaptiveCoverTimeSensorEntity(
-                config_entry.entry_id,
-                config_entry,
-                "End Sun",
-                "end",
-                "mdi:sun-clock",
-                coordinator,
-            ),
-            AdaptiveCoverControlSensorEntity(
+    sensors: list[_BaseAdaptiveCoverSensor] = [
+        AdaptiveCoverSensorEntity(config_entry.entry_id, config_entry, coordinator),
+        AdaptiveCoverTimeSensorEntity(
+            config_entry.entry_id,
+            config_entry,
+            "Start Sun",
+            "start",
+            "mdi:sun-clock-outline",
+            coordinator,
+        ),
+        AdaptiveCoverTimeSensorEntity(
+            config_entry.entry_id,
+            config_entry,
+            "End Sun",
+            "end",
+            "mdi:sun-clock",
+            coordinator,
+        ),
+        AdaptiveCoverControlSensorEntity(
+            config_entry.entry_id, config_entry, coordinator
+        ),
+    ]
+    if config_entry.options.get(CONF_CLIMATE_MODE):
+        sensors.append(
+            AdaptiveCoverClimateDebugSensor(
                 config_entry.entry_id, config_entry, coordinator
-            ),
-        ]
-    )
+            )
+        )
+    async_add_entities(sensors)
 
 
 class _BaseAdaptiveCoverSensor(
@@ -182,3 +188,34 @@ class AdaptiveCoverControlSensorEntity(_BaseAdaptiveCoverSensor):
     def native_value(self) -> str | None:
         """Return current control method."""
         return self.coordinator.data.states.get("control")
+
+
+class AdaptiveCoverClimateDebugSensor(_BaseAdaptiveCoverSensor):
+    """Diagnostic snapshot of every input behind the climate decision."""
+
+    _attr_translation_key = "climate_debug"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    # Its attributes change on every tick: keep it out of the recorder unless
+    # the user opts in while debugging.
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(
+        self,
+        unique_id: str,
+        config_entry: AdaptiveCoverConfigEntry,
+        coordinator: AdaptiveDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the climate debug sensor."""
+        super().__init__(unique_id, config_entry, coordinator)
+        self._attr_unique_id = f"{unique_id}_climate_debug"
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the active climate branch."""
+        debug = self.coordinator.data.climate_debug
+        return debug["active_branch"] if debug else None
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any] | None:
+        """Return the climate decision inputs."""
+        return self.coordinator.data.climate_debug

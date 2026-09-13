@@ -20,6 +20,7 @@ from .const import (
     CONF_IRRADIANCE_ENTITY,
     CONF_LUX_ENTITY,
     CONF_OUTSIDETEMP_ENTITY,
+    CONF_PRESENCE_ENTITY,
     CONF_SENSOR_TYPE,
     CONF_WEATHER_ENTITY,
     DOMAIN,
@@ -75,6 +76,17 @@ async def async_setup_entry(
                 ),
             ]
         )
+        if options.get(CONF_PRESENCE_ENTITY):
+            switches.append(
+                AdaptiveCoverSwitch(
+                    config_entry,
+                    config_entry.entry_id,
+                    "Security Mode",
+                    False,
+                    "security_toggle",
+                    coordinator,
+                )
+            )
 
     if options.get(CONF_CLIMATE_MODE):
         switches.append(
@@ -171,20 +183,25 @@ class AdaptiveCoverSwitch(
         """Apply the switch state to the coordinator and refresh."""
         _LOGGER.debug("Turning %s switch: %s", "on" if value else "off", self.name)
         self._attr_is_on = value
+        was_secured = (
+            self._key == "security_toggle" and self.coordinator.security_active
+        )
         setattr(self.coordinator, self._key, value)
         if self._key == "control_toggle" and not from_restore:
             if value:
-                for entity in self.coordinator.entities:
-                    if (
-                        not self.coordinator.manager.is_cover_manual(entity)
-                        and self.coordinator.check_adaptive_time
-                    ):
-                        await self.coordinator.service.set_position(
-                            entity, self.coordinator.state
-                        )
+                await self.coordinator.async_apply_target_now()
             else:
                 for entity in self.coordinator.manager.manual_controlled:
                     self.coordinator.manager.reset(entity)
+        elif (
+            self._key == "security_toggle"
+            and not from_restore
+            and self.coordinator.control_toggle
+            and was_secured != self.coordinator.security_active
+        ):
+            # Presence entities rarely change: without this the covers would
+            # only follow the new mode on the next sun.sun update.
+            await self.coordinator.async_apply_target_now()
         await self.coordinator.async_refresh()
         self.async_write_ha_state()
 

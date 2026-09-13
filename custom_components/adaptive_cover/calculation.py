@@ -11,7 +11,7 @@ from homeassistant.util import dt as dt_util
 from numpy import cos, sin, tan
 from numpy import radians as rad
 
-from .helpers import get_domain, get_safe_state, state_attr
+from .helpers import get_domain, get_safe_state, is_presence_detected, state_attr
 from .sun import SunData
 from .config_context_adapter import ConfigContextAdapter
 
@@ -286,19 +286,7 @@ class ClimateCoverData:
     @cached_property
     def is_presence(self):
         """Checks if people are present."""
-        presence = None
-        if self.presence_entity is not None:
-            presence = get_safe_state(self.hass, self.presence_entity)
-        # set to true if no sensor is defined
-        if presence is not None:
-            domain = get_domain(self.presence_entity)
-            if domain == "device_tracker":
-                return presence == "home"
-            if domain == "zone":
-                return int(presence) > 0
-            if domain in ["binary_sensor", "input_boolean"]:
-                return presence == "on"
-        return True
+        return is_presence_detected(self.hass, self.presence_entity)
 
     @cached_property
     def is_winter(self) -> bool:

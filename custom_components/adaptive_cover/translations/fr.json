@@ -513,6 +513,9 @@
       },
       "control": {
         "name": "Méthode de contrôle"
+      },
+      "climate_debug": {
+        "name": "Débogage climatique"
       }
     },
     "binary_sensor": {
@@ -541,6 +544,9 @@
       },
       "irradiance_toggle": {
         "name": "Irradiance"
+      },
+      "security_toggle": {
+        "name": "Mode sécurité"
       }
     },
     "button": {

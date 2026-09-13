@@ -21,6 +21,9 @@
           "winter": "mdi:snowflake",
           "summer": "mdi:heat-wave"
         }
+      },
+      "climate_debug": {
+        "default": "mdi:thermometer-lines"
       }
     },
     "switch": {
@@ -46,6 +49,12 @@
         "default": "mdi:sun-wireless-outline",
         "state": {
           "off": "mdi:sun-wireless"
+        }
+      },
+      "security_toggle": {
+        "default": "mdi:shield-home",
+        "state": {
+          "off": "mdi:shield-off-outline"
         }
       }
     }

@@ -11,10 +11,15 @@ naive-ness from the host.
 from __future__ import annotations
 
 import datetime as dt
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from zoneinfo import ZoneInfo
 
-from custom_components.adaptive_cover.helpers import get_datetime_from_str
+import pytest
+
+from custom_components.adaptive_cover.helpers import (
+    get_datetime_from_str,
+    is_presence_detected,
+)
 
 ROME = ZoneInfo("Europe/Rome")
 
@@ -62,3 +67,41 @@ def test_explicit_date_is_preserved():
         parsed = get_datetime_from_str("2026-12-25 07:30:00")
     assert parsed.date() == dt.date(2026, 12, 25)
     assert (parsed.hour, parsed.minute) == (7, 30)
+
+
+# ---------------------------------------------------------- is_presence_detected
+def _hass_with_state(state: str | None) -> MagicMock:
+    hass = MagicMock()
+    hass.states.get.return_value = None if state is None else MagicMock(state=state)
+    return hass
+
+
+@pytest.mark.parametrize(
+    ("entity_id", "state", "expected"),
+    [
+        ("device_tracker.phone", "home", True),
+        ("device_tracker.phone", "not_home", False),
+        ("zone.home", "2", True),
+        ("zone.home", "0", False),
+        ("binary_sensor.occupancy", "on", True),
+        ("binary_sensor.occupancy", "off", False),
+        ("input_boolean.guests", "on", True),
+        ("input_boolean.guests", "off", False),
+    ],
+)
+def test_presence_per_domain(entity_id, state, expected):
+    assert is_presence_detected(_hass_with_state(state), entity_id) is expected
+
+
+def test_presence_without_sensor_counts_as_present():
+    assert is_presence_detected(_hass_with_state("off"), None) is True
+
+
+@pytest.mark.parametrize("state", [None, "unknown", "unavailable"])
+def test_presence_unreadable_sensor_counts_as_present(state):
+    assert is_presence_detected(_hass_with_state(state), "binary_sensor.x") is True
+
+
+def test_presence_non_numeric_zone_count_does_not_raise():
+    """int() on the zone state used to raise ValueError and abort the tick."""
+    assert is_presence_detected(_hass_with_state("garbage"), "zone.home") is True

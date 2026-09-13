@@ -513,6 +513,9 @@
       },
       "control": {
         "name": "Método de control"
+      },
+      "climate_debug": {
+        "name": "Depuración climática"
       }
     },
     "binary_sensor": {
@@ -541,6 +544,9 @@
       },
       "irradiance_toggle": {
         "name": "Irradiancia"
+      },
+      "security_toggle": {
+        "name": "Modo seguridad"
       }
     },
     "button": {

@@ -513,6 +513,9 @@
       },
       "control": {
         "name": "Steuerungsmethode"
+      },
+      "climate_debug": {
+        "name": "Klima-Debug"
       }
     },
     "binary_sensor": {
@@ -541,6 +544,9 @@
       },
       "irradiance_toggle": {
         "name": "Sonneneinstrahlung"
+      },
+      "security_toggle": {
+        "name": "Sicherheitsmodus"
       }
     },
     "button": {

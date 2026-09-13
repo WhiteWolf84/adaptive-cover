@@ -37,6 +37,30 @@ def get_domain(entity: str | None) -> str | None:
     return domain
 
 
+def is_presence_detected(hass: HomeAssistant, entity_id: str | None) -> bool:
+    """Return True when someone is home according to `entity_id`.
+
+    No sensor, an unavailable sensor or an unreadable zone count all count as
+    present: an absent reading must never trigger away-only behaviour.
+    """
+    if entity_id is None:
+        return True
+    state = get_safe_state(hass, entity_id)
+    if state is None:
+        return True
+    domain = get_domain(entity_id)
+    if domain == "device_tracker":
+        return state == "home"
+    if domain == "zone":
+        try:
+            return int(state) > 0
+        except ValueError:
+            return True
+    if domain in ("binary_sensor", "input_boolean"):
+        return state == "on"
+    return True
+
+
 def get_datetime_from_str(string: str | None) -> dt.datetime | None:
     """Convert a time/datetime string to a Home Assistant local, aware datetime.
 
